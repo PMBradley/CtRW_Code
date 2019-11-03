@@ -148,6 +148,7 @@ public class MainControl {
 
             case STATE_PLACE_BLOCK:
              // I would call an auto sub routine to move the lift into position based ont the needed level
+             //
              // place the block and return to the lowered position.
              // I would then return back to move state and read flags
 
