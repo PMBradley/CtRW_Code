@@ -16,6 +16,8 @@ public class AutoOp_2019 extends LinearOpMode {
             // Maybe call the statemachine on loop here, we can can time here since you already extended linearopmode.
             // Loop should keep calling the statemachine until time is done.
 
+
+
             autoOp.run();
         }
     }

@@ -67,7 +67,10 @@ public class Robot2019 {
     WebcamName webcam = null;
 
 
-    public Robot2019(){ } // constructor
+    public Robot2019(){
+
+
+    } // constructor
 
     public void init(HardwareMap hMap){
         mainMap = hMap;

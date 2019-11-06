@@ -9,6 +9,10 @@ public class MainControl {
 
     //Key parameter variables
 
+    Motion         motion   = new Motion();
+
+
+
 
     public int INIT_FIELD_POS = 0; // Quad 1,2,3,4
     public int AUTO_RUNS_TOT = 3;
@@ -75,6 +79,8 @@ public class MainControl {
             // man_arm
 
 
+
+           // motion.manDrive();
         }
 
     }
@@ -98,6 +104,9 @@ public class MainControl {
               // get position on field
               // get first waypoint from navigation
               // check if Robot is stopped if not stop it
+
+
+
 
               if (AUTO_MODE_ACTIVE == true) { // Include other conditions in this statement
                   CURR_STATE = State.STATE_START;
