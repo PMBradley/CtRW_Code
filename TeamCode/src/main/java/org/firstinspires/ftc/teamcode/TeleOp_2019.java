@@ -6,14 +6,20 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name = "TeleOp_2019")
 public class TeleOp_2019 extends LinearOpMode {
 
+    MainControl         control   = new MainControl();
+
     @Override
     public void runOpMode() {
         waitForStart();
 
         OpModes teleOp = new OpModes("TeleOp");
+        // You can just set the manual mode flag and call the manual mode routine
+        control.AUTO_MODE_ACTIVE = false;
 
         while (opModeIsActive()){
-            // You can just set the manual mode flag and call the manual mode routine
+
+            control.manual_mode();
+
 
 
             teleOp.run();

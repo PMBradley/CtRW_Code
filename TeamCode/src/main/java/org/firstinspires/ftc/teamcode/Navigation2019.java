@@ -2,6 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 public class Navigation2019 {
 
+
+    /* Constructor */
+    public Navigation2019(){
+
+    }
+
     // Field dimensions
     private double FRAME_OFFSET = 7.0;
     private double FIELD_LENGTH = 11.75;
@@ -22,7 +28,7 @@ public class Navigation2019 {
     private double FRONT_LIDAR_DISTANCE = 0.0;
 
 
-    private double CURRENT_LOCATION[]; //W1, W2, W3, W4
+    public double CURRENT_LOCATION[]; //W1, W2, W3, W4
 
 
     // Get initial LIDAR distances

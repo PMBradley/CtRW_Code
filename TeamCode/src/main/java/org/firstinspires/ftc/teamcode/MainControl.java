@@ -10,8 +10,7 @@ public class MainControl {
     //Key parameter variables
 
     Motion         motion   = new Motion();
-
-
+    Navigation2019 navigation = new Navigation2019();
 
 
     public int INIT_FIELD_POS = 0; // Quad 1,2,3,4
@@ -46,14 +45,15 @@ public class MainControl {
     // State Steps
 
     public enum State{
-    STATE_INIT,
-        STATE_START,
-    STATE_MOVE_POS,
-        STATE_INTAKE_POS,
-    STATE_PLACE_BLOCK,
-    STATE_SEQ_COMPLETE,
-    STATE_STOP
 
+        // You need to define what your states are going to be called.
+        STATE_INIT,
+        STATE_START,
+        STATE_MOVE_POS,
+        STATE_INTAKE_POS,
+        STATE_PLACE_BLOCK,
+        STATE_SEQ_COMPLETE,
+        STATE_STOP
 
     }
 
@@ -66,8 +66,8 @@ public class MainControl {
     // If flag is manual mode do not call navigation routine
     // Check sensors and drive and set initialization ok flag
 
-
-    private void manual_mode(){
+// I would call manual mode from the TeleOp Opmode
+    public void manual_mode(){
 
         if (AUTO_MODE_ACTIVE == false){
 
@@ -76,11 +76,13 @@ public class MainControl {
             // man_drive
             // man_lift
             // man_grab
+            // man_intake
             // man_arm
 
+           motion.Drive(AUTO_MODE_ACTIVE);
 
 
-           // motion.manDrive();
+
         }
 
     }
@@ -91,7 +93,7 @@ public class MainControl {
 
     public State CURR_STATE = State.STATE_INIT;
 
-    private void StateStep() {
+    public void AutoStep() {
 
 
 
