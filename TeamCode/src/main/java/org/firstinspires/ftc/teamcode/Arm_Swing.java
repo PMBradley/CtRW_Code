@@ -1,6 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 public class Arm_Swing {
+    private  Robot2019 robot;
+    //Variables
+    public Arm_Swing(Robot2019 robot){
+        this.robot = robot;
+    }
+
+
     double armBaseRotation = 0.0;
     double wristRotation = 0.0;
     boolean armStopTriggerOpen = false;
