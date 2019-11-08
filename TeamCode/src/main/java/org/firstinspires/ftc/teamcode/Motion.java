@@ -62,15 +62,7 @@ public class Motion extends LinearOpMode {
 
                You also will have to decide if you want to use encoders here or just rely on the
                lidar sensors.
-
-
-
              */
-
-
-
-
-
         }
 
         if (AUTO_MODE_ACTIVE == false){
