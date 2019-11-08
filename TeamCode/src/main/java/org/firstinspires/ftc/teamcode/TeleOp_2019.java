@@ -12,7 +12,6 @@ public class TeleOp_2019 extends LinearOpMode {
     public void runOpMode() {
         waitForStart();
 
-        OpModes teleOp = new OpModes("TeleOp");
         // You can just set the manual mode flag and call the manual mode routine
         control.AUTO_MODE_ACTIVE = false;
 
@@ -22,7 +21,7 @@ public class TeleOp_2019 extends LinearOpMode {
 
 
 
-            teleOp.run();
+
         }
     }
 }

@@ -73,13 +73,9 @@ public class MainControl {
 
             // you can just call the other subroutines here and pass a mode flag
 
-            // man_drive
-            // man_lift
-            // man_grab
-            // man_intake
-            // man_arm
 
-           motion.Drive(AUTO_MODE_ACTIVE);
+
+
 
 
 
@@ -198,6 +194,8 @@ public class MainControl {
     }
 
 
-
+    public void Set_AutoMode(boolean mode){
+        AUTO_MODE_ACTIVE = mode;
+    }
 
 }

@@ -12,7 +12,7 @@ public class AutoOp_2019 extends LinearOpMode {
     public void runOpMode() {
         waitForStart();
 
-        OpModes autoOp = new OpModes("AutoOp");
+
         control.AUTO_MODE_ACTIVE = true;
 
         while (opModeIsActive()){
@@ -22,7 +22,6 @@ public class AutoOp_2019 extends LinearOpMode {
 
 
 
-            autoOp.run();
         }
     }
 }
