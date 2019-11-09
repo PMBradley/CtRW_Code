@@ -10,8 +10,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class MainControl extends LinearOpMode {
 
     //Key parameter variables
+
     Robot2019 robot = new Robot2019();
-   // HardwareMap hMap = ;
+    HardwareMap hMap = robot.mainMap;
 
 
     //Drive_Meccanum   meccanum = new Drive_Meccanum();
@@ -77,7 +78,7 @@ public class MainControl extends LinearOpMode {
 
 // I would call manual mode from the TeleOp Opmode
     public void manual_mode(){
-        robot.mainMap
+
 
         if (AUTO_MODE_ACTIVE == false){
             double stick1X;
@@ -213,7 +214,9 @@ public class MainControl extends LinearOpMode {
     public void Set_AutoMode(boolean mode){
         AUTO_MODE_ACTIVE = mode;
 
+        this.hardwareMap = hMap;
         robot.init(hardwareMap);
+        telemetry.addData("Say", "It's Droopy McCool Time!");
     }
 
 
