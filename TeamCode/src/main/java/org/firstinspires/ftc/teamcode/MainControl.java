@@ -12,7 +12,7 @@ public class MainControl extends LinearOpMode {
     //Key parameter variables
 
     Robot2019 robot = new Robot2019();
-    HardwareMap hMap = robot.mainMap;
+    //HardwareMap hMap = robot.mainMap;
 
 
     //Drive_Meccanum   meccanum = new Drive_Meccanum();
@@ -214,9 +214,8 @@ public class MainControl extends LinearOpMode {
     public void Set_AutoMode(boolean mode){
         AUTO_MODE_ACTIVE = mode;
 
-        this.hardwareMap = hMap;
-        robot.init(hardwareMap);
-        telemetry.addData("Say", "It's Droopy McCool Time!");
+
+
     }
 
 
