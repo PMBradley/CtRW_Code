@@ -11,11 +11,16 @@ public class MainControl extends LinearOpMode {
 
     //Key parameter variables
 
-    Robot2019 robot = new Robot2019();
+    //Robot2019 robot = new Robot2019();
     //HardwareMap hMap = robot.mainMap;
 
+    private Robot2019 robot;
+    public MainControl(Robot2019 robot)
+    {
+        this.robot = robot;
+    }
 
-    //Drive_Meccanum   meccanum = new Drive_Meccanum();
+    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
 
 
    // Lift_Linear          lift = new Lift_Linear();
@@ -86,7 +91,7 @@ public class MainControl extends LinearOpMode {
         if (AUTO_MODE_ACTIVE == false){
 
 
-
+            meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
 
 
 
@@ -209,7 +214,6 @@ public class MainControl extends LinearOpMode {
 
     public void Set_AutoMode(boolean mode){
         AUTO_MODE_ACTIVE = mode;
-
 
 
     }

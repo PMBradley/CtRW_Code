@@ -7,9 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name = "TeleOp_2019")
 public class TeleOp_2019 extends OpMode {
 
-    public MainControl control   = new MainControl();
+
 
     Robot2019 robot = new Robot2019();
+    MainControl control   = new MainControl(robot);
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
 
@@ -47,6 +48,8 @@ public class TeleOp_2019 extends OpMode {
         get_joysticks();
 
         // Manual subroutines
+
+        //control.manual_mode(-stick1Y, stick1X, -stick2X);
         meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
 
