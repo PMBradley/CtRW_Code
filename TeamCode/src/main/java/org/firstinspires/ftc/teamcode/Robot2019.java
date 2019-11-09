@@ -48,7 +48,7 @@ public class Robot2019 {
     public Servo armGrab = null;
 
     public DigitalChannel touchLift0 = null;
-    public DigitalChannel touchArm1 = null;
+   /* public DigitalChannel touchArm1 = null;
     public DigitalChannel touchBlock2 = null;
     public DigitalChannel touchFront3 = null;
     public DigitalChannel touchLeft4 = null;
@@ -59,12 +59,12 @@ public class Robot2019 {
     public DistanceSensor flightFront0 = null;
     public DistanceSensor flightLeft1 = null;
     public DistanceSensor flightRight2 = null;
-    public DistanceSensor flightBack3 = null;
+    public DistanceSensor flightBack3 = null;*/
 
     HardwareMap mainMap = null;
 
     //Vision variables
-    WebcamName webcam = null;
+   // WebcamName webcam = null;
 
 
     public Robot2019(){
@@ -86,7 +86,7 @@ public class Robot2019 {
 
         // Grabbing sensors from hardware map
         touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
-        touchArm1 = mainMap.get(DigitalChannel.class, "touchArm1");
+    /*    touchArm1 = mainMap.get(DigitalChannel.class, "touchArm1");
         touchBlock2 = mainMap.get(DigitalChannel.class, "touchBlock2");
         touchFront3 = mainMap.get(DigitalChannel.class, "touchFront3");
         touchLeft4 = mainMap.get(DigitalChannel.class, "touchLeft4");
@@ -105,7 +105,7 @@ public class Robot2019 {
         Rev2mDistanceSensor flight1 = (Rev2mDistanceSensor)flightLeft1;
         Rev2mDistanceSensor flight2 = (Rev2mDistanceSensor)flightRight2;
         Rev2mDistanceSensor flight3 = (Rev2mDistanceSensor)flightBack3;
-
+*/
 
     }
 }
