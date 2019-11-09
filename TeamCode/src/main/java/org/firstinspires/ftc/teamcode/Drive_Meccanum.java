@@ -4,12 +4,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Drive_Meccanum {
 
+
+  //  Robot2019 robot = new Robot2019();
+
     private Robot2019 robot;
+
 
     public Drive_Meccanum(Robot2019 robot)
     {
         this.robot = robot;
     }
+
+
 
     //Variables
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
@@ -25,10 +31,15 @@ public class Drive_Meccanum {
     public void init_motors(){
         // robot.init(hardwareMap);
         isInitilized = true;
+
+
         robot.driveBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.driveFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.driveFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.driveBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+
     }
 
     public void Drive_Vector()
@@ -39,14 +50,16 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Controler(double lStickX, double lStickY, double rStickX)
+    public void Drive_Controller(double lStickX, double lStickY, double rStickX)
     {
-        if(!isInitilized)
+       /* if(!isInitilized)
             init_motors();
-
+       */
         double magnitude = Math.hypot(lStickX, lStickY);
         double robotAngle = Math.atan2(lStickY, lStickX)- Math.PI/4;
         double rightX = rStickX;
+
+
 
         final double driveFLPwr = magnitude * Math.cos(robotAngle) + rightX;
         final double driveFRPwr = magnitude * Math.sin(robotAngle) - rightX;

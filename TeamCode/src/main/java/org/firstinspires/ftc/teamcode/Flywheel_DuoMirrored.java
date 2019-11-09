@@ -22,10 +22,15 @@ public class Flywheel_DuoMirrored {
         robot.motorIntakeL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void set_Power(double power){
+    public void set_Power(boolean intakeDirectionIn, boolean intakeDirectionOut){
 
+        int power = 0;
+        if(intakeDirectionIn)
+            power = 1;
+        else if(intakeDirectionOut)
+            power = -1;
         robot.motorIntakeL.setPower(power);
-        robot.motorIntakeL.setPower(-power);
+        robot.motorIntakeR.setPower(-power);
     }
 
 }

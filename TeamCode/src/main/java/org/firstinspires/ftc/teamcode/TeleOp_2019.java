@@ -9,9 +9,18 @@ public class TeleOp_2019 extends OpMode {
 
     public MainControl control   = new MainControl();
 
-    private Robot2019 robot;
+    Robot2019 robot = new Robot2019();
+    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
+    Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
 
-    public TeleOp_2019(Robot2019 robot) { this.robot = robot;}
+    double stick1X;
+    double stick1Y;
+    double stick2X;
+    boolean spinIntakeIn = false;
+    boolean spinIntakeOut = false;
+
+    // you can just call the other subroutines here and pass a mode flag
+
 
      // Code to run ONCE when the driver hits INIT
     public void init(){
@@ -21,8 +30,25 @@ public class TeleOp_2019 extends OpMode {
         telemetry.addData("Say", "It's Droopy McCool Time!");
     }
 
+    public void get_joysticks(){
+        stick1X =  gamepad1.left_stick_x;
+        stick1Y =  gamepad1.left_stick_y;
+        stick2X =  gamepad1.right_stick_x;
+        spinIntakeIn = gamepad1.right_bumper;
+        spinIntakeOut = gamepad1.left_bumper;
+
+        // Add other buttons
+
+    }
+
     public void loop(){
-        control.manual_mode();
+
+
+        get_joysticks();
+
+        // Manual subroutines
+        meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
+        flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
 
     }
 

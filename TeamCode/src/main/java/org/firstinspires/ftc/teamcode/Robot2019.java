@@ -75,17 +75,19 @@ public class Robot2019 {
     public void init(HardwareMap hMap){
         mainMap = hMap;
 
+
         // Grabbing motors from hardware map
         driveFL = mainMap.get(DcMotor.class, "driveFL");
         driveFR = mainMap.get(DcMotor.class, "driveFR");
         driveBL = mainMap.get(DcMotor.class, "driveBL");
         driveBR = mainMap.get(DcMotor.class, "driveBR");
         motorLift = mainMap.get(DcMotor.class, "motorLift");
-        motorIntakeL = mainMap.get(DcMotor.class, "motorIntakeL");
-        motorIntakeR = mainMap.get(DcMotor.class, "driveIntakeR");
+
+        motorIntakeL = mainMap.get(DcMotor.class, "intakeL");
+        motorIntakeR = mainMap.get(DcMotor.class, "intakeR");
 
         // Grabbing sensors from hardware map
-        touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
+       // touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
     /*    touchArm1 = mainMap.get(DigitalChannel.class, "touchArm1");
         touchBlock2 = mainMap.get(DigitalChannel.class, "touchBlock2");
         touchFront3 = mainMap.get(DigitalChannel.class, "touchFront3");

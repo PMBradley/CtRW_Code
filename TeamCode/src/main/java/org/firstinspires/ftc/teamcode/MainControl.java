@@ -17,7 +17,7 @@ public class MainControl extends LinearOpMode {
 
     //Drive_Meccanum   meccanum = new Drive_Meccanum();
 
-    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
+
    // Lift_Linear          lift = new Lift_Linear();
     Arm_Swing             arm = new Arm_Swing(robot);
     Navigation2019 navigation = new Navigation2019();
@@ -77,20 +77,16 @@ public class MainControl extends LinearOpMode {
     // Check sensors and drive and set initialization ok flag
 
 // I would call manual mode from the TeleOp Opmode
-    public void manual_mode(){
+
+
+
+    public void manual_mode(double stick1X, double stick1Y, double stick2X){
 
 
         if (AUTO_MODE_ACTIVE == false){
-            double stick1X;
-            double stick1Y;
-            double stick2X;
 
-            // you can just call the other subroutines here and pass a mode flag
-            stick1X =  gamepad1.left_stick_x;
-            stick1Y =  gamepad1.left_stick_y;
-            stick2X =  gamepad2.left_stick_x;
 
-            meccanum.Drive_Controler(stick1X, stick1Y, stick2X);
+
 
 
 
