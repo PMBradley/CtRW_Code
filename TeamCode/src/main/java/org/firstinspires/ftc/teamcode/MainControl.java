@@ -2,14 +2,22 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 
-public class MainControl {
+public class MainControl extends LinearOpMode {
 
     //Key parameter variables
+    Robot2019 robot = new Robot2019();
 
-    Motion         motion   = new Motion();
+
+
+    //Drive_Meccanum   meccanum = new Drive_Meccanum();
+
+    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
+   // Lift_Linear          lift = new Lift_Linear();
+    Arm_Swing             arm = new Arm_Swing(robot);
     Navigation2019 navigation = new Navigation2019();
 
 
@@ -73,7 +81,7 @@ public class MainControl {
 
             // you can just call the other subroutines here and pass a mode flag
 
-
+          //  meccanum.drive_Controller(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_y);
 
 
 
@@ -196,6 +204,11 @@ public class MainControl {
 
     public void Set_AutoMode(boolean mode){
         AUTO_MODE_ACTIVE = mode;
+
+
     }
 
+
+    @Override
+    public void runOpMode() { }
 }
