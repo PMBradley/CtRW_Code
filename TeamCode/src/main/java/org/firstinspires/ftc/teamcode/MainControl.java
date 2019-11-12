@@ -2,14 +2,29 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 
-public class MainControl {
+public class MainControl extends LinearOpMode {
 
     //Key parameter variables
 
-    Motion         motion   = new Motion();
+    //Robot2019 robot = new Robot2019();
+    //HardwareMap hMap = robot.mainMap;
+
+    private Robot2019 robot;
+    public MainControl(Robot2019 robot)
+    {
+        this.robot = robot;
+    }
+
+    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
+
+
+   // Lift_Linear          lift = new Lift_Linear();
+    Arm_Swing             arm = new Arm_Swing(robot);
     Navigation2019 navigation = new Navigation2019();
 
 
@@ -67,13 +82,16 @@ public class MainControl {
     // Check sensors and drive and set initialization ok flag
 
 // I would call manual mode from the TeleOp Opmode
-    public void manual_mode(){
+
+
+
+    public void manual_mode(double stick1X, double stick1Y, double stick2X){
+
 
         if (AUTO_MODE_ACTIVE == false){
 
-            // you can just call the other subroutines here and pass a mode flag
 
-
+            meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
 
 
 
@@ -196,6 +214,11 @@ public class MainControl {
 
     public void Set_AutoMode(boolean mode){
         AUTO_MODE_ACTIVE = mode;
+
+
     }
 
+
+    @Override
+    public void runOpMode() { }
 }
