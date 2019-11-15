@@ -13,10 +13,13 @@ public class TeleOp_2019 extends OpMode {
     MainControl control   = new MainControl(robot);
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
+    Lift_Linear lift = new Lift_Linear(robot);
 
     double stick1X;
     double stick1Y;
     double stick2X;
+    double rtrigger;
+    double ltrigger;
     boolean spinIntakeIn = false;
     boolean spinIntakeOut = false;
 
@@ -37,6 +40,8 @@ public class TeleOp_2019 extends OpMode {
         stick2X =  gamepad1.right_stick_x;
         spinIntakeIn = gamepad1.right_bumper;
         spinIntakeOut = gamepad1.left_bumper;
+        rtrigger = gamepad2.right_trigger;
+        ltrigger = gamepad2.left_trigger;
 
         // Add other buttons
 
@@ -52,6 +57,8 @@ public class TeleOp_2019 extends OpMode {
         //control.manual_mode(-stick1Y, stick1X, -stick2X);
         meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+        lift.move_Linear(rtrigger , ltrigger);
+
 
     }
 

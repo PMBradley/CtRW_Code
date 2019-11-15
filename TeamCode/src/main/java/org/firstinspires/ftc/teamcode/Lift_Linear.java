@@ -3,15 +3,20 @@ package org.firstinspires.ftc.teamcode;
 public class Lift_Linear {
     Robot2019 robot;
 
-    void move_Linear(double linearPower)
+    public Lift_Linear(Robot2019 robot)
     {
-        if (robot.touchLift0.getState()) {
-            if(linearPower < 0) {
-                robot.motorLift.setPower(0);
-            }
+        this.robot = robot;
+    }
+    void move_Linear(double rpower, double lpower)
+    {
+        if (rpower>0)
+        {
+            robot.motorLift.setPower(rpower);
         }
-        else{
-            robot.motorLift.setPower(linearPower);
+        else if (lpower>0)
+        {
+            lpower = lpower * -1.0;
+            robot.motorLift.setPower(lpower);
         }
     }
 }
