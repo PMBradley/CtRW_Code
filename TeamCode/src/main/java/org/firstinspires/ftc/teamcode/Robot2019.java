@@ -85,6 +85,8 @@ public class Robot2019 {
 
         motorIntakeL = mainMap.get(DcMotor.class, "intakeL");
         motorIntakeR = mainMap.get(DcMotor.class, "intakeR");
+        armPivot = mainMap.get(Servo.class, "armPivot");
+        armGrab = mainMap.get(Servo.class, "armGrab");
 
         // Grabbing sensors from hardware map
        // touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
