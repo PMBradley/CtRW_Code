@@ -13,6 +13,9 @@ public class Flywheel_DuoMirrored {
 
 
     boolean isInitilized = false;
+    double rampUpPosition = 0.18;
+    double rampDownPosition = 0.0;
+    double rampPosition = 0.0;
 
 
     public void init_motors(){
@@ -31,6 +34,17 @@ public class Flywheel_DuoMirrored {
             power = -1;
         robot.motorIntakeL.setPower(power);
         robot.motorIntakeR.setPower(-power);
+    }
+
+    public void set_Ramp_Position(boolean rampDirectionUp, boolean rampDirectionDown){
+
+        if(rampDirectionUp)
+            rampPosition = rampUpPosition;
+        else if(rampDirectionDown)
+            rampPosition = rampDownPosition;
+        robot.intakeRamp.setPosition(rampPosition);
+
+
     }
 
 }

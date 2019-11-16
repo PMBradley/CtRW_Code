@@ -21,10 +21,12 @@ public class TeleOp_2019 extends OpMode {
     double stick2X;
     double rtrigger;
     double ltrigger;
-    boolean spinIntakeIn = false;
-    boolean spinIntakeOut = false;
     boolean armSwingIn = false;
     boolean armSwingOut = false;
+    boolean rampUpBtn;
+    boolean rampDownBtn;
+    boolean spinIntakeIn = false;
+    boolean spinIntakeOut = false;
     boolean clampRelease = false;
     boolean clampClose = false;
     boolean clampAction = false;
@@ -46,10 +48,12 @@ public class TeleOp_2019 extends OpMode {
         stick2X =  gamepad1.right_stick_x;
         spinIntakeIn = gamepad1.right_bumper;
         spinIntakeOut = gamepad1.left_bumper;
+        rampUpBtn = gamepad1.a;
+        rampDownBtn = gamepad1.b;
         rtrigger = gamepad2.right_trigger;
         ltrigger = gamepad2.left_trigger;
-        armSwingIn = gamepad2.right_bumper;
-        armSwingOut = gamepad2.left_bumper;
+        armSwingIn = gamepad2.left_bumper;
+        armSwingOut = gamepad2.right_bumper;
         //clampRelease = gamepad2.dpad_up;
         //clampClose = gamepad2.dpad_down;
         clampAction = gamepad2.x;
@@ -68,6 +72,7 @@ public class TeleOp_2019 extends OpMode {
         //control.manual_mode(-stick1Y, stick1X, -stick2X);
         meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+        flyIntake.set_Ramp_Position(rampUpBtn, rampDownBtn);
         lift.move_Linear(rtrigger , ltrigger);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
         arm_swing.set_clamp_position(clampAction);

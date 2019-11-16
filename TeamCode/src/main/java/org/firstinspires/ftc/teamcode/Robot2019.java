@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -46,6 +47,7 @@ public class Robot2019 {
 
     public Servo armPivot = null;
     public Servo armGrab = null;
+    public Servo intakeRamp = null;
 
     public DigitalChannel touchLift0 = null;
    /* public DigitalChannel touchArm1 = null;
@@ -87,6 +89,7 @@ public class Robot2019 {
         motorIntakeR = mainMap.get(DcMotor.class, "intakeR");
         armPivot = mainMap.get(Servo.class, "armPivot");
         armGrab = mainMap.get(Servo.class, "armGrab");
+        intakeRamp = mainMap.get(Servo.class, "intakeRamp");
 
         // Grabbing sensors from hardware map
        // touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
