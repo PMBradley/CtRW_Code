@@ -27,6 +27,7 @@ public class TeleOp_2019 extends OpMode {
     boolean armSwingOut = false;
     boolean clampRelease = false;
     boolean clampClose = false;
+    boolean clampAction = false;
 
     // you can just call the other subroutines here and pass a mode flag
 
@@ -47,10 +48,11 @@ public class TeleOp_2019 extends OpMode {
         spinIntakeOut = gamepad1.left_bumper;
         rtrigger = gamepad2.right_trigger;
         ltrigger = gamepad2.left_trigger;
-        armSwingIn = gamepad2.left_bumper;
-        armSwingOut = gamepad2.right_bumper;
-        clampRelease = gamepad2.dpad_up;
-        clampClose = gamepad2.dpad_down;
+        armSwingIn = gamepad2.right_bumper;
+        armSwingOut = gamepad2.left_bumper;
+        //clampRelease = gamepad2.dpad_up;
+        //clampClose = gamepad2.dpad_down;
+        clampAction = gamepad2.x;
 
         // Add other buttons
 
@@ -68,7 +70,7 @@ public class TeleOp_2019 extends OpMode {
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Linear(rtrigger , ltrigger);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
-        arm_swing.set_clamp_position(clampRelease, clampClose);
+        arm_swing.set_clamp_position(clampAction);
 
     }
 

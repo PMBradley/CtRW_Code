@@ -11,32 +11,41 @@ public class Arm_Swing {
     double armBaseRotation = 0.0;
     double armOpenPosition = 1.0;
     double armClosedPosition = 0.0;
-    double clampReleasePosition = 1.0;
+    double clampReleasePosition = 0.0;
     double clampClosePosition = 0.0;
     double wristRotation = 0.0;
     boolean armStopTriggerOpen = false;
     boolean armStopTriggerClose = false;
-
+    double armDirection = 1.0;
+    double clampDirection = 1.0;
+    boolean clampIsClosed = true;
 
 
     public void set_arm_position(boolean armDirectionIn, boolean armDirectionOut){
 
-        double direction = 0.0;
+
         if(armDirectionIn)
-            direction = armClosedPosition;
+            armDirection = armClosedPosition;
         else if(armDirectionOut)
-            direction = armOpenPosition;
-        robot.armPivot.setPosition(direction);
+            armDirection = armOpenPosition;
+        robot.armPivot.setPosition(armDirection);
 
     }
-    public void set_clamp_position(boolean clampDirectionRelease, boolean clampDirectionClose){
+    public void set_clamp_position(boolean clampAction){
 
-        double direction = 0.0;
-        if(clampDirectionRelease)
-            direction = clampReleasePosition;
-        else if(clampDirectionClose)
-            direction = clampClosePosition;
-        robot.armGrab.setPosition(direction);
+
+        if((clampAction)&& (clampIsClosed == false))
+            clampDirection = clampClosePosition;
+            clampIsClosed = true;
+
+
+
+        if((clampAction)&& (clampIsClosed))
+            clampDirection = clampReleasePosition;
+            clampIsClosed = false;
+
+
+        robot.armGrab.setPosition(clampDirection);
 
     }
 
