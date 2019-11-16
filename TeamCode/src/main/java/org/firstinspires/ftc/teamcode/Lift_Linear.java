@@ -11,11 +11,11 @@ public class Lift_Linear {
     {
         if (rpower>0)
         {
+            rpower = -rpower;
             robot.motorLift.setPower(rpower);
         }
         else if (lpower>0)
         {
-            lpower = lpower * -1.0;
             robot.motorLift.setPower(lpower);
         }
     }
