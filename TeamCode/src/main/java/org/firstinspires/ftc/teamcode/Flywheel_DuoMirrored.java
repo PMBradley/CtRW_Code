@@ -13,9 +13,9 @@ public class Flywheel_DuoMirrored {
 
 
     boolean isInitilized = false;
-    double rampUpPosition = 0.7;
+    double rampUpPosition = 0.5;
     double rampDownPosition = 1.0;
-    double rampPosition = 0.0;
+    double rampPosition = 0.8;
 
 
     public void init_motors(){

@@ -20,12 +20,15 @@ public class MainControl extends LinearOpMode {
         this.robot = robot;
     }
 
-    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
+
 
 
    // Lift_Linear          lift = new Lift_Linear();
-    Arm_Swing             arm = new Arm_Swing(robot);
+   Arm_Swing arm_swing = new Arm_Swing(robot);
     Navigation2019 navigation = new Navigation2019();
+    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
+    Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
+    Lift_Linear lift = new Lift_Linear(robot);
 
 
     public int INIT_FIELD_POS = 0; // Quad 1,2,3,4
@@ -33,6 +36,21 @@ public class MainControl extends LinearOpMode {
     public int CURR_RUN_TOT =0;
 
 
+    //Joystick Variables
+    double stick1X;
+    double stick1Y;
+    double stick2X;
+    double rtrigger;
+    double ltrigger;
+    boolean armSwingIn = false;
+    boolean armSwingOut = false;
+    boolean rampUpBtn;
+    boolean rampDownBtn;
+    boolean spinIntakeIn = false;
+    boolean spinIntakeOut = false;
+    boolean clampRelease = false;
+    boolean clampClose = false;
+    boolean clampAction = false;
 
     // Startup flags
     public boolean ROBOT_DEAD_STOP = false;
@@ -85,15 +103,18 @@ public class MainControl extends LinearOpMode {
 
 
 
-    public void manual_mode(double stick1X, double stick1Y, double stick2X){
+    public void manual_mode(){
 
 
         if (AUTO_MODE_ACTIVE == false){
 
-
+            get_joysticks();
             meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
-
-
+            flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+            flyIntake.set_Ramp_Position(rampUpBtn, rampDownBtn);
+            lift.move_Linear(rtrigger , ltrigger);
+            arm_swing.set_arm_position(armSwingIn, armSwingOut);
+            arm_swing.set_clamp_position(clampAction);
 
 
 
