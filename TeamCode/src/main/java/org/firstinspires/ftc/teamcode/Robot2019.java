@@ -69,9 +69,9 @@ public class Robot2019 {
    // WebcamName webcam = null;
 
 
-    double gp1_stick1X = 0.0;
-    double gp1_stick1Y =  0.0;
-    double gp1_stick2X =  0.0;
+    double gp1_lstickX = 0.0;
+    double gp1_lstickY =  0.0;
+    double gp1_rstickX =  0.0;
     boolean gp1_rbumper = false;
     boolean gp1_lbumper = false;
     boolean gp1_a = false;

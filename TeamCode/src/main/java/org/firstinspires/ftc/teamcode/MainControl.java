@@ -101,6 +101,9 @@ public class MainControl extends LinearOpMode {
 
 // I would call manual mode from the TeleOp Opmode
 
+    public void controlInit(Robot2019 robot){
+        this.robot = robot;
+    }
 
 
     public void manual_mode(){
@@ -108,13 +111,13 @@ public class MainControl extends LinearOpMode {
 
         if (AUTO_MODE_ACTIVE == false){
 
-            get_joysticks();
-            meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
-            flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
-            flyIntake.set_Ramp_Position(rampUpBtn, rampDownBtn);
-            lift.move_Linear(rtrigger , ltrigger);
-            arm_swing.set_arm_position(armSwingIn, armSwingOut);
-            arm_swing.set_clamp_position(clampAction);
+
+            meccanum.Drive_Controller(-robot.gp1_lstickY, robot.gp1_lstickX, -robot.gp1_rstickX);
+            flyIntake.set_Power(robot.gp2_lbumper, robot.gp2_rbumper);
+            //flyIntake.set_Ramp_Position(rampUpBtn, rampDownBtn);
+            lift.move_Linear(robot.gp2_rtrigger , robot.gp2_ltrigger);
+            arm_swing.set_arm_position(robot.gp1_lbumper, robot.gp1_rbumper);
+            arm_swing.set_clamp_position(robot.gp2_x);
 
 
 
