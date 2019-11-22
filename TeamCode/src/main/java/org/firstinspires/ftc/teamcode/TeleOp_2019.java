@@ -39,7 +39,7 @@ public class TeleOp_2019 extends OpMode {
     public void init(){
         // You can just set the manual mode flag and call the manual mode routine
         control.Set_AutoMode(false); // disables autonomous mode and initializes all auto
-        
+
         robot.init(hardwareMap);
         control.controlInit(robot);
         telemetry.addData("Say", "It's Droopy McCool Time!");

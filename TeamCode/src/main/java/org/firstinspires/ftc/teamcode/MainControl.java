@@ -4,10 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
 
-public class MainControl extends LinearOpMode {
+public class MainControl extends OpMode {
 
     //Key parameter variables
 
@@ -101,10 +103,13 @@ public class MainControl extends LinearOpMode {
 
 // I would call manual mode from the TeleOp Opmode
 
-    public void controlInit(Robot2019 robot){
-        this.robot = robot;
+    public void init(){
+
     }
 
+    public void loop(){
+
+    }
 
     public void manual_mode(){
 
@@ -243,6 +248,6 @@ public class MainControl extends LinearOpMode {
     }
 
 
-    @Override
-    public void runOpMode() { }
+
+    //public void runOpMode() { }
 }
