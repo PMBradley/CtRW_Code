@@ -6,27 +6,32 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-
+@TeleOp(name = "MainControl")
 public class MainControl extends OpMode {
 
     //Key parameter variables
 
-    //Robot2019 robot = new Robot2019();
+
     //HardwareMap hMap = robot.mainMap;
 
-    private Robot2019 robot;
-    public MainControl(Robot2019 robot)
+    private Robot2019 robot = new Robot2019();
+    private ElapsedTime runtime  = new ElapsedTime();
+
+
+  /* public MainControl(Robot2019 robot)
     {
         this.robot = robot;
     }
+  */
 
 
 
 
-   // Lift_Linear          lift = new Lift_Linear();
-   Arm_Swing arm_swing = new Arm_Swing(robot);
+
+    Arm_Swing arm_swing = new Arm_Swing(robot);
     Navigation2019 navigation = new Navigation2019();
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
@@ -35,11 +40,12 @@ public class MainControl extends OpMode {
 
     public int INIT_FIELD_POS = 0; // Quad 1,2,3,4
     public int AUTO_RUNS_TOT = 3;
-    public int CURR_RUN_TOT =0;
+    public int CURR_RUN_TOT = 0;
 
+    public int MODE_CHOICE_TIME = 3000;
 
     //Joystick Variables
-    double stick1X;
+   /* double stick1X;
     double stick1Y;
     double stick2X;
     double rtrigger;
@@ -53,14 +59,16 @@ public class MainControl extends OpMode {
     boolean clampRelease = false;
     boolean clampClose = false;
     boolean clampAction = false;
+   */
 
     // Startup flags
+    public boolean LOOP_FIRST_RUN = true; // used to indicate if it is the first run of the main loop
     public boolean ROBOT_DEAD_STOP = false;
     public boolean SENSORS_READY = false;
     public boolean DRIVE_READY = false;
     public boolean INIT_COMPLETE = false;
     public boolean INIT_FAIL = false;
-    public boolean AUTO_MODE_ACTIVE = false;
+    public boolean AUTO_MODE_ACTIVE = true; // assumes autonomous until given an input
 
 
 
@@ -104,29 +112,69 @@ public class MainControl extends OpMode {
 // I would call manual mode from the TeleOp Opmode
 
     public void init(){
+        robot.init(hardwareMap);
+        runtime.reset();
 
+        telemetry.addData("Say", "It's Droopy McCool Time!");
     }
 
     public void loop(){
+        updateControls();
+
+        if(LOOP_FIRST_RUN){
+            runtime.reset();
+
+            LOOP_FIRST_RUN = false;
+        }
+
+        if(robot.gp1_b == true){
+            AUTO_MODE_ACTIVE = false;
+        }
+
+        //manual_mode();
+
+        if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
+            if(AUTO_MODE_ACTIVE){ // if auto-op
+                //AutoStep();
+                telemetry.addData("Mode","Auto");
+            }
+            else { // if tele-op
+                manual_mode();
+                telemetry.addData("Mode","Tele");
+            }
+        }
+
+
+
 
     }
 
+    boolean clampRelease = true;
     public void manual_mode(){
+        //if (AUTO_MODE_ACTIVE == false){
+            double drivePowerY = robot.gp1_lstickY;
+            double drivePowerX = robot.gp1_lstickX;
+            double drivePowerR = robot.gp1_lstickY;
+            double liftPowerL = robot.gp2_ltrigger;
+            double liftPowerR = robot.gp2_rtrigger;
+            boolean armSwingIn = robot.gp1_lbumper;
+            boolean armSwingOut = robot.gp1_rbumper;
+            boolean spinIntakeIn = robot.gp2_lbumper;
+            boolean spinIntakeOut = robot.gp2_rbumper;
+            if(robot.gp2_x){
+                clampRelease = !clampRelease;
+            }
 
 
-        if (AUTO_MODE_ACTIVE == false){
-
-
-            meccanum.Drive_Controller(-robot.gp1_lstickY, robot.gp1_lstickX, -robot.gp1_rstickX);
-            flyIntake.set_Power(robot.gp2_lbumper, robot.gp2_rbumper);
-            //flyIntake.set_Ramp_Position(rampUpBtn, rampDownBtn);
-            lift.move_Linear(robot.gp2_rtrigger , robot.gp2_ltrigger);
-            arm_swing.set_arm_position(robot.gp1_lbumper, robot.gp1_rbumper);
-            arm_swing.set_clamp_position(robot.gp2_x);
+            meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
+            flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+            lift.move_Controller(liftPowerR , liftPowerL);
+            arm_swing.set_arm_position(armSwingIn, armSwingOut);
+            arm_swing.set_clamp_position(clampRelease);
 
 
 
-        }
+     //   }
 
     }
 
@@ -247,7 +295,25 @@ public class MainControl extends OpMode {
 
     }
 
+    public void updateControls(){
+        robot.gp1_lstickX =  gamepad1.left_stick_x;
+        robot.gp1_lstickY =  gamepad1.left_stick_y;
+        robot.gp1_rstickX =  gamepad1.right_stick_x;
+        robot.gp1_rbumper = gamepad1.right_bumper;
+        robot.gp1_lbumper = gamepad1.left_bumper;
+        robot.gp1_a = gamepad1.a;
+        robot.gp1_b = gamepad1.b;
+        robot.gp2_rtrigger = gamepad2.right_trigger;
+        robot.gp2_ltrigger = gamepad2.left_trigger;
+        robot.gp2_lbumper = gamepad2.left_bumper;
+        robot.gp2_rbumper = gamepad2.right_bumper;
+        //clampRelease = gamepad2.dpad_up;
+        //clampClose = gamepad2.dpad_down;
+        robot.gp2_x = gamepad2.x;
 
+        // Add other buttons
+
+    }
 
     //public void runOpMode() { }
 }

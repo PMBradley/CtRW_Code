@@ -50,7 +50,7 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Controller(double lStickX, double lStickY, double rStickX)
+    public void drive_Controller(double lStickX, double lStickY, double rStickX)
     {
        /* if(!isInitilized)
             init_motors();

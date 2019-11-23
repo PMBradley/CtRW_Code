@@ -19,7 +19,7 @@ public class Arm_Swing {
     double armDirection = 1.0;
     double lastArmDirection = 1.0;
     double clampDirection = 1.0;
-    boolean clampIsClosed = true;
+    public boolean clampIsClosed = true;
 
 
 
@@ -38,7 +38,7 @@ public class Arm_Swing {
 
 
     }
-    public void set_clamp_position(boolean clampAction){
+    public void toggle_clamp_position(boolean clampAction){ // toggles the clamp position if a 1
 
 
         if((clampAction)&& (clampIsClosed == false)) {
@@ -56,5 +56,17 @@ public class Arm_Swing {
         robot.armGrab.setPosition(clampDirection);
 
     }
+
+    public void set_clamp_position(boolean clampRelease){
+        if(clampRelease){
+            clampDirection = clampReleasePosition;
+        }
+        else {
+            clampDirection = clampClosePosition;
+        }
+
+        robot.armGrab.setPosition(clampDirection);
+    }
+
 
 }

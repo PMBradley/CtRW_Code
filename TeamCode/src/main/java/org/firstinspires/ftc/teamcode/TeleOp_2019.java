@@ -1,16 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "TeleOp_2019")
+@Disabled
 public class TeleOp_2019 extends OpMode {
 
 
 
     Robot2019 robot = new Robot2019();
-    MainControl control   = new MainControl(robot);
+   // MainControl control   = new MainControl(robot);
 
 //    Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
 //    Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
@@ -38,10 +40,10 @@ public class TeleOp_2019 extends OpMode {
      // Code to run ONCE when the driver hits INIT
     public void init(){
         // You can just set the manual mode flag and call the manual mode routine
-        control.Set_AutoMode(false); // disables autonomous mode and initializes all auto
+        //control.Set_AutoMode(false); // disables autonomous mode and initializes all auto
 
         robot.init(hardwareMap);
-        control.controlInit(robot);
+      //  control.controlInit(robot);
         telemetry.addData("Say", "It's Droopy McCool Time!");
     }
 
@@ -72,8 +74,8 @@ public class TeleOp_2019 extends OpMode {
 
         // Manual subroutines
 
-        control.AUTO_MODE_ACTIVE = false;
-        control.manual_mode();
+      //  control.AUTO_MODE_ACTIVE = false;
+        //control.manual_mode();
 
         //control.manual_mode(-stick1Y, stick1X, -stick2X);
 //        meccanum.Drive_Controller(-stick1Y, stick1X, -stick2X);
