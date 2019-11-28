@@ -87,7 +87,7 @@ public class MainControl extends OpMode {
 
     // State Steps
 
-    public enum State{
+    /*public enum State{
 
         // You need to define what your states are going to be called.
         STATE_INIT,
@@ -98,7 +98,7 @@ public class MainControl extends OpMode {
         STATE_SEQ_COMPLETE,
         STATE_STOP
 
-    }
+    }*/
 
 
 
@@ -149,7 +149,28 @@ public class MainControl extends OpMode {
 
     }
 
+    // Manual Semi-auto Flag Variables
     boolean clampRelease = true;
+    boolean autoIntake = false;
+    boolean autoBlockUp = false;
+    boolean autoBlockDown = false;
+
+    public enum State{
+        IDLE,
+        STATE_0,
+        STATE_1,
+        STATE_2,
+        STATE_3,
+        STATE_4,
+        STATE_5,
+        STATE_6,
+        STATE_7,
+    }
+
+    State intakeState = State.IDLE;
+    State blockUpState = State.IDLE;
+    State blockDownState = State.IDLE;
+
     public void manual_mode(){
         //if (AUTO_MODE_ACTIVE == false){
             double drivePowerY = robot.gp1_lstickY;
@@ -161,8 +182,34 @@ public class MainControl extends OpMode {
             boolean armSwingOut = robot.gp1_rbumper;
             boolean spinIntakeIn = robot.gp2_lbumper;
             boolean spinIntakeOut = robot.gp2_rbumper;
-            if(robot.gp2_x){
+
+            //Toggles
+            if(robot.gp2_x){// toggling the clamp
                 clampRelease = !clampRelease;
+            }
+
+
+            //Semi-Auto
+            if(autoIntake){
+                switch (intakeState){
+                    case IDLE:
+                        spinIntakeIn = false;
+                        spinIntakeOut = false;
+                        clampRelease = false;
+
+                        autoIntake = false;
+                        intakeState = State.STATE_0;
+                        break;
+                    case STATE_0:
+                        spinIntakeIn = true; // state actions
+                        spinIntakeOut = false;
+                        clampRelease = true;
+
+                        if(robot.touchBlock2.getState() == true){ // continue conditions
+                            intakeState = State.IDLE;
+                        }
+                        break;
+                }
             }
 
 
@@ -182,16 +229,16 @@ public class MainControl extends OpMode {
     // State machine code
 
 
-    public State CURR_STATE = State.STATE_INIT;
+   // public State CURR_STATE = State.STATE_INIT;
 
     public void AutoStep() {
 
 
+/*
+     //   switch(CURR_STATE){
 
-        switch(CURR_STATE){
 
-
-            case STATE_INIT:
+          //  case STATE_INIT:
               // call subroutine to move lift to initial position
               // may want to check to see if all your sensors are ok also
               // get position on field
@@ -283,7 +330,7 @@ public class MainControl extends OpMode {
         }
 
 
-
+*/
 
 
     }
