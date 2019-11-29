@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import java.util.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -85,21 +86,6 @@ public class MainControl extends OpMode {
     public double LIFT_LEVEL = 0.0;
 
 
-    // State Steps
-
-    /*public enum State{
-
-        // You need to define what your states are going to be called.
-        STATE_INIT,
-        STATE_START,
-        STATE_MOVE_POS,
-        STATE_INTAKE_POS,
-        STATE_PLACE_BLOCK,
-        STATE_SEQ_COMPLETE,
-        STATE_STOP
-
-    }*/
-
 
 
     // Startup initialization
@@ -168,8 +154,21 @@ public class MainControl extends OpMode {
     }
 
     State intakeState = State.IDLE;
+    private int[] inStepTimes = {10_000};// Fail safe progression times for each step of the Intake State Machine
+    boolean inStateFirstRun = true;
+    int inStateTargetTime = 0;
+
     State blockUpState = State.IDLE;
+    private int[] upStepTimes = {4_000, 2_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    boolean upStateFirstRun = true;
+    int upStateTargetTime = 0;
+
     State blockDownState = State.IDLE;
+    private int[] downStepTimes = {2_000, 4_000};// Fail safe progression times for each step of the Downward Transfer State Machine
+    boolean downStateFirstRun = true;
+    int downStateTargetTime = 0;
+
+
 
     public void manual_mode(){
         //if (AUTO_MODE_ACTIVE == false){
@@ -201,16 +200,110 @@ public class MainControl extends OpMode {
                         intakeState = State.STATE_0;
                         break;
                     case STATE_0:
+                        if(inStateFirstRun){
+                            inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[0]; // sets target fail safe time for this step
+
+                            inStateFirstRun = false;
+                        }
                         spinIntakeIn = true; // state actions
                         spinIntakeOut = false;
                         clampRelease = true;
 
-                        if(robot.touchBlock2.getState() == true){ // continue conditions
+                        if(robot.touchBlock2.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
                             intakeState = State.IDLE;
+                            inStateFirstRun = true;
                         }
                         break;
                 }
             }
+
+            if(autoBlockUp){
+                switch (blockUpState){
+                    case IDLE:
+                        armSwingIn = false; // stop arm
+                        armSwingOut = false;
+
+                        autoBlockUp = false;
+                        blockUpState = State.STATE_0;
+                        break;
+                    case STATE_0:
+                        if(upStateFirstRun){
+                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[0]; // sets target fail safe time for this step
+
+                            upStateFirstRun = false;
+                        }
+                        liftPowerL = 1; // move lift up
+                        liftPowerR = 0;
+
+                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
+                            blockUpState = State.STATE_1;
+                            upStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_1:
+                        if(upStateFirstRun){
+                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[1]; // sets target fail safe time for this step
+
+                            upStateFirstRun = false;
+                        }
+                        liftPowerL = 0; // stop lift
+                        liftPowerR = 0;
+
+                        armSwingIn = false; // move arm out
+                        armSwingOut = true;
+
+                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
+                            blockUpState = State.IDLE;
+                            upStateFirstRun = true;
+                        }
+                        break;
+                }
+            }
+
+        if(autoBlockDown){
+            switch (blockDownState){
+                case IDLE:
+                    liftPowerL = 0; // stop lift
+                    liftPowerR = 0;
+
+                    autoBlockDown = false;
+                    blockDownState = State.STATE_0;
+                    break;
+                case STATE_0:
+                    if(upStateFirstRun){
+                        downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[0]; // sets target fail safe time for this step
+
+                        downStateFirstRun = false;
+                    }
+                    armSwingIn = true; // swing arm in
+                    armSwingOut = false;
+
+                    if(excedesTime(downStateTargetTime)){ // continue conditions (including failsafe times
+                        blockDownState = State.STATE_1;
+                        downStateFirstRun = true;
+                    }
+                    break;
+                case STATE_1:
+                    if(upStateFirstRun){
+                        downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[1]; // sets target fail safe time for this step
+
+                        downStateFirstRun = false;
+                    }
+                    armSwingIn = false; // stop arm
+                    armSwingOut = false;
+
+                    liftPowerL = 0; // move lift down
+                    liftPowerR = 1;
+
+
+                    if(excedesTime(downStateTargetTime)){ // continue conditions (including failsafe times
+                        blockDownState = State.IDLE;
+                        downStateFirstRun = true;
+                    }
+                    break;
+            }
+        }
+
 
 
             meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
@@ -336,6 +429,7 @@ public class MainControl extends OpMode {
     }
 
 
+    // Utility Functions
     public void Set_AutoMode(boolean mode){
         AUTO_MODE_ACTIVE = mode;
 
@@ -362,5 +456,12 @@ public class MainControl extends OpMode {
 
     }
 
+    boolean excedesTime(int inTargetTime){  // Takes in a time a returns true if the current time is greater than the input time, if not, it ouptputs false
+        boolean output = false;
+        if(runtime.milliseconds() > inTargetTime){
+            output = true;
+        }
+        return (output);
+    }
     //public void runOpMode() { }
 }
