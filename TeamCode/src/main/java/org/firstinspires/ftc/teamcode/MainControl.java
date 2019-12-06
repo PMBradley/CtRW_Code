@@ -37,7 +37,8 @@ public class MainControl extends OpMode {
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
     Lift_Linear lift = new Lift_Linear(robot);
-
+    DropServo_DuoMirrored intakeDrop = new DropServo_DuoMirrored(robot, robot.intakeDropL, robot.intakeDropR);
+    DropServo_DuoMirrored pullerDrop = new DropServo_DuoMirrored(robot, robot.pullerDropL, robot.pullerDropR);
 
     public int INIT_FIELD_POS = 0; // Quad 1,2,3,4
     public int AUTO_RUNS_TOT = 3;
@@ -187,10 +188,29 @@ public class MainControl extends OpMode {
                 clampRelease = !clampRelease;
             }
 
+            if(robot.gp2_up){ // toggling the autonomous movement up
+                autoBlockUp = !autoBlockUp;
+            }
+            if(robot.gp2_down){ // toggling the autonomous movement down
+                autoBlockDown = !autoBlockDown;
+            }
+            if(robot.gp2_y){ // toggling the autonomous intake
+                autoIntake = !autoIntake;
+            }
+
+
+            // fail safes
+            if(autoBlockDown){ // prevents the robot from trying to move autonomously up and down at the same time - override to down
+                autoBlockUp = false;
+            }
+            if(autoBlockUp){ // if moving up, do not allow the autonomous intake to activate
+                autoIntake = false;
+            }
+
 
             //Semi-Auto
             if(autoIntake){
-                switch (intakeState){
+                switch (intakeState){ // autonomous intake state machine
                     case IDLE:
                         spinIntakeIn = false;
                         spinIntakeOut = false;
@@ -218,7 +238,7 @@ public class MainControl extends OpMode {
             }
 
             if(autoBlockUp){
-                switch (blockUpState){
+                switch (blockUpState){ // autonomous movement up state machine
                     case IDLE:
                         armSwingIn = false; // stop arm
                         armSwingOut = false;
@@ -261,7 +281,7 @@ public class MainControl extends OpMode {
             }
 
         if(autoBlockDown){
-            switch (blockDownState){
+            switch (blockDownState){ // autonomous movement down state machine
                 case IDLE:
                     liftPowerL = 0; // stop lift
                     liftPowerR = 0;
@@ -270,7 +290,7 @@ public class MainControl extends OpMode {
                     blockDownState = State.STATE_0;
                     break;
                 case STATE_0:
-                    if(upStateFirstRun){
+                    if(downStateFirstRun){
                         downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[0]; // sets target fail safe time for this step
 
                         downStateFirstRun = false;
@@ -278,13 +298,13 @@ public class MainControl extends OpMode {
                     armSwingIn = true; // swing arm in
                     armSwingOut = false;
 
-                    if(excedesTime(downStateTargetTime)){ // continue conditions (including failsafe times
+                    if(excedesTime(downStateTargetTime) || robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
                         blockDownState = State.STATE_1;
                         downStateFirstRun = true;
                     }
                     break;
                 case STATE_1:
-                    if(upStateFirstRun){
+                    if(downStateFirstRun){
                         downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[1]; // sets target fail safe time for this step
 
                         downStateFirstRun = false;
@@ -296,7 +316,7 @@ public class MainControl extends OpMode {
                     liftPowerR = 1;
 
 
-                    if(excedesTime(downStateTargetTime)){ // continue conditions (including failsafe times
+                    if(excedesTime(downStateTargetTime) || robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
                         blockDownState = State.IDLE;
                         downStateFirstRun = true;
                     }
@@ -451,6 +471,9 @@ public class MainControl extends OpMode {
         //clampRelease = gamepad2.dpad_up;
         //clampClose = gamepad2.dpad_down;
         robot.gp2_x = gamepad2.x;
+        robot.gp2_y = gamepad2.y;
+        robot.gp2_up = gamepad2.dpad_up;
+        robot.gp2_down = gamepad2.dpad_down;
 
         // Add other buttons
 

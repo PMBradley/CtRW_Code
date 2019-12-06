@@ -47,7 +47,10 @@ public class Robot2019 {
 
     public Servo armPivot = null;
     public Servo armGrab = null;
-    public Servo intakeRamp = null;
+    public Servo intakeDropL = null;
+    public Servo intakeDropR = null;
+    public Servo pullerDropL = null;
+    public Servo pullerDropR = null;
 
     public DigitalChannel touchLift0 = null;
     public DigitalChannel touchArm1 = null;
@@ -81,6 +84,9 @@ public class Robot2019 {
     boolean gp2_lbumper = false;
     boolean gp2_rbumper = false;
     boolean gp2_x = false;
+    boolean gp2_y = false;
+    boolean gp2_up = false;
+    boolean gp2_down = false;
 
     public Robot2019(){
 
@@ -102,7 +108,10 @@ public class Robot2019 {
         motorIntakeR = mainMap.get(DcMotor.class, "intakeR");
         armPivot = mainMap.get(Servo.class, "armPivot");
         armGrab = mainMap.get(Servo.class, "armGrab");
-        intakeRamp = mainMap.get(Servo.class, "intakeRamp");
+        intakeDropL = mainMap.get(Servo.class, "intakeDropL");
+        intakeDropR = mainMap.get(Servo.class, "intakeDropR");
+        pullerDropL = mainMap.get(Servo.class, "pullerDropL");
+        pullerDropR = mainMap.get(Servo.class, "pullerDropR");
 
         // Grabbing sensors from hardware map
         touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
