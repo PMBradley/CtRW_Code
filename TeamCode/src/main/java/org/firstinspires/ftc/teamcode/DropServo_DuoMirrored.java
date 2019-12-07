@@ -6,20 +6,21 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class DropServo_DuoMirrored {
     private Robot2019 robot;
+    private Servo dropL;
+    private Servo dropR;
 
-    public DropServo_DuoMirrored (Robot2019 robot, Servo servol, Servo servoR)
+
+    public DropServo_DuoMirrored (Robot2019 robot, Servo servoL, Servo servoR)
     {
         this.robot = robot;
-        this.dropL = servol;
-        this.dropR = servoR;
+        dropL = servoL;
+        dropR = servoR;
     }
 
 
     boolean isInitilized = false;
     double reverseMod = 1; // modifier used to reverse the servos if going the wrong direction
 
-    Servo dropL = null;
-    Servo dropR = null;
 
     public void init_motors(){
         // robot.init(hardwareMap);
@@ -32,9 +33,12 @@ public class DropServo_DuoMirrored {
         reverseMod = inputMod;
     }
 
-    public void set_ServoPower(double servoPower){
-        dropL.setPosition(servoPower * reverseMod);
-        dropR.setPosition(-servoPower * reverseMod);
+    public void set_ServoPower(double servoPower, Servo servoL, Servo servoR){
+        dropL = servoL;
+        dropR = servoR;
+
+        servoL.setPosition(servoPower * reverseMod);
+        servoR.setPosition(-servoPower * reverseMod);
     }
 
 }

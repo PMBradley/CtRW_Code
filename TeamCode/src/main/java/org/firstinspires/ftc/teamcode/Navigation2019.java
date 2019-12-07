@@ -2,15 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 public class Navigation2019 {
 
+    Robot2019 robot;
 
     /* Constructor */
-    public Navigation2019(){
-
+    public Navigation2019(Robot2019 robot){
+        this.robot = robot;
     }
 
     // Field dimensions
-    private double FRAME_OFFSET = 7.0;
-    private double FIELD_LENGTH = 11.75;
+    private double FRAME_OFFSET = 22.0; // CM from frame edge to center
+    private double FIELD_LENGTH = 11.75; //
     private double FIELD_WIDTH = 11.75;
     private double FIELD_HALF_LENGTH = FIELD_LENGTH/2;
     private double FIELD_HALF_WIDTH = FIELD_WIDTH/2;
@@ -19,7 +20,7 @@ public class Navigation2019 {
     private double[][] WAYPOINT;
     private double DistanceErrors[];
 
-    private int CURRENT_WAYPOINT =0;
+    private int CURRENT_WAYPOINT = 0;
 
     // Wall Distances
     private double LEFT_LIDAR_DISTANCE = 0.0;
@@ -27,36 +28,37 @@ public class Navigation2019 {
     private double BACK_LIDAR_DISTANCE = 0.0;
     private double FRONT_LIDAR_DISTANCE = 0.0;
 
+    public double X = 0.0;
+    public double Y = 0.0;
+    public double ROTATION_DEG = 0.0;
 
-    public double CURRENT_LOCATION[]; //W1, W2, W3, W4
+    public double CURRENT_LOCATION[]; // X, Y, Rotation
 
 
-    // Get initial LIDAR distances
-
-    //   LEFT_LIDAR_DISTANCE = getLidarSensor(flight0);
-    //   RIGHT_LIDAR_DISTANCE = getLidarSensor(flight1);
-    //   FRONT_LIDAR_DISTANCE = getLidarSensor(flight2);
-    //   BACK_LIDAR_DISTANCE = getLidarSensor(flight3);
 
     public double[] getCurrentLocation(){
 
+        updateLocation();
 
+        return CURRENT_LOCATION;
+    }
 
-        //   LEFT_LIDAR_DISTANCE = getLidarSensor(flight0);
-        //   RIGHT_LIDAR_DISTANCE = getLidarSensor(flight1);
-        //   FRONT_LIDAR_DISTANCE = getLidarSensor(flight2);
-        //   BACK_LIDAR_DISTANCE = getLidarSensor(flight3);
+    public double getX(){
+        updateLocation();
 
+        return X;
+    }
 
-       // Get location vectors
-        CURRENT_LOCATION[0] = LEFT_LIDAR_DISTANCE;
-        CURRENT_LOCATION[1] = RIGHT_LIDAR_DISTANCE;
-        CURRENT_LOCATION[2] = BACK_LIDAR_DISTANCE;
-        CURRENT_LOCATION[3] = FRONT_LIDAR_DISTANCE;
+    public double getY(){
+        updateLocation();
 
+        return Y;
+    }
 
-     //Active distance finding
-     return CURRENT_LOCATION;
+    public double getRotation(){
+        updateLocation();
+
+        return ROTATION_DEG;
     }
 
  public int getCurrentQuadrant(){
@@ -157,7 +159,7 @@ public class Navigation2019 {
     return  DistanceErrors;
  }
 
- public void Waypoint_Tracking(){
+ /*public void Waypoint_Tracking(){
 
         //boolean Waypoint_Reached = false;
         double  RANGE_OFFSET = 1.0;
@@ -173,6 +175,24 @@ public class Navigation2019 {
         }
 
 
+ }*/
+
+ public void updateLocation(){
+     updateRotation();
+     updateFlight();
+
+
  }
+
+ public void updateFlight(){
+
+
+
+ }
+
+ public void updateRotation(){
+
+ }
+
 
 }

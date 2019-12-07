@@ -33,7 +33,7 @@ public class MainControl extends OpMode {
 
 
     Arm_Swing arm_swing = new Arm_Swing(robot);
-    Navigation2019 navigation = new Navigation2019();
+    Navigation2019 navigation = new Navigation2019(robot);
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
     Lift_Linear lift = new Lift_Linear(robot);
@@ -46,22 +46,6 @@ public class MainControl extends OpMode {
 
     public int MODE_CHOICE_TIME = 3000;
 
-    //Joystick Variables
-   /* double stick1X;
-    double stick1Y;
-    double stick2X;
-    double rtrigger;
-    double ltrigger;
-    boolean armSwingIn = false;
-    boolean armSwingOut = false;
-    boolean rampUpBtn;
-    boolean rampDownBtn;
-    boolean spinIntakeIn = false;
-    boolean spinIntakeOut = false;
-    boolean clampRelease = false;
-    boolean clampClose = false;
-    boolean clampAction = false;
-   */
 
     // Startup flags
     public boolean LOOP_FIRST_RUN = true; // used to indicate if it is the first run of the main loop
@@ -114,7 +98,7 @@ public class MainControl extends OpMode {
             LOOP_FIRST_RUN = false;
         }
 
-        if(robot.gp1_b == true){
+        if(robot.gp1_a == true || robot.gp2_a == true){
             AUTO_MODE_ACTIVE = false;
         }
 
@@ -155,7 +139,7 @@ public class MainControl extends OpMode {
     }
 
     State intakeState = State.IDLE;
-    private int[] inStepTimes = {10_000};// Fail safe progression times for each step of the Intake State Machine
+    private int[] inStepTimes = {1_500, 10_000, 1_500};// Fail safe progression times for each step of the Intake State Machine
     boolean inStateFirstRun = true;
     int inStateTargetTime = 0;
 
@@ -172,16 +156,26 @@ public class MainControl extends OpMode {
 
 
     public void manual_mode(){
-        //if (AUTO_MODE_ACTIVE == false){
             double drivePowerY = robot.gp1_lstickY;
             double drivePowerX = robot.gp1_lstickX;
             double drivePowerR = robot.gp1_lstickY;
             double liftPowerL = robot.gp2_ltrigger;
             double liftPowerR = robot.gp2_rtrigger;
-            boolean armSwingIn = robot.gp1_lbumper;
-            boolean armSwingOut = robot.gp1_rbumper;
-            boolean spinIntakeIn = robot.gp2_lbumper;
-            boolean spinIntakeOut = robot.gp2_rbumper;
+            double pullerPower = (robot.gp1_ltrigger - robot.gp1_rtrigger) / 2; // left trigger is positive power, right trigger is negative power
+            boolean armSwingIn = robot.gp2_lbumper;
+            boolean armSwingOut = robot.gp2_rbumper;
+            boolean spinIntakeOut = robot.gp1_lbumper;
+            boolean spinIntakeIn = robot.gp1_rbumper;
+            double  intakeDropPower = 0.0; // being set later with
+
+
+            //Setters
+            if(robot.gp1_a == true || robot.gp2_a == true){
+                intakeDropPower = 0.5;
+            }
+            else if (robot.gp1_x){
+                intakeDropPower = -0.5;
+            }
 
             //Toggles
             if(robot.gp2_x){// toggling the clamp
@@ -219,17 +213,47 @@ public class MainControl extends OpMode {
                         autoIntake = false;
                         intakeState = State.STATE_0;
                         break;
-                    case STATE_0:
+                    case STATE_0:  // clamp open state
                         if(inStateFirstRun){
                             inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[0]; // sets target fail safe time for this step
 
                             inStateFirstRun = false;
                         }
-                        spinIntakeIn = true; // state actions
-                        spinIntakeOut = false;
+
                         clampRelease = true;
 
+                        if(excedesTime(inStateTargetTime)){ // continue conditions
+                            intakeState = State.STATE_1;
+                            inStateFirstRun = true;
+                        }
+
+                        break;
+                    case STATE_1:  // spin up and inatke state
+                        if(inStateFirstRun){
+                            inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[1]; // sets target fail safe time for this step
+
+                            inStateFirstRun = false;
+                        }
+                        spinIntakeIn = true; // state actions
+                        spinIntakeOut = false;
+                        clampRelease = true; // maintain clamp open
+
                         if(robot.touchBlock2.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
+                            intakeState = State.STATE_2;
+                            inStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_2:  // spin up and inatke state
+                        if(inStateFirstRun){
+                            inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[2]; // sets target fail safe time for this step
+
+                            inStateFirstRun = false;
+                        }
+                        spinIntakeIn = true; // state actions
+                        spinIntakeOut = false;
+                        clampRelease = false; // maintain clamp open
+
+                        if(robot.touchClamp7.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
                             intakeState = State.IDLE;
                             inStateFirstRun = true;
                         }
@@ -324,17 +348,18 @@ public class MainControl extends OpMode {
             }
         }
 
+        telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
+        telemetry.update();
+
+        meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
+        flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+        lift.move_Controller(liftPowerR , liftPowerL);
+        arm_swing.set_arm_position(armSwingIn, armSwingOut);
+        arm_swing.set_clamp_position(clampRelease);
+        pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
+        intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
 
 
-            meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-            flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
-            lift.move_Controller(liftPowerR , liftPowerL);
-            arm_swing.set_arm_position(armSwingIn, armSwingOut);
-            arm_swing.set_clamp_position(clampRelease);
-
-
-
-     //   }
 
     }
 
@@ -342,13 +367,15 @@ public class MainControl extends OpMode {
     // State machine code
 
 
-   // public State CURR_STATE = State.STATE_INIT;
+    public State masterState = State.STATE_0;
+    public State driveState = State.STATE_0;
+
 
     public void AutoStep() {
 
 
-/*
-     //   switch(CURR_STATE){
+
+     /*//   switch(CURR_STATE){
 
 
           //  case STATE_INIT:
@@ -464,14 +491,16 @@ public class MainControl extends OpMode {
         robot.gp1_lbumper = gamepad1.left_bumper;
         robot.gp1_a = gamepad1.a;
         robot.gp1_b = gamepad1.b;
+        robot.gp2_a = gamepad2.a;
+        robot.gp1_rtrigger = gamepad1.right_trigger;
+        robot.gp1_ltrigger = gamepad1.left_trigger;
         robot.gp2_rtrigger = gamepad2.right_trigger;
         robot.gp2_ltrigger = gamepad2.left_trigger;
         robot.gp2_lbumper = gamepad2.left_bumper;
         robot.gp2_rbumper = gamepad2.right_bumper;
-        //clampRelease = gamepad2.dpad_up;
-        //clampClose = gamepad2.dpad_down;
         robot.gp2_x = gamepad2.x;
         robot.gp2_y = gamepad2.y;
+        robot.gp1_x = gamepad1.x;
         robot.gp2_up = gamepad2.dpad_up;
         robot.gp2_down = gamepad2.dpad_down;
 

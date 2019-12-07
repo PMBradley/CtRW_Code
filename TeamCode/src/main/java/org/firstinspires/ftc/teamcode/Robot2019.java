@@ -24,6 +24,7 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -59,7 +60,7 @@ public class Robot2019 {
     public DigitalChannel touchLeft4 = null;
     public DigitalChannel touchRight5 = null;
     public DigitalChannel touchBack6 = null;
-    public DigitalChannel touchSensor7 = null;
+    public DigitalChannel touchClamp7 = null;
 
     public DistanceSensor flightFront0 = null;
     public DistanceSensor flightLeft1 = null;
@@ -68,6 +69,7 @@ public class Robot2019 {
 
     HardwareMap mainMap = null;
 
+    int readRedundancy = 5; // non-boolean sensors check that many times when using the appropreate read function
     //Vision variables
    // WebcamName webcam = null;
 
@@ -79,12 +81,16 @@ public class Robot2019 {
     boolean gp1_lbumper = false;
     boolean gp1_a = false;
     boolean gp1_b = false;
+    boolean gp2_a = false;
+    double gp1_rtrigger = 0.0;
+    double gp1_ltrigger = 0.0;
     double gp2_rtrigger = 0.0;
     double gp2_ltrigger = 0.0;
     boolean gp2_lbumper = false;
     boolean gp2_rbumper = false;
     boolean gp2_x = false;
     boolean gp2_y = false;
+    boolean gp1_x = false;
     boolean gp2_up = false;
     boolean gp2_down = false;
 
@@ -103,15 +109,18 @@ public class Robot2019 {
         driveBL = mainMap.get(DcMotor.class, "driveBL");
         driveBR = mainMap.get(DcMotor.class, "driveBR");
         motorLift = mainMap.get(DcMotor.class, "motorLift");
-
         motorIntakeL = mainMap.get(DcMotor.class, "intakeL");
         motorIntakeR = mainMap.get(DcMotor.class, "intakeR");
+
+
+        // Grabbing servos from hardware map
         armPivot = mainMap.get(Servo.class, "armPivot");
         armGrab = mainMap.get(Servo.class, "armGrab");
         intakeDropL = mainMap.get(Servo.class, "intakeDropL");
         intakeDropR = mainMap.get(Servo.class, "intakeDropR");
         pullerDropL = mainMap.get(Servo.class, "pullerDropL");
         pullerDropR = mainMap.get(Servo.class, "pullerDropR");
+
 
         // Grabbing sensors from hardware map
         touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
@@ -121,6 +130,7 @@ public class Robot2019 {
         touchLeft4 = mainMap.get(DigitalChannel.class, "touchLeft4");
         touchRight5 = mainMap.get(DigitalChannel.class, "touchRight5");
         touchBack6 = mainMap.get(DigitalChannel.class, "touchBack6");
+        touchClamp7 = mainMap.get(DigitalChannel.class, "touchClamp7");
 
         flightFront0 = mainMap.get(DistanceSensor.class, "flightFront0");
         flightLeft1 = mainMap.get(DistanceSensor.class, "flightLeft1");
@@ -138,6 +148,21 @@ public class Robot2019 {
 
     }
 
+    public double readFlight(DistanceSensor inFlight){
+        double[] readings = new double[readRedundancy];
+        double output = 0.0;
+
+        for(int i = 0; i < readRedundancy; i++){
+            readings[i] = inFlight.getDistance(DistanceUnit.CM);
+        }
+
+        for(int i = 0; i < readRedundancy; i++){ // addition part of averaging
+            output += readings[i];
+        }
+        output /= readRedundancy; // division part of averaging
+
+        return (output);
+    }
 
 }
 
