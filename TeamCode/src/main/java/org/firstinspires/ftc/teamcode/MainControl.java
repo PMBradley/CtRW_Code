@@ -158,7 +158,7 @@ public class MainControl extends OpMode {
     public void manual_mode(){
             double drivePowerY = robot.gp1_lstickY;
             double drivePowerX = robot.gp1_lstickX;
-            double drivePowerR = robot.gp1_lstickY;
+            double drivePowerR = robot.gp1_rstickX;
             double liftPowerL = robot.gp2_ltrigger;
             double liftPowerR = robot.gp2_rtrigger;
             double pullerPower = (robot.gp1_ltrigger - robot.gp1_rtrigger) / 2; // left trigger is positive power, right trigger is negative power
@@ -350,6 +350,11 @@ public class MainControl extends OpMode {
 
         telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
         telemetry.update();
+
+        //more failsafes
+        if(robot.touchLift0.getState() == true){
+            liftPowerR = 0;
+        }
 
         meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
