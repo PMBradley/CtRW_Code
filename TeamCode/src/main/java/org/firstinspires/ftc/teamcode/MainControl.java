@@ -91,6 +91,8 @@ public class MainControl extends OpMode {
 
     public void loop(){
         updateControls();
+        checkSensors();
+
 
         if(LOOP_FIRST_RUN){
             runtime.reset();
@@ -103,6 +105,7 @@ public class MainControl extends OpMode {
         }
 
         //manual_mode();
+        checkSensors();
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
             if(AUTO_MODE_ACTIVE){ // if auto-op
@@ -117,7 +120,7 @@ public class MainControl extends OpMode {
 
 
 
-
+        checkSensors();
     }
 
     // Manual Semi-auto Flag Variables
@@ -175,7 +178,7 @@ public class MainControl extends OpMode {
             boolean spinIntakeOut = robot.gp1_lbumper;
             boolean spinIntakeIn = robot.gp1_rbumper;
 
-
+        checkSensors();
             //Setters
             if(robot.gp1_a == true || robot.gp2_a == true){
                 intakeDropPower = .5;
@@ -217,6 +220,7 @@ public class MainControl extends OpMode {
                 autoIntakeFirstRun = false;
             }
 
+            checkSensors();
 
             // fail safes
             if(autoBlockDown){ // prevents the robot from trying to move autonomously up and down at the same time - override to down
@@ -265,7 +269,7 @@ public class MainControl extends OpMode {
                         spinIntakeOut = false;
                         clampRelease = true; // maintain clamp open
 
-                        if(!robot.touchBlock2.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
+                        if(isTouchBlock() == true || excedesTime(inStateTargetTime)){ // continue conditions
                             intakeState = State.STATE_2;
                             inStateFirstRun = true;
                         }
@@ -378,9 +382,7 @@ public class MainControl extends OpMode {
             }
         }
 
-        if(!robot.touchBlock2.getState()){
-            touchBlockCount++;
-        }
+        checkSensors();
         //telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
         telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
         telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
@@ -408,7 +410,7 @@ public class MainControl extends OpMode {
         intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
 
 
-
+        lastTouchBlockCount = touchBlockCount;
     }
 
 
@@ -535,10 +537,16 @@ public class MainControl extends OpMode {
     int touchBlockCount = 0;
     int lastTouchBlockCount = 0;
 
-    public boolean 
+    public boolean isTouchBlock(){
+        boolean output = false;
+        if(touchBlockCount != lastTouchBlockCount){
+            output = true;
+        }
+        return output;
+    }
 
     public void checkSensors(){
-        if(robot.touchBlock2.getState()){
+        if(!robot.touchBlock2.getState()){
             touchBlockCount++;
         }
     }
