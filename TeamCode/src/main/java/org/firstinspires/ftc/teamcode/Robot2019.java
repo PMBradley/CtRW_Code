@@ -145,7 +145,6 @@ public class Robot2019 {
         Rev2mDistanceSensor flight2 = (Rev2mDistanceSensor)flightRight2;
         Rev2mDistanceSensor flight3 = (Rev2mDistanceSensor)flightBack3;
 
-
     }
 
     public double readFlight(DistanceSensor inFlight){

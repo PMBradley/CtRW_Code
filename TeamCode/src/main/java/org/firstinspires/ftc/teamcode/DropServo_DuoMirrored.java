@@ -20,7 +20,8 @@ public class DropServo_DuoMirrored {
 
     boolean isInitilized = false;
     double reverseMod = 1; // modifier used to reverse the servos if going the wrong direction
-
+    double rangeMax = 1;
+    double rangeMin = 0;
 
     public void init_motors(){
         // robot.init(hardwareMap);
@@ -29,16 +30,35 @@ public class DropServo_DuoMirrored {
         dropR.setPosition(0);
     }
 
+    private double powerNegate(double inputPower, double negegationVal){
+        inputPower -= .5;
+        inputPower *= negegationVal;
+        inputPower += .5;
+
+        return (inputPower);
+    }
+
+    private double mirrorComp(double inputPower, double rangeMax){
+        return (rangeMax - inputPower);
+    }
+
     public void set_reverseMod(double inputMod){
         reverseMod = inputMod;
     }
+    public void set_rangeMinMax(double min, double max){
+        rangeMin = min;
+        rangeMax = max;
+    }
+
 
     public void set_ServoPower(double servoPower, Servo servoL, Servo servoR){
         dropL = servoL;
         dropR = servoR;
 
-        servoL.setPosition(servoPower * reverseMod);
-        servoR.setPosition(-servoPower * reverseMod);
+        servoPower = powerNegate(servoPower, reverseMod);
+
+        servoL.setPosition(servoPower);
+        servoR.setPosition(mirrorComp(servoPower, 1));
     }
 
 }

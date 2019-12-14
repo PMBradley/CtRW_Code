@@ -111,7 +111,7 @@ public class MainControl extends OpMode {
             }
             else { // if tele-op
                 manual_mode();
-                telemetry.addData("Mode","Tele");
+               // telemetry.addData("Mode","Tele");
             }
         }
 
@@ -126,6 +126,14 @@ public class MainControl extends OpMode {
     boolean autoBlockUp = false;
     boolean autoBlockDown = false;
 
+    // Toggle first run variables
+    boolean clampReleaseFirstRun = true;
+    boolean autoIntakeFirstRun = true;
+    boolean autoBlockUpFirstRun = true;
+    boolean autoBlockDownFirstRun = true;
+
+
+    // State machine global variables
     public enum State{
         IDLE,
         STATE_0,
@@ -138,21 +146,21 @@ public class MainControl extends OpMode {
         STATE_7,
     }
 
-    State intakeState = State.IDLE;
-    private int[] inStepTimes = {1_500, 10_000, 1_500};// Fail safe progression times for each step of the Intake State Machine
+    State intakeState = State.STATE_0;
+    private int[] inStepTimes = {1_500, 15_000, 1_500};// Fail safe progression times for each step of the Intake State Machine
     boolean inStateFirstRun = true;
     int inStateTargetTime = 0;
 
-    State blockUpState = State.IDLE;
-    private int[] upStepTimes = {4_000, 2_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    State blockUpState = State.STATE_0;
+    private int[] upStepTimes = {7_000, 1_500};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
-    State blockDownState = State.IDLE;
-    private int[] downStepTimes = {2_000, 4_000};// Fail safe progression times for each step of the Downward Transfer State Machine
+    State blockDownState = State.STATE_0;
+    private int[] downStepTimes = {1_500, 7_000};// Fail safe progression times for each step of the Downward Transfer State Machine
     boolean downStateFirstRun = true;
     int downStateTargetTime = 0;
-
+    double  intakeDropPower = 0.0; // being set later
 
 
     public void manual_mode(){
@@ -161,35 +169,45 @@ public class MainControl extends OpMode {
             double drivePowerR = robot.gp1_rstickX;
             double liftPowerL = robot.gp2_ltrigger;
             double liftPowerR = robot.gp2_rtrigger;
-            double pullerPower = (robot.gp1_ltrigger - robot.gp1_rtrigger) / 2; // left trigger is positive power, right trigger is negative power
+            double pullerPower = ((1 - robot.gp1_rtrigger) / 2) + .5; // left trigger is positive power, right trigger is negative power
             boolean armSwingIn = robot.gp2_lbumper;
             boolean armSwingOut = robot.gp2_rbumper;
             boolean spinIntakeOut = robot.gp1_lbumper;
             boolean spinIntakeIn = robot.gp1_rbumper;
-            double  intakeDropPower = 0.0; // being set later with
 
 
             //Setters
             if(robot.gp1_a == true || robot.gp2_a == true){
-                intakeDropPower = 0.5;
+                intakeDropPower = .6;
             }
             else if (robot.gp1_x){
-                intakeDropPower = -0.5;
+                intakeDropPower = 0;
             }
 
             //Toggles
-            if(robot.gp2_x){// toggling the clamp
-                clampRelease = !clampRelease;
+            if(robot.gp2_x && clampReleaseFirstRun){// toggling the clamp
+                clampRelease = !clampRelease; // toggle
+                clampReleaseFirstRun = false;
+            }
+            else if(!robot.gp2_x){
+                clampReleaseFirstRun = true;
             }
 
-            if(robot.gp2_up){ // toggling the autonomous movement up
-                autoBlockUp = !autoBlockUp;
+            if(robot.gp2_up && autoBlockUpFirstRun){ // toggling the autonomous movement up
+                autoBlockUp = !autoBlockUp; // toggle
+                autoBlockUpFirstRun = false;
             }
-            if(robot.gp2_down){ // toggling the autonomous movement down
-                autoBlockDown = !autoBlockDown;
+            else if(!robot.gp2_up){
+                autoBlockUpFirstRun = true;
+            }
+
+            if(robot.gp2_down && autoBlockDownFirstRun){ // toggling the autonomous movement down
+                autoBlockDown = !autoBlockDown; // toggle
+                autoBlockDownFirstRun = false;
             }
             if(robot.gp2_y){ // toggling the autonomous intake
                 autoIntake = !autoIntake;
+                autoBlockDownFirstRun = true;
             }
 
 
@@ -203,7 +221,7 @@ public class MainControl extends OpMode {
 
 
             //Semi-Auto
-            if(autoIntake){
+            if(autoIntake == true){
                 switch (intakeState){ // autonomous intake state machine
                     case IDLE:
                         spinIntakeIn = false;
@@ -238,7 +256,7 @@ public class MainControl extends OpMode {
                         spinIntakeOut = false;
                         clampRelease = true; // maintain clamp open
 
-                        if(robot.touchBlock2.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
+                        if(!robot.touchBlock2.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
                             intakeState = State.STATE_2;
                             inStateFirstRun = true;
                         }
@@ -253,7 +271,7 @@ public class MainControl extends OpMode {
                         spinIntakeOut = false;
                         clampRelease = false; // maintain clamp open
 
-                        if(robot.touchClamp7.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
+                        if(!robot.touchClamp7.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
                             intakeState = State.IDLE;
                             inStateFirstRun = true;
                         }
@@ -322,7 +340,7 @@ public class MainControl extends OpMode {
                     armSwingIn = true; // swing arm in
                     armSwingOut = false;
 
-                    if(excedesTime(downStateTargetTime) || robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
+                    if(excedesTime(downStateTargetTime) || !robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
                         blockDownState = State.STATE_1;
                         downStateFirstRun = true;
                     }
@@ -340,7 +358,7 @@ public class MainControl extends OpMode {
                     liftPowerR = 1;
 
 
-                    if(excedesTime(downStateTargetTime) || robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
+                    if(excedesTime(downStateTargetTime) || !robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
                         blockDownState = State.IDLE;
                         downStateFirstRun = true;
                     }
@@ -348,13 +366,26 @@ public class MainControl extends OpMode {
             }
         }
 
-        telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
+        if(!robot.touchBlock2.getState()){
+            touchBlockCount++;
+        }
+        //telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
+        telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
+        telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
+        telemetry.addData("Touch Block:", touchBlockCount);
+        telemetry.addData("Touch Arm:", !robot.touchArm1.getState());
         telemetry.update();
 
+
+
         //more failsafes
-        if(robot.touchLift0.getState() == true){
-            liftPowerR = 0;
+        if(!robot.touchLift0.getState() == true){
+            liftPowerL = 0;
         }
+
+
+
+
 
         meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
@@ -368,6 +399,7 @@ public class MainControl extends OpMode {
 
     }
 
+    int touchBlockCount = 0;
 
     // State machine code
 
