@@ -205,9 +205,16 @@ public class MainControl extends OpMode {
                 autoBlockDown = !autoBlockDown; // toggle
                 autoBlockDownFirstRun = false;
             }
-            if(robot.gp2_y){ // toggling the autonomous intake
-                autoIntake = !autoIntake;
+            else if(!robot.gp2_down){
                 autoBlockDownFirstRun = true;
+            }
+
+            if(robot.gp2_y && autoIntakeFirstRun){ // toggling the autonomous intake
+                autoIntake = !autoIntake;
+                autoIntakeFirstRun = true;
+            }
+            else if(!robot.gp2_y){
+                autoIntakeFirstRun = false;
             }
 
 
