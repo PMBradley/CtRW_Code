@@ -10,7 +10,7 @@ public class Arm_Swing {
 
     double armBaseRotation = 0.0;
     double armOpenPosition = 0.0;
-    double armClosedPosition = 0.60;
+    double armClosedPosition = 0.69;
     double armCurrentPosition = 0;
     double clampReleasePosition = 0.8;
     double clampClosePosition = 0.25;

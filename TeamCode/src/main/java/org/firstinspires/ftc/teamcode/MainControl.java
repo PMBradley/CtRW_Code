@@ -244,6 +244,8 @@ public class MainControl extends OpMode {
 
                             inStateFirstRun = false;
                         }
+                        spinIntakeIn = false;
+                        spinIntakeOut = false;
 
                         clampRelease = true;
 
@@ -276,7 +278,7 @@ public class MainControl extends OpMode {
                         }
                         spinIntakeIn = true; // state actions
                         spinIntakeOut = false;
-                        clampRelease = false; // maintain clamp open
+                        clampRelease = false; // close clamp
 
                         if(!robot.touchClamp7.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
                             intakeState = State.IDLE;
@@ -284,6 +286,9 @@ public class MainControl extends OpMode {
                         }
                         break;
                 }
+            }
+            else {
+                intakeState = State.STATE_0; // reset state on disable
             }
 
             if(autoBlockUp){
@@ -301,10 +306,10 @@ public class MainControl extends OpMode {
 
                             upStateFirstRun = false;
                         }
-                        liftPowerL = 1; // move lift up
-                        liftPowerR = 0;
+                        liftPowerL = 0; // move lift up
+                        liftPowerR = 1;
 
-                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
+                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times)
                             blockUpState = State.STATE_1;
                             upStateFirstRun = true;
                         }
@@ -361,8 +366,8 @@ public class MainControl extends OpMode {
                     armSwingIn = false; // stop arm
                     armSwingOut = false;
 
-                    liftPowerL = 0; // move lift down
-                    liftPowerR = 1;
+                    liftPowerL = 1; // move lift down
+                    liftPowerR = 0;
 
 
                     if(excedesTime(downStateTargetTime) || !robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
@@ -406,7 +411,7 @@ public class MainControl extends OpMode {
 
     }
 
-    int touchBlockCount = 0;
+
 
     // State machine code
 
@@ -525,6 +530,17 @@ public class MainControl extends OpMode {
         AUTO_MODE_ACTIVE = mode;
 
 
+    }
+
+    int touchBlockCount = 0;
+    int lastTouchBlockCount = 0;
+
+    public boolean 
+
+    public void checkSensors(){
+        if(robot.touchBlock2.getState()){
+            touchBlockCount++;
+        }
     }
 
     public void updateControls(){
