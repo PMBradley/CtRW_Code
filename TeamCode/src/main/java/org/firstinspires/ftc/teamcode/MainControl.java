@@ -147,17 +147,17 @@ public class MainControl extends OpMode {
     }
 
     State intakeState = State.STATE_0;
-    private int[] inStepTimes = {1_500, 15_000, 1_500};// Fail safe progression times for each step of the Intake State Machine
+    private int[] inStepTimes = {1_000, 15_000, 1_000};// Fail safe progression times for each step of the Intake State Machine
     boolean inStateFirstRun = true;
     int inStateTargetTime = 0;
 
     State blockUpState = State.STATE_0;
-    private int[] upStepTimes = {7_000, 1_500};// Fail safe progression times for each step of the Upward Transfer State Machine
+    private int[] upStepTimes = {4_500, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
     State blockDownState = State.STATE_0;
-    private int[] downStepTimes = {1_500, 7_000};// Fail safe progression times for each step of the Downward Transfer State Machine
+    private int[] downStepTimes = {1_000, 8_000};// Fail safe progression times for each step of the Downward Transfer State Machine
     boolean downStateFirstRun = true;
     int downStateTargetTime = 0;
     double  intakeDropPower = 0.0; // being set later
@@ -178,10 +178,10 @@ public class MainControl extends OpMode {
 
             //Setters
             if(robot.gp1_a == true || robot.gp2_a == true){
-                intakeDropPower = .6;
+                intakeDropPower = .5;
             }
             else if (robot.gp1_x){
-                intakeDropPower = 0;
+               // intakeDropPower = 0;
             }
 
             //Toggles
