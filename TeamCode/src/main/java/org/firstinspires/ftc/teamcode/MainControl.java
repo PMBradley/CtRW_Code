@@ -155,7 +155,7 @@ public class MainControl extends OpMode {
     int inStateTargetTime = 0;
 
     State blockUpState = State.STATE_0;
-    private int[] upStepTimes = {4_500, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    private int[] upStepTimes = {3_500, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
@@ -178,7 +178,7 @@ public class MainControl extends OpMode {
             boolean spinIntakeOut = robot.gp1_lbumper;
             boolean spinIntakeIn = robot.gp1_rbumper;
 
-        checkSensors();
+            checkSensors();
             //Setters
             if(robot.gp1_a == true || robot.gp2_a == true){
                 intakeDropPower = .5;
@@ -214,10 +214,10 @@ public class MainControl extends OpMode {
 
             if(robot.gp2_y && autoIntakeFirstRun){ // toggling the autonomous intake
                 autoIntake = !autoIntake;
-                autoIntakeFirstRun = true;
+                autoIntakeFirstRun = false;
             }
             else if(!robot.gp2_y){
-                autoIntakeFirstRun = false;
+                autoIntakeFirstRun = true;
             }
 
             checkSensors();
@@ -319,13 +319,12 @@ public class MainControl extends OpMode {
                         }
                         break;
                     case STATE_1:
-                        if(upStateFirstRun){
+                        if(upStateFirstRun) {
                             upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[1]; // sets target fail safe time for this step
 
                             upStateFirstRun = false;
                         }
-                        liftPowerL = 0; // stop lift
-                        liftPowerR = 0;
+                        liftPowerL = 0; // prevent movement down while the arm is swining
 
                         armSwingIn = false; // move arm out
                         armSwingOut = true;
@@ -355,6 +354,7 @@ public class MainControl extends OpMode {
                     }
                     armSwingIn = true; // swing arm in
                     armSwingOut = false;
+
 
                     if(excedesTime(downStateTargetTime) || !robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
                         blockDownState = State.STATE_1;
@@ -388,6 +388,7 @@ public class MainControl extends OpMode {
         telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
         telemetry.addData("Touch Block:", touchBlockCount);
         telemetry.addData("Touch Arm:", !robot.touchArm1.getState());
+        telemetry.addData("Auto Intake:", autoIntake);
         telemetry.update();
 
 
