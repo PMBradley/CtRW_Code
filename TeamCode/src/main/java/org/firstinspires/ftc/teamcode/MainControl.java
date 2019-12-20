@@ -150,12 +150,12 @@ public class MainControl extends OpMode {
     }
 
     State intakeState = State.STATE_0;
-    private int[] inStepTimes = {1_000, 15_000, 1_000};// Fail safe progression times for each step of the Intake State Machine
+    private int[] inStepTimes = {0_000, 15_000, 1_000};// Fail safe progression times for each step of the Intake State Machine
     boolean inStateFirstRun = true;
     int inStateTargetTime = 0;
 
     State blockUpState = State.STATE_0;
-    private int[] upStepTimes = {3_500, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    private int[] upStepTimes = {4_200, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
