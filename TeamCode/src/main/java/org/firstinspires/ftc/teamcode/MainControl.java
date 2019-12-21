@@ -156,7 +156,7 @@ public class MainControl extends OpMode {
     int inStateTargetTime = 0;
 
     State blockUpState = State.STATE_0;
-    private int[] upStepTimes = {4_600, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    private int[] upStepTimes = {6_400, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
@@ -213,11 +213,11 @@ public class MainControl extends OpMode {
                 autoBlockDownFirstRun = true;
             }
 
-            if(robot.gp2_y && intakeFirstRun){ // toggling the autonomous intake
+            if(robot.gp1_y && intakeFirstRun){ // toggling the autonomous intake
                 intake = !intake;
                 intakeFirstRun = false;
             }
-            else if(!robot.gp2_y){
+            else if(!robot.gp1_y){
                 intakeFirstRun = true;
             }
 
@@ -578,6 +578,7 @@ public class MainControl extends OpMode {
         robot.gp2_x = gamepad2.x;
         robot.gp2_y = gamepad2.y;
         robot.gp1_x = gamepad1.x;
+        robot.gp1_y = gamepad2.y;
         robot.gp2_up = gamepad2.dpad_up;
         robot.gp2_down = gamepad2.dpad_down;
 

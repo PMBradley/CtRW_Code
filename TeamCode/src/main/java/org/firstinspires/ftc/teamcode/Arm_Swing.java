@@ -34,6 +34,7 @@ public class Arm_Swing {
                 armDirection = armClosedPosition;
 
             }
+
             robot.armPivot.setPosition(armDirection);
 
 

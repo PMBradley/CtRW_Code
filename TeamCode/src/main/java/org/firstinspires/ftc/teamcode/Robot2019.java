@@ -62,10 +62,10 @@ public class Robot2019 {
     public DigitalChannel touchBack6 = null;
     public DigitalChannel touchClamp7 = null;
 
-    public DistanceSensor flightFront0 = null;
-    public DistanceSensor flightLeft1 = null;
-    public DistanceSensor flightRight2 = null;
-    public DistanceSensor flightBack3 = null;
+    public Rev2mDistanceSensor flightFront0 = null;
+    public Rev2mDistanceSensor flightLeft1 = null;
+    public Rev2mDistanceSensor flightRight2 = null;
+    public Rev2mDistanceSensor flightBack3 = null;
 
     HardwareMap mainMap = null;
 
@@ -91,6 +91,7 @@ public class Robot2019 {
     boolean gp2_x = false;
     boolean gp2_y = false;
     boolean gp1_x = false;
+    boolean gp1_y = false;
     boolean gp2_up = false;
     boolean gp2_down = false;
 
@@ -132,19 +133,20 @@ public class Robot2019 {
         touchBack6 = mainMap.get(DigitalChannel.class, "touchBack6");
         touchClamp7 = mainMap.get(DigitalChannel.class, "touchClamp7");
 
-        flightFront0 = mainMap.get(DistanceSensor.class, "flightFront0");
-        flightLeft1 = mainMap.get(DistanceSensor.class, "flightLeft1");
-        flightRight2 = mainMap.get(DistanceSensor.class, "flightRight2");
-        flightBack3 = mainMap.get(DistanceSensor.class, "flightBack3");
+        flightFront0 = mainMap.get(Rev2mDistanceSensor.class, "flightFront0");
+        flightLeft1 = mainMap.get(Rev2mDistanceSensor.class, "flightLeft1");
+        flightRight2 = mainMap.get(Rev2mDistanceSensor.class, "flightRight2");
+        flightBack3 = mainMap.get(Rev2mDistanceSensor.class, "flightBack3");
 
         //webcam = mainMap.get(WebcamName.class, "webcam");
 
         // Setup of time of flight sensors
-        Rev2mDistanceSensor flight0 = (Rev2mDistanceSensor)flightFront0;
-        Rev2mDistanceSensor flight1 = (Rev2mDistanceSensor)flightLeft1;
-        Rev2mDistanceSensor flight2 = (Rev2mDistanceSensor)flightRight2;
-        Rev2mDistanceSensor flight3 = (Rev2mDistanceSensor)flightBack3;
+     //   Rev2mDistanceSensor flight0 = (Rev2mDistanceSensor)flightFront0;
+       // Rev2mDistanceSensor flight1 = (Rev2mDistanceSensor)flightLeft1;
+      //  Rev2mDistanceSensor flight2 = (Rev2mDistanceSensor)flightRight2;
+      //  Rev2mDistanceSensor flight3 = (Rev2mDistanceSensor)flightBack3;
 
+        armPivot.setPosition(0.69);
     }
 
     public double readFlight(DistanceSensor inFlight){
