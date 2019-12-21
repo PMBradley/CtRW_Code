@@ -56,7 +56,7 @@ public class Robot2019 {
     public DigitalChannel touchLift0 = null;
     public DigitalChannel touchArm1 = null;
     public DigitalChannel touchBlock2 = null;
-    public DigitalChannel touchFront3 = null;
+    public DigitalChannel touchLiftUp3 = null;
     public DigitalChannel touchLeft4 = null;
     public DigitalChannel touchRight5 = null;
     public DigitalChannel touchBack6 = null;
@@ -126,7 +126,7 @@ public class Robot2019 {
         touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
         touchArm1 = mainMap.get(DigitalChannel.class, "touchArm1");
         touchBlock2 = mainMap.get(DigitalChannel.class, "touchBlock2");
-        touchFront3 = mainMap.get(DigitalChannel.class, "touchFront3");
+        touchLiftUp3 = mainMap.get(DigitalChannel.class, "touchLiftUp3");
         touchLeft4 = mainMap.get(DigitalChannel.class, "touchLeft4");
         touchRight5 = mainMap.get(DigitalChannel.class, "touchRight5");
         touchBack6 = mainMap.get(DigitalChannel.class, "touchBack6");

@@ -125,13 +125,14 @@ public class MainControl extends OpMode {
 
     // Manual Semi-auto Flag Variables
     boolean clampRelease = true;
+    boolean intake = false;
     boolean autoIntake = false;
     boolean autoBlockUp = false;
     boolean autoBlockDown = false;
 
     // Toggle first run variables
     boolean clampReleaseFirstRun = true;
-    boolean autoIntakeFirstRun = true;
+    boolean intakeFirstRun = true;
     boolean autoBlockUpFirstRun = true;
     boolean autoBlockDownFirstRun = true;
 
@@ -155,7 +156,7 @@ public class MainControl extends OpMode {
     int inStateTargetTime = 0;
 
     State blockUpState = State.STATE_0;
-    private int[] upStepTimes = {4_200, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    private int[] upStepTimes = {4_600, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
@@ -212,12 +213,16 @@ public class MainControl extends OpMode {
                 autoBlockDownFirstRun = true;
             }
 
-            if(robot.gp2_y && autoIntakeFirstRun){ // toggling the autonomous intake
-                autoIntake = !autoIntake;
-                autoIntakeFirstRun = false;
+            if(robot.gp2_y && intakeFirstRun){ // toggling the autonomous intake
+                intake = !intake;
+                intakeFirstRun = false;
             }
             else if(!robot.gp2_y){
-                autoIntakeFirstRun = true;
+                intakeFirstRun = true;
+            }
+
+            if(intake){
+                spinIntakeIn = true;
             }
 
             checkSensors();
@@ -313,7 +318,7 @@ public class MainControl extends OpMode {
                         liftPowerL = 0; // move lift up
                         liftPowerR = 1;
 
-                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times)
+                        if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
                             blockUpState = State.STATE_1;
                             upStateFirstRun = true;
                         }
@@ -388,7 +393,7 @@ public class MainControl extends OpMode {
         telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
         telemetry.addData("Touch Block:", touchBlockCount);
         telemetry.addData("Touch Arm:", !robot.touchArm1.getState());
-        telemetry.addData("Auto Intake:", autoIntake);
+        //telemetry.addData("Auto Intake:", autoIntake);
         telemetry.update();
 
 
@@ -396,6 +401,9 @@ public class MainControl extends OpMode {
         //more failsafes
         if(!robot.touchLift0.getState() == true){
             liftPowerL = 0;
+        }
+        if(!robot.touchLiftUp3.getState() == true){
+            liftPowerR = 0;
         }
 
 
