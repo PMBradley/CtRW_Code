@@ -28,16 +28,15 @@ public class Arm_Swing {
 
             if(armDirectionIn){
                 armDirection = armOpenPosition;
-
             }
             else if (armDirectionOut){
                 armDirection = armClosedPosition;
-
+            }
+            else {
+                armDirection = robot.armPivot.getPosition(); // stay put
             }
 
             robot.armPivot.setPosition(armDirection);
-
-
 
     }
     public void toggle_clamp_position(boolean clampAction){ // toggles the clamp position if a 1

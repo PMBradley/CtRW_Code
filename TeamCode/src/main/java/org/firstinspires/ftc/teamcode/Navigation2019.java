@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+
 public class Navigation2019 {
 
     Robot2019 robot;
@@ -31,6 +36,8 @@ public class Navigation2019 {
     public double X = 0.0;
     public double Y = 0.0;
     public double ROTATION_DEG = 0.0;
+    private double lastX = X;
+    private double lastY = Y;
 
     public double CURRENT_LOCATION[]; // X, Y, Rotation
 
@@ -56,7 +63,7 @@ public class Navigation2019 {
     }
 
     public double getRotation(){
-        updateLocation();
+        updateRotation();
 
         return ROTATION_DEG;
     }
@@ -184,14 +191,27 @@ public class Navigation2019 {
 
  }
 
- public void updateFlight(){
 
+ int[] sensorWalls = {0, 1 , 2, 3}; // 0 is front wall, 1 is right wall, 2 is back wall, 3 is left wall
+
+ public void updateFlightWalls(){ // updates what sensors are
+     updateRotation();
+     int[] cornerAngles = {315, 45, 135, 205}; // angles to corners (0 being a vertical line)
+
+
+ }
+
+ public void updateFlight(){
+    updateFlightWalls();
+
+    lastX = X;
+    lastY = Y;
 
 
  }
 
  public void updateRotation(){
-
+   // robot.imu.;
  }
 
 

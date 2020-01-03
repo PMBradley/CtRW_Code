@@ -318,6 +318,9 @@ public class MainControl extends OpMode {
                         liftPowerL = 0; // move lift up
                         liftPowerR = 1;
 
+                        armSwingIn = false; // stop arm movement
+                        armSwingOut = false;
+
                         if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
                             blockUpState = State.STATE_1;
                             upStateFirstRun = true;
