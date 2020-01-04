@@ -74,7 +74,7 @@ public class Robot2019 {
     HardwareMap mainMap = null;
 
 
-    int readRedundancy = 5; // non-boolean sensors check that many times when using the appropreate read function
+    int readRedundancy = 1; // non-boolean sensors check that many times when using the appropreate read function
     //Vision variables
    // WebcamName webcam = null;
 

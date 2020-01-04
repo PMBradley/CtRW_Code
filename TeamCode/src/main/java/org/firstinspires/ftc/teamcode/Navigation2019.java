@@ -17,9 +17,9 @@ public class Navigation2019 {
 
     // Field dimensions
     private double FRAME_OFFSET = 22.0; // CM from frame edge to center
-    private double FIELD_LENGTH = 11.75; //
+    private double FIELD_HEIGHT = 11.75; //
     private double FIELD_WIDTH = 11.75;
-    private double FIELD_HALF_LENGTH = FIELD_LENGTH/2;
+    private double FIELD_HALF_LENGTH = FIELD_HEIGHT/2;
     private double FIELD_HALF_WIDTH = FIELD_WIDTH/2;
 
     //Waypoints
@@ -200,18 +200,99 @@ public class Navigation2019 {
      double[] cornerAngles = {315, 45, 135, 205}; // angles to corners (0 being a vertical line) - front left corner is 0, front right is 1, etc
 
      cornerAngles[3] = clipDegrees(Math.atan(X/Y) + 180); // + 180 accounts for 0 degrees being in front
-     cornerAngles[0] = clipDegrees(cornerAngles[3] + 90);
+     cornerAngles[0] = clipDegrees(cornerAngles[3] + 90); // the other corners are just variations on the previous ones
      cornerAngles[1] = clipDegrees(cornerAngles[0] + 90);
      cornerAngles[2] = clipDegrees(cornerAngles[1] + 90);
 
+     double rotationInc = 0;
 
+     for(int i = 0; i < 4; i++){
+         boolean foundCorner = false;
+
+         for(int j = 0; j < 4 && !foundCorner; j++){
+             double sensorLocation = clipDegrees(ROTATION_DEG + rotationInc); // get the degree orientation of the current sensor
+
+             if (j < 3) { // two if statements to prevent weirdness with needing to check between corner 3 and 0
+                 if(sensorLocation > cornerAngles[j] && sensorLocation < cornerAngles[j + 1]){
+                     sensorWalls[i] = j;
+                     foundCorner = true;
+                 }
+             }
+             else { // if none of the other ones
+                 if(sensorLocation > cornerAngles[3]){  // hope it is this one
+                     sensorWalls[i] = j; // set the current
+                     foundCorner = true;
+                 }
+             }
+         }
+
+         rotationInc += 90;
+     }
  }
 
  public void updateFlight(){
     updateFlightWalls();
 
-    lastX = X;
-    lastY = Y;
+    double newX = 1;
+    double newY = 1;
+
+    for(int i = 0; i < 4; i++){ // run once for each sensor
+        double reading = 1;
+        double wallDistance = 1;
+
+        switch (i){ // get the reading from the proper time of flight sensor
+            case 0:
+                reading = robot.readFlight(robot.flightFront0);
+                break;
+            case 1:
+                reading = robot.readFlight(robot.flightRight2);
+                break;
+            case 2:
+                reading = robot.readFlight(robot.flightBack3);
+                break;
+            case 3:
+                reading = robot.readFlight(robot.flightLeft1);
+                break;
+        }
+
+        double wallOffset = 0;
+
+        for(int j = 0; j < sensorWalls[i]; i++){
+            wallOffset += 90;
+        }
+
+        wallDistance = reading * Math.cos(ROTATION_DEG + wallOffset);
+
+
+        if(sensorWalls[i] == 0 || sensorWalls[i] == 2){ // if measuring the top or bottom walls
+            double tempY = 1;
+
+            if(sensorWalls[i] == 2){ // if measuring bottom wall
+                tempY = wallDistance; // set to the reading
+            }
+            else {
+                tempY = FIELD_HEIGHT - wallDistance; // field height minus the reading
+            }
+
+            if(tempY > newY){ // if the new reading is larger, make it the one used
+                newY = tempY;
+            }
+        }
+        else { // if measuring the left or right walls (not the other ones)
+            double tempX = 1;
+
+            if(sensorWalls[i] == 3){ // if measuring left wall
+                tempX = wallDistance; // set to the reading
+            }
+            else {
+                tempX = FIELD_WIDTH - wallDistance; // field height minus the reading
+            }
+
+            if(tempX > newX){ // if the new reading is larger, make it the one used
+                newX = tempX;
+            }
+        }
+    }
 
 
  }
