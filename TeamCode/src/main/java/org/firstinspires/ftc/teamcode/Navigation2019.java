@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import java.lang.Math;
 
 public class Navigation2019 {
 
@@ -196,7 +197,12 @@ public class Navigation2019 {
 
  public void updateFlightWalls(){ // updates what sensors are
      updateRotation();
-     int[] cornerAngles = {315, 45, 135, 205}; // angles to corners (0 being a vertical line)
+     double[] cornerAngles = {315, 45, 135, 205}; // angles to corners (0 being a vertical line) - front left corner is 0, front right is 1, etc
+
+     cornerAngles[3] = clipDegrees(Math.atan(X/Y) + 180); // + 180 accounts for 0 degrees being in front
+     cornerAngles[0] = clipDegrees(cornerAngles[3] + 90);
+     cornerAngles[1] = clipDegrees(cornerAngles[0] + 90);
+     cornerAngles[2] = clipDegrees(cornerAngles[1] + 90);
 
 
  }
@@ -215,4 +221,17 @@ public class Navigation2019 {
  }
 
 
+ public double clipDegrees(double inputDeg) {
+     double output = inputDeg;
+     if (output > 0) {
+         while (output > 360) {
+             output -= 360;
+         }
+     } else {
+         while (output < -360) {
+             output += 360;
+         }
+     }
+    return (output);
+ }
 }

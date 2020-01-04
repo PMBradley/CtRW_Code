@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
+
 
 @TeleOp(name = "MainControl")
 public class MainControl extends OpMode {
@@ -167,6 +169,9 @@ public class MainControl extends OpMode {
     double  intakeDropPower = 0.0; // being set later
 
 
+    double SPEED_REDUCE_VALUE = .6; // power values are multiplied by this value if being reduced
+    double SPEED_REDUCE_THRESHOLD = .85;
+
     public void manual_mode(){
             double drivePowerY = robot.gp1_lstickY;
             double drivePowerX = robot.gp1_lstickX;
@@ -179,6 +184,8 @@ public class MainControl extends OpMode {
             boolean spinIntakeOut = robot.gp1_lbumper;
             boolean spinIntakeIn = robot.gp1_rbumper;
 
+
+
             checkSensors();
             //Setters
             if(robot.gp1_a == true || robot.gp2_a == true){
@@ -187,6 +194,17 @@ public class MainControl extends OpMode {
             else if (robot.gp1_x){
                // intakeDropPower = 0;
             }
+
+            if(Math.abs(robot.gp1_lstickY) < SPEED_REDUCE_THRESHOLD){
+                drivePowerY *= SPEED_REDUCE_VALUE;
+            }
+            if(Math.abs(robot.gp1_lstickX) < SPEED_REDUCE_THRESHOLD){
+                drivePowerX *= SPEED_REDUCE_VALUE;
+            }
+            if(Math.abs(robot.gp1_rstickX) < SPEED_REDUCE_THRESHOLD){
+                drivePowerR *= SPEED_REDUCE_VALUE;
+            }
+
 
             //Toggles
             if(robot.gp2_x && clampReleaseFirstRun){// toggling the clamp
@@ -392,11 +410,17 @@ public class MainControl extends OpMode {
 
         checkSensors();
         //telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
-        telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
-        telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
-        telemetry.addData("Touch Block:", touchBlockCount);
-        telemetry.addData("Touch Arm:", !robot.touchArm1.getState());
+      //  telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
+      //  telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
+      //  telemetry.addData("Touch Block:", touchBlockCount);
+      //  telemetry.addData("Touch Arm:", !robot.touchArm1.getState());
         //telemetry.addData("Auto Intake:", autoIntake);
+
+
+     //   telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
+     //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
+      //  telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
+       // telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
         telemetry.update();
 
 

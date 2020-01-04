@@ -44,11 +44,13 @@ public class Drive_Meccanum {
 
     public void Drive_Vector()
     {
-        if(!isInitilized)
+        if(!isInitilized) {
             init_motors();
-
+        }
 
     }
+
+
 
     public void drive_Controller(double lStickX, double lStickY, double rStickX)
     {
@@ -66,8 +68,8 @@ public class Drive_Meccanum {
         final double driveBLPwr = magnitude * Math.sin(robotAngle) + rightX;
         final double driveBRPwr = magnitude * Math.cos(robotAngle) + rightX;
 
-        robot.driveFL.setPower(driveFLPwr);
-        robot.driveFR.setPower(driveFRPwr);
+        robot.driveFL.setPower(-driveFLPwr);
+        robot.driveFR.setPower(-driveFRPwr);
         robot.driveBL.setPower(driveBLPwr);
         robot.driveBR.setPower(driveBRPwr);
     }
