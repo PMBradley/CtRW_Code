@@ -261,7 +261,7 @@ public class Navigation2019 {
             wallOffset += 90;
         }
 
-        wallDistance = reading * Math.cos(clipDegrees(ROTATION_DEG + wallOffset));
+        wallDistance = reading * Math.cos(clipDegrees(ROTATION_DEG + wallOffset)); // set the wall distance
 
 
         if(sensorWalls[i] == 0 || sensorWalls[i] == 2){ // if measuring the top or bottom walls

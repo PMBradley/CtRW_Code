@@ -33,7 +33,7 @@ public class MainControl extends OpMode {
 
 
 
-
+    // Create the instances of each class for the robot
     Arm_Swing arm_swing = new Arm_Swing(robot);
     Navigation2019 navigation = new Navigation2019(robot);
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
@@ -82,31 +82,28 @@ public class MainControl extends OpMode {
     // If flag is manual mode do not call navigation routine
     // Check sensors and drive and set initialization ok flag
 
-// I would call manual mode from the TeleOp Opmode
-
-    public void init(){
+    public void init(){ // initialization function
         robot.init(hardwareMap);
         runtime.reset();
 
         telemetry.addData("Say", "It's Droopy McCool Time!");
     }
 
-    public void loop(){
-        updateControls();
-        checkSensors();
+    public void loop(){ // main loop
+        updateControls(); // update the controllers and check the sensors
+        checkSensors(); // (checking sensors happens multiple times in the loop to avoid missing an input)
 
 
-        if(LOOP_FIRST_RUN){
+        if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct
             runtime.reset();
 
             LOOP_FIRST_RUN = false;
         }
 
-        if(robot.gp1_a == true || robot.gp2_a == true){
+        if(robot.gp1_a == true || robot.gp2_a == true){ // if either controller presses A, switch to tele-op mode
             AUTO_MODE_ACTIVE = false;
         }
 
-        //manual_mode();
         checkSensors();
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
@@ -116,11 +113,8 @@ public class MainControl extends OpMode {
             }
             else { // if tele-op
                 manual_mode();
-               // telemetry.addData("Mode","Tele");
             }
         }
-
-
 
         checkSensors();
     }
@@ -173,7 +167,7 @@ public class MainControl extends OpMode {
     double SPEED_REDUCE_THRESHOLD = .85;
 
     public void manual_mode(){
-            double drivePowerY = robot.gp1_lstickY;
+            double drivePowerY = robot.gp1_lstickY; // set all values to their corresponding controller values
             double drivePowerX = robot.gp1_lstickX;
             double drivePowerR = robot.gp1_rstickX;
             double liftPowerL = robot.gp2_ltrigger;
@@ -188,14 +182,15 @@ public class MainControl extends OpMode {
 
             checkSensors();
             //Setters
-            if(robot.gp1_a == true || robot.gp2_a == true){
+            if(robot.gp1_a == true || robot.gp2_a == true){ // if a is being pressed, drop intakes
                 intakeDropPower = .5;
             }
-            else if (robot.gp1_x){
-               // intakeDropPower = 0;
+            else { // else don't
+                intakeDropPower = 0;
             }
 
-            if(Math.abs(robot.gp1_lstickY) < SPEED_REDUCE_THRESHOLD){
+
+            if(Math.abs(robot.gp1_lstickY) < SPEED_REDUCE_THRESHOLD){ // reduce speed unless the stick is all the way forward
                 drivePowerY *= SPEED_REDUCE_VALUE;
             }
             if(Math.abs(robot.gp1_lstickX) < SPEED_REDUCE_THRESHOLD){
@@ -409,6 +404,8 @@ public class MainControl extends OpMode {
         }
 
         checkSensors();
+
+        // Telemetry
         //telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
       //  telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
       //  telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
