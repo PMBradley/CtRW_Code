@@ -255,13 +255,13 @@ public class Navigation2019 {
                 break;
         }
 
-        double wallOffset = 0;
+        double wallOffset = 0; // mathematical offset for which wall is being measured
 
         for(int j = 0; j < sensorWalls[i]; i++){
             wallOffset += 90;
         }
 
-        wallDistance = reading * Math.cos(ROTATION_DEG + wallOffset);
+        wallDistance = reading * Math.cos(clipDegrees(ROTATION_DEG + wallOffset));
 
 
         if(sensorWalls[i] == 0 || sensorWalls[i] == 2){ // if measuring the top or bottom walls
