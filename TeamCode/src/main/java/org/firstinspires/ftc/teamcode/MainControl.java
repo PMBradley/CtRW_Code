@@ -8,6 +8,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.ReadWriteFile;
+
+import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
 
@@ -418,6 +426,7 @@ public class MainControl extends OpMode {
      //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
       //  telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
        // telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
+        telemetry.addData("Heading:", navigation.getRotation());
         telemetry.update();
 
 

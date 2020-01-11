@@ -138,10 +138,10 @@ public class Robot2019 {
         touchBack6 = mainMap.get(DigitalChannel.class, "touchBack6");
         touchClamp7 = mainMap.get(DigitalChannel.class, "touchClamp7");
 
-        flightFront0 = mainMap.get(Rev2mDistanceSensor.class, "flightFront0");
-        flightLeft1 = mainMap.get(Rev2mDistanceSensor.class, "flightLeft1");
-        flightRight2 = mainMap.get(Rev2mDistanceSensor.class, "flightRight2");
-        flightBack3 = mainMap.get(Rev2mDistanceSensor.class, "flightBack3");
+        flightFront0 = (Rev2mDistanceSensor)mainMap.get(DistanceSensor.class, "flightFront0");
+        flightLeft1  = (Rev2mDistanceSensor)mainMap.get(DistanceSensor.class, "flightLeft1");
+        flightRight2 = (Rev2mDistanceSensor)mainMap.get(DistanceSensor.class, "flightRight2");
+        flightBack3  = (Rev2mDistanceSensor)mainMap.get(DistanceSensor.class, "flightBack3");
 
         imu = mainMap.get(BNO055IMU.class, "imu");
 
@@ -180,6 +180,10 @@ public class Robot2019 {
         output /= readRedundancy; // division part of averaging
 
         return (output);
+    }
+
+    public double getHeading(){
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
 }

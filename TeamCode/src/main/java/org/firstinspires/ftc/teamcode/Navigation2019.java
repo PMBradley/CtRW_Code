@@ -4,6 +4,14 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import java.lang.Math;
 
 public class Navigation2019 {
@@ -21,6 +29,8 @@ public class Navigation2019 {
     private double FIELD_WIDTH = 11.75;
     private double FIELD_HALF_LENGTH = FIELD_HEIGHT/2;
     private double FIELD_HALF_WIDTH = FIELD_WIDTH/2;
+
+    private double[] FLIGHT_OFFSETS = {20, 17, 24, 21}; // offsets from middle for each time of flight sensor
 
     //Waypoints
     private double[][] WAYPOINT;
@@ -235,23 +245,24 @@ public class Navigation2019 {
 
     double newX = 1;
     double newY = 1;
+    double[] reading = {1, 1, 1, 1};
 
     for(int i = 0; i < 4; i++){ // run once for each sensor
-        double reading = 1;
+
         double wallDistance = 1;
 
         switch (i){ // get the reading from the proper time of flight sensor
             case 0:
-                reading = robot.readFlight(robot.flightFront0);
+                reading[i] = robot.readFlight(robot.flightFront0) + FLIGHT_OFFSETS[i]; // get the reading and adjust to the offset
                 break;
             case 1:
-                reading = robot.readFlight(robot.flightRight2);
+                reading[i] = robot.readFlight(robot.flightRight2) + FLIGHT_OFFSETS[i];
                 break;
             case 2:
-                reading = robot.readFlight(robot.flightBack3);
+                reading[i] = robot.readFlight(robot.flightBack3) + FLIGHT_OFFSETS[i];
                 break;
             case 3:
-                reading = robot.readFlight(robot.flightLeft1);
+                reading[i] = robot.readFlight(robot.flightLeft1) + FLIGHT_OFFSETS[i];
                 break;
         }
 
@@ -261,7 +272,7 @@ public class Navigation2019 {
             wallOffset += 90;
         }
 
-        wallDistance = reading * Math.cos(clipDegrees(ROTATION_DEG + wallOffset)); // set the wall distance
+        wallDistance = reading[i] * Math.cos(clipDegrees(ROTATION_DEG + wallOffset)); // set the wall distance
 
 
         if(sensorWalls[i] == 0 || sensorWalls[i] == 2){ // if measuring the top or bottom walls
@@ -274,7 +285,17 @@ public class Navigation2019 {
                 tempY = FIELD_HEIGHT - wallDistance; // field height minus the reading
             }
 
-            if(tempY > newY){ // if the new reading is larger, make it the one used
+            boolean setValue = true;
+
+            for(int j = 0; j < i; j++){ // check each sensor before it
+                if(sensorWalls[i] == sensorWalls[j]){ // if that sensor is measuring the same wall
+                    if(reading[i] < reading[j]){ // and had a greater reading
+                        setValue = false; // do not overwrite the old y value
+                    }
+                }
+            }
+
+            if(setValue){
                 newY = tempY;
             }
         }
@@ -288,7 +309,17 @@ public class Navigation2019 {
                 tempX = FIELD_WIDTH - wallDistance; // field height minus the reading
             }
 
-            if(tempX > newX){ // if the new reading is larger, make it the one used
+            boolean setValue = true;
+
+            for(int j = 0; j < i; j++){ // check each sensor before it
+                if(sensorWalls[i] == sensorWalls[j]){ // if that sensor is measuring the same wall
+                    if(reading[i] < reading[j]){ // and had a greater reading
+                        setValue = false; // do not overwrite the old x value
+                    }
+                }
+            }
+
+            if(setValue){
                 newX = tempX;
             }
         }
@@ -298,7 +329,7 @@ public class Navigation2019 {
  }
 
  public void updateRotation(){
-   // robot.imu.;
+     ROTATION_DEG = robot.getHeading();
  }
 
 
