@@ -485,7 +485,7 @@ public class MainControl extends OpMode {
             case IDLE:
                 autoStartTime = (int) runtime.milliseconds();
 
-                quadrant = 0; // set which quadrant we are in
+                quadrant = navigation.getCurrentQuadrant(); // set which quadrant we are starting in
 
                 stateInc = 0;
                 moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
