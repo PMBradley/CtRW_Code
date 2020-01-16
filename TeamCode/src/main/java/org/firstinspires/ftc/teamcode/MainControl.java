@@ -143,6 +143,7 @@ public class MainControl extends OpMode {
 
     // State machine global variables
     public enum State{
+        COMPLETE,
         IDLE,
         STATE_0,
         STATE_1,
@@ -459,12 +460,19 @@ public class MainControl extends OpMode {
 
     // State machine code
 
+    public State masterState = State.STATE_0; // state machine flag - holds which step the state machine is on
 
-    public State masterState = State.STATE_0;
-    public State driveState = State.STATE_0;
+    public double[][] driveCoords = {
+            {30.0, 30.0, 0.0},
+            {30.0, 30.0, 90.0},
+            {30.0, 30.0, 180.0},
+            {30.0, 30.0, 270.0},
+            {30.0, 30.0, 0.0},
+    }; // Holds the coordinate points to be used with our navigation - the second dimension holds x, y, and r (in that order)
 
 
     public void AutoStep() {
+        double[] moveCoords = {30.0, 30.0, 0}; // array that holds the target xyr coordinate position - later set to one of the drive coordinates
 
 
 

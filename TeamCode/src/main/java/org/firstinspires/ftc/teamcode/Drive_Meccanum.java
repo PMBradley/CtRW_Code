@@ -42,21 +42,16 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Vector()
+    public void Drive_Vector(double xPower, double yPower, double rPower) // drives based off of powers and relative to the field
     {
-        if(!isInitilized) {
-            init_motors();
-        }
+        
 
     }
 
 
 
-    public void drive_Controller(double lStickX, double lStickY, double rStickX)
+    public void drive_Controller(double lStickX, double lStickY, double rStickX) // drives based off of controller inputs and relative to the robot
     {
-       /* if(!isInitilized)
-            init_motors();
-       */
         double magnitude = Math.hypot(lStickX, lStickY);
         double robotAngle = Math.atan2(lStickY, lStickX)- Math.PI/4;
         double rightX = rStickX;
