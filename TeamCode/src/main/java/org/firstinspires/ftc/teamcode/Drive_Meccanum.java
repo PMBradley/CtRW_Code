@@ -44,9 +44,10 @@ public class Drive_Meccanum {
 
     public void Drive_Vector(double x, double y, double r, double gyroHeading)
     {
+        /*
         if(!isInitilized)
             init_motors();
-
+         */
         double sin = Math.sin(-gyroHeading * 0.0174533);
         double cos = Math.cos(-gyroHeading * 0.0174533);
 
