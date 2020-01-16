@@ -421,7 +421,8 @@ public class MainControl extends OpMode {
         }
 
 
-        meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
+        //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
+        meccanum.Drive_Vector(-drivePowerY, drivePowerX, -drivePowerR, navigation.getRotation());
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
@@ -601,7 +602,7 @@ public class MainControl extends OpMode {
         }
 
 
-        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2]);
+        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
