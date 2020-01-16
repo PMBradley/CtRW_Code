@@ -24,7 +24,7 @@ public class Arm_Swing {
 
 
 
-    public void set_arm_position(boolean armDirectionIn, boolean armDirectionOut ){
+    public void set_arm_position(boolean armDirectionIn, boolean armDirectionOut ){ // use boolean variables to set the arm position to either in or out or not actively either
 
             if(armDirectionIn){
                 armDirection = armOpenPosition;
@@ -39,9 +39,7 @@ public class Arm_Swing {
             robot.armPivot.setPosition(armDirection);
 
     }
-    public void toggle_clamp_position(boolean clampAction){ // toggles the clamp position if a 1
-
-
+    public void toggle_clamp_position(boolean clampAction){ // toggles the clamp position if parameter is true
         if((clampAction)&& (clampIsClosed == false)) {
 
             clampDirection = clampClosePosition;
@@ -58,7 +56,7 @@ public class Arm_Swing {
 
     }
 
-    public void set_clamp_position(boolean clampRelease){
+    public void set_clamp_position(boolean clampRelease){ // sets the clamp attachment state to either closed or open
         if(clampRelease){
             clampDirection = clampReleasePosition;
         }
@@ -68,6 +66,4 @@ public class Arm_Swing {
 
         robot.armGrab.setPosition(clampDirection);
     }
-
-
 }

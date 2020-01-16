@@ -19,7 +19,7 @@ public class DropServo_DuoMirrored {
 
 
     boolean isInitilized = false;
-    double reverseMod = 1; // modifier used to reverse the servos if going the wrong direction
+    public double reverseMod = 1; // modifier used to reverse the servos if going the wrong direction
     double rangeMax = 1;
     double rangeMin = 0;
 
