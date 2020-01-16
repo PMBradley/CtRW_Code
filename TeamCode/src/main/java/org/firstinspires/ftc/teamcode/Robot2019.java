@@ -39,7 +39,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 public class Robot2019 {
     // Motor and servo variables
-    public DcMotor driveFL = null; //
+    public DcMotor driveFL = null;
     public DcMotor driveFR = null;
     public DcMotor driveBL = null;
     public DcMotor driveBR = null;
@@ -55,6 +55,7 @@ public class Robot2019 {
     public Servo pullerDropL = null;
     public Servo pullerDropR = null;
 
+    // Sensor Variables
     public DigitalChannel touchLift0 = null;
     public DigitalChannel touchArm1 = null;
     public DigitalChannel touchBlock2 = null;
@@ -71,14 +72,13 @@ public class Robot2019 {
 
     public BNO055IMU imu = null;
 
+    // The all important hardware map
     HardwareMap mainMap = null;
 
 
     int readRedundancy = 1; // non-boolean sensors check that many times when using the appropreate read function
-    //Vision variables
-   // WebcamName webcam = null;
 
-
+    // Controller variables - stored here to have access to them in all places with access to this class
     double gp1_lstickX = 0.0;
     double gp1_lstickY =  0.0;
     double gp1_rstickX =  0.0;
@@ -100,14 +100,10 @@ public class Robot2019 {
     boolean gp2_up = false;
     boolean gp2_down = false;
 
-    public Robot2019(){
-
-
-    } // constructor
+    public Robot2019(){ } // constructor
 
     public void init(HardwareMap hMap){
         mainMap = hMap;
-
 
         // Grabbing motors from hardware map
         driveFL = mainMap.get(DcMotor.class, "driveFL");
@@ -118,7 +114,6 @@ public class Robot2019 {
         motorIntakeL = mainMap.get(DcMotor.class, "intakeL");
         motorIntakeR = mainMap.get(DcMotor.class, "intakeR");
 
-
         // Grabbing servos from hardware map
         armPivot = mainMap.get(Servo.class, "armPivot");
         armGrab = mainMap.get(Servo.class, "armGrab");
@@ -126,7 +121,6 @@ public class Robot2019 {
         intakeDropR = mainMap.get(Servo.class, "intakeDropR");
         pullerDropL = mainMap.get(Servo.class, "pullerDropL");
         pullerDropR = mainMap.get(Servo.class, "pullerDropR");
-
 
         // Grabbing sensors from hardware map
         touchLift0 = mainMap.get(DigitalChannel.class, "touchLift0");
@@ -145,16 +139,11 @@ public class Robot2019 {
 
         imu = mainMap.get(BNO055IMU.class, "imu");
 
-        //webcam = mainMap.get(WebcamName.class, "webcam");
-
-        // Setup of time of flight sensors
-     //   Rev2mDistanceSensor flight0 = (Rev2mDistanceSensor)flightFront0;
-       // Rev2mDistanceSensor flight1 = (Rev2mDistanceSensor)flightLeft1;
-      //  Rev2mDistanceSensor flight2 = (Rev2mDistanceSensor)flightRight2;
-      //  Rev2mDistanceSensor flight3 = (Rev2mDistanceSensor)flightBack3;
+        //webcam = mainMap.get(WebcamName.class, "webcam"); // the webcam for webcam things
 
         armPivot.setPosition(0.69);
 
+        // Set up the Internal Measurement Unit
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -166,6 +155,7 @@ public class Robot2019 {
         imu.initialize(parameters);
     }
 
+    // Utility functions
     public double readFlight(DistanceSensor inFlight){
         double[] readings = new double[readRedundancy];
         double output = 0.0;
@@ -185,6 +175,5 @@ public class Robot2019 {
     public double getHeading(){
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
-
 }
 

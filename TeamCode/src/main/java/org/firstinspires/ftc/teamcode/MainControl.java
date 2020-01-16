@@ -23,39 +23,25 @@ import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistanc
 @TeleOp(name = "MainControl")
 public class MainControl extends OpMode {
 
-    //Key parameter variables
-
-
-    //HardwareMap hMap = robot.mainMap;
-
-    private Robot2019 robot = new Robot2019();
-    private ElapsedTime runtime  = new ElapsedTime();
-
-
-  /* public MainControl(Robot2019 robot)
-    {
-        this.robot = robot;
-    }
-  */
-
-
-
 
     // Create the instances of each class for the robot
-    Arm_Swing arm_swing = new Arm_Swing(robot);
+    private Robot2019 robot = new Robot2019(); // Main robot data class
+    private ElapsedTime runtime  = new ElapsedTime(); // internal clock
     Navigation2019 navigation = new Navigation2019(robot);
+
+    Arm_Swing arm_swing = new Arm_Swing(robot); // Hardware classes
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
     Lift_Linear lift = new Lift_Linear(robot);
     DropServo_DuoMirrored intakeDrop = new DropServo_DuoMirrored(robot, robot.intakeDropL, robot.intakeDropR);
     DropServo_DuoMirrored pullerDrop = new DropServo_DuoMirrored(robot, robot.pullerDropL, robot.pullerDropR);
 
+    // Global Variables
     public int INIT_FIELD_POS = 0; // Quad 1,2,3,4
     public int AUTO_RUNS_TOT = 3;
     public int CURR_RUN_TOT = 0;
 
     public int MODE_CHOICE_TIME = 3000;
-
 
     // Startup flags
     public boolean LOOP_FIRST_RUN = true; // used to indicate if it is the first run of the main loop
@@ -65,8 +51,6 @@ public class MainControl extends OpMode {
     public boolean INIT_COMPLETE = false;
     public boolean INIT_FAIL = false;
     public boolean AUTO_MODE_ACTIVE = true; // assumes autonomous until given an input
-
-
 
     // Game Flags
     public boolean WAYPOINT_REACHED = false;
@@ -79,8 +63,6 @@ public class MainControl extends OpMode {
 
     //Game double
     public double LIFT_LEVEL = 0.0;
-
-
 
 
     // Startup initialization
@@ -430,8 +412,6 @@ public class MainControl extends OpMode {
         telemetry.addData("Heading:", navigation.getRotation());
         telemetry.update();
 
-
-
         //more failsafes
         if(!robot.touchLift0.getState() == true){
             liftPowerL = 0;
@@ -439,9 +419,6 @@ public class MainControl extends OpMode {
         if(!robot.touchLiftUp3.getState() == true){
             liftPowerR = 0;
         }
-
-
-
 
 
         meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
@@ -458,7 +435,7 @@ public class MainControl extends OpMode {
 
 
 
-    // State machine code
+    // Autonomous Code
     public State autoState = State.IDLE; // state machine flag - holds which step the state machine is on
     public int stateInc = 0; // keeps an index of which state we are at (only starts counting when at state 0)
     public int quadrant = 0;
@@ -502,7 +479,6 @@ public class MainControl extends OpMode {
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
 
         navigation.updateLocation();
-
 
 
         switch (autoState){ // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
