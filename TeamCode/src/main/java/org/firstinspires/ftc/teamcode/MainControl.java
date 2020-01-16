@@ -459,121 +459,179 @@ public class MainControl extends OpMode {
 
 
     // State machine code
+    public State autoState = State.IDLE; // state machine flag - holds which step the state machine is on
+    public int stateInc = 0; // keeps an index of which state we are at (only starts counting when at state 0)
+    public int quadrant = 0;
 
-    public State masterState = State.STATE_0; // state machine flag - holds which step the state machine is on
+    private double[][][] driveCoords = {
+            { // quadrant 0 coordinates
+                    {30.0, 30.0, 0.0},
+                    {30.0, 30.0, 90.0},
+                    {30.0, 30.0, 180.0},
+                    {30.0, 30.0, 270.0},
+                    {30.0, 30.0, 0.0},
+            },
 
-    public double[][] driveCoords = {
-            {30.0, 30.0, 0.0},
-            {30.0, 30.0, 90.0},
-            {30.0, 30.0, 180.0},
-            {30.0, 30.0, 270.0},
-            {30.0, 30.0, 0.0},
-    }; // Holds the coordinate points to be used with our navigation - the second dimension holds x, y, and r (in that order)
+            { // quadrant 1 coordinates
+                    {30.0, 30.0, 0.0},
+                    {30.0, 30.0, 90.0},
+                    {30.0, 30.0, 180.0},
+                    {30.0, 30.0, 270.0},
+                    {30.0, 30.0, 0.0},
+            },
+    }; // Holds the coordinate points to be used with our navigation - first state holds the quadrant differences - second dimension holds the state - the thrid dimension holds x, y, and r (in that order)
+    private int[] autoStepTimes = {5_000, 5_000, 5_000, 5_000, 5_000}; // fail safe times for each step in the autonomous program - in milisecs
+    private int autoStartTime = 0;
+    private int autoStateTargetTime = 0;
+    private boolean autoStateFirstRun = true;
+
+    private double transApproachReduce = 15;
+    private double rotApproachReduce = 10;
 
 
     public void AutoStep() {
-        double[] moveCoords = {30.0, 30.0, 0}; // array that holds the target xyr coordinate position - later set to one of the drive coordinates
+        double liftPowerL = 0.0; // power variables for the manipulators
+        double liftPowerR = 0.0; // later set by the state machine to do things
+        double pullerPower = 0.0;
+        boolean armSwingIn = false;
+        boolean armSwingOut = false;
+        boolean spinIntakeOut = false;
+        boolean spinIntakeIn = false;
+
+        double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
+        double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
+
+        navigation.updateLocation();
 
 
 
-     /*//   switch(CURR_STATE){
+        switch (autoState){ // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
+            case IDLE:
+                autoStartTime = (int) runtime.milliseconds();
+
+                quadrant = 0; // set which quadrant we are in
+
+                stateInc = 0;
+                moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
+
+                blockDownState = State.STATE_0;
+                break;
+            case STATE_0:
+                stateInc = 0;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-          //  case STATE_INIT:
-              // call subroutine to move lift to initial position
-              // may want to check to see if all your sensors are ok also
-              // get position on field
-              // get first waypoint from navigation
-              // check if Robot is stopped if not stop it
+                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    blockDownState = State.STATE_1;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_1:
+                stateInc = 1;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
+                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    blockDownState = State.STATE_1;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_2:
+                stateInc = 2;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-              if (AUTO_MODE_ACTIVE == true) { // Include other conditions in this statement
-                  CURR_STATE = State.STATE_START;
+                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    blockDownState = State.STATE_1;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_3:
+                stateInc = 3;
 
-              }
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
 
-            break;
+                    autoStateFirstRun = false;
+                }
+                moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
-            case STATE_START:
-                // Check if robot is ready and init passed then move to next state
-                // Else you may want to write an error to log and telemetry
-                // You may also want to write a message to telemetry that the sequence has started
-                CURR_STATE = State.STATE_MOVE_POS;
 
-            break;
+                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    blockDownState = State.STATE_1;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_4:
+                stateInc = 4;
 
-            case STATE_MOVE_POS:
-                // Call drive routine and pass down first waypoint
-                // Drive routine can run until the waypoint is reached
-                // Once the waypoint is reached you can keep iterating through this step until
-                // drive sequence is complete
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
 
-                if ((BLOCK_FOUND == true) && (ROBOT_INTAKE_POS)){
-                    CURR_STATE = State.STATE_INTAKE_POS;
+                    autoStateFirstRun = false;
+                }
+                moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
+
+                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    blockDownState = State.STATE_1;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case COMPLETE:
+                moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
+
+                if(excedesTime(autoStartTime + 36_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
+                    AUTO_MODE_ACTIVE = false;
                 }
 
-                if (DRIVE_SEQ_COMPLETE == true){
-                    CURR_STATE = State.STATE_SEQ_COMPLETE;
+                break;
+        }
 
-                }
-
-                if ((BLOCK_CAPTURED == true) && (ROBOT_PLACE_POS == true)){
-                    CURR_STATE = State.STATE_PLACE_BLOCK;
-
-
-                }
-
-
-            break;
-
-            case STATE_INTAKE_POS:
-               // Call intake routine
-               // Confirm block was caputured
-               // I would return back to the move state and read flags
-
-
-            break;
-
-            case STATE_PLACE_BLOCK:
-             // I would call an auto sub routine to move the lift into position based ont the needed level
-             //
-             // place the block and return to the lowered position.
-             // I would then return back to move state and read flags
-
-             break;
-
-            case STATE_SEQ_COMPLETE:
-            // I would use this to return to a neutral waypoint and reset the sequence to start
-            // read the # of runs and reset navigation
-
-            CURR_RUN_TOT++;
-
-
-            if (CURR_RUN_TOT == AUTO_RUNS_TOT){
-                CURR_STATE = State.STATE_STOP;
-
-            }
-            if (CURR_RUN_TOT != AUTO_RUNS_TOT) {
-                CURR_STATE = State.STATE_START;
-
-            }
-
-            break;
-
-            case STATE_STOP:
-             // This should be an all stop
-             // I would include this to make sure no more action after the time expires for autoOp.
-
-
-            break;
+        // Set Translational power values
+        movePowers[0] = (moveCoords[0] - navigation.X) / transApproachReduce; // if the target X move position is less than current X position, move that direction and visa versa
+        movePowers[1] = (moveCoords[1] - navigation.Y) / transApproachReduce; // if the target Y move position is less than current Y position, move that direction and visa versa
+        // Set Rotational Power Values
+        double[] checkRotations = {moveCoords[2], moveCoords[2]};
+        if(navigation.ROTATION_DEG - 180 < 0){ // account the range for the fact that it might fall close to the cut off point on the 360 degree range
+            checkRotations[0] -= 360; // create a ghost layer underneath the regular target value
+        }
+        else {
+            checkRotations[1] += 360; // create a ghost layer above the regular target value
+        }
+        if(Math.abs(checkRotations[1] - navigation.ROTATION_DEG) > Math.abs(checkRotations[0] - navigation.ROTATION_DEG)){ // if one is closer
+            movePowers[2] = (checkRotations[1] - navigation.ROTATION_DEG) / rotApproachReduce; // move towards that one
+        }
+        else { // else
+            movePowers[2] = (checkRotations[0] - navigation.ROTATION_DEG) / rotApproachReduce; // move away from that one
         }
 
 
-*/
-
-
+        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2]);
+        flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+        lift.move_Controller(liftPowerR , liftPowerL);
+        arm_swing.set_arm_position(armSwingIn, armSwingOut);
+        arm_swing.set_clamp_position(clampRelease);
+        pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
+        intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
     }
 
 

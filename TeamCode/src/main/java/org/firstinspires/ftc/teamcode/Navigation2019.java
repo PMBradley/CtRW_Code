@@ -32,11 +32,13 @@ public class Navigation2019 {
 
     private double[] FLIGHT_OFFSETS = {20, 17, 24, 21}; // offsets from middle for each time of flight sensor
 
-    //Waypoints
-    private double[][] WAYPOINT;
-    private double DistanceErrors[];
+    private double transMargin = 5; // the number of centimeters that the robot has to be within the target translational position
+    private double rotMargin = 3; // the number of degrees that the robot has to be within the target rotation
 
-    private int CURRENT_WAYPOINT = 0;
+    //Waypoints
+ //   private double[][] WAYPOINT;
+  //  private double DistanceErrors[];
+ //   private int CURRENT_WAYPOINT = 0;
 
     // Wall Distances
     private double LEFT_LIDAR_DISTANCE = 0.0;
@@ -44,8 +46,8 @@ public class Navigation2019 {
     private double BACK_LIDAR_DISTANCE = 0.0;
     private double FRONT_LIDAR_DISTANCE = 0.0;
 
-    public double X = 0.0;
-    public double Y = 0.0;
+    public double X = 10.0;
+    public double Y = 10.0;
     public double ROTATION_DEG = 0.0;
     private double lastX = X;
     private double lastY = Y;
@@ -53,147 +55,65 @@ public class Navigation2019 {
     public double CURRENT_LOCATION[]; // X, Y, Rotation
 
 
-
     public double[] getCurrentLocation(){
-
         updateLocation();
 
         return CURRENT_LOCATION;
     }
-
     public double getX(){
         updateLocation();
 
         return X;
     }
-
     public double getY(){
         updateLocation();
 
         return Y;
     }
-
     public double getRotation(){
         updateRotation();
 
         return ROTATION_DEG;
     }
 
- public int getCurrentQuadrant(){
+    void setNavMargin(double inTranslationMargin, double inRotationMargin){
+        transMargin = inTranslationMargin;
+        rotMargin = inRotationMargin;
+    }
 
-     int Quadrant = 0;
+    public boolean atCoord(double inX, double inY, double inR){ // determines if the robot is currently within the margin of errors to a coordinate
+        boolean output = false;
+        boolean[] withinConstraint = {false, false, false};
 
-     //Set quadrant for autonomous start, probably need to add the skystone target also from Vuforia
-     if((LEFT_LIDAR_DISTANCE < FIELD_HALF_LENGTH) && (RIGHT_LIDAR_DISTANCE > FIELD_HALF_LENGTH)
-             && (BACK_LIDAR_DISTANCE < FIELD_HALF_WIDTH) && (FRONT_LIDAR_DISTANCE > FIELD_HALF_WIDTH)){
-
-      Quadrant = 1; // Blue 1
-
-         // Load position specific waypoints based on starting position
-
-         WAYPOINT[0][0] = 0.0;
-         WAYPOINT[0][1] = 0.0;
-         WAYPOINT[0][2] = 0.0;
-         WAYPOINT[0][3] = 0.0;
-
-         WAYPOINT[1][0] = 0.0;
-         WAYPOINT[1][1] = 0.0;
-         WAYPOINT[1][2] = 0.0;
-         WAYPOINT[1][3] = 0.0;
-
-         WAYPOINT[2][0] = 0.0;
-         WAYPOINT[2][1] = 0.0;
-         WAYPOINT[2][2] = 0.0;
-         WAYPOINT[2][3] = 0.0;
-
-         WAYPOINT[3][0] = 0.0;
-         WAYPOINT[3][1] = 0.0;
-         WAYPOINT[3][2] = 0.0;
-         WAYPOINT[3][3] = 0.0;
-
-     }
-
-     if((LEFT_LIDAR_DISTANCE > FIELD_HALF_LENGTH) && (RIGHT_LIDAR_DISTANCE < FIELD_HALF_LENGTH)
-             && (BACK_LIDAR_DISTANCE < FIELD_HALF_WIDTH) && (FRONT_LIDAR_DISTANCE > FIELD_HALF_WIDTH)){
-
-         Quadrant = 2; // Blue 2
-
-         // Load position specific waypoints based on starting position
-
-         WAYPOINT[0][0] = 0.0;
-         WAYPOINT[0][1] = 0.0;
-         WAYPOINT[0][2] = 0.0;
-         WAYPOINT[0][3] = 0.0;
-
-         WAYPOINT[1][0] = 0.0;
-         WAYPOINT[1][1] = 0.0;
-         WAYPOINT[1][2] = 0.0;
-         WAYPOINT[1][3] = 0.0;
-
-         WAYPOINT[2][0] = 0.0;
-         WAYPOINT[2][1] = 0.0;
-         WAYPOINT[2][2] = 0.0;
-         WAYPOINT[2][3] = 0.0;
-
-         WAYPOINT[3][0] = 0.0;
-         WAYPOINT[3][1] = 0.0;
-         WAYPOINT[3][2] = 0.0;
-         WAYPOINT[3][3] = 0.0;
-
-     }
-
-
-
-     return Quadrant;
- }
-
- public double[] getDistanceError(){
-
-        double DistanceErrorFront = 0.0;
-        double DistanceErrorBack = 0.0;
-        double DistanceErrorLeft = 0.0;
-        double DistanceErrorRight = 0.0;
-
-
-        int LEFT = 0;
-        int RIGHT = 1;
-        int BACK = 2;
-        int FRONT = 3;
-
-        DistanceErrorLeft = WAYPOINT[CURRENT_WAYPOINT][LEFT] - CURRENT_LOCATION[LEFT];
-        DistanceErrorRight = WAYPOINT[CURRENT_WAYPOINT][RIGHT] - CURRENT_LOCATION[RIGHT];
-        DistanceErrorBack = WAYPOINT[CURRENT_WAYPOINT][BACK] - CURRENT_LOCATION[BACK];
-        DistanceErrorFront = WAYPOINT[CURRENT_WAYPOINT][FRONT] - CURRENT_LOCATION[FRONT];
-
-
-        // May need to include some absolutes
-        DistanceErrors[0] = DistanceErrorLeft;
-        DistanceErrors[1] = DistanceErrorRight;
-        DistanceErrors[2] = DistanceErrorBack;
-        DistanceErrors[3] = DistanceErrorFront;
-
-        // Waypoint_Tracking();
-
-    return  DistanceErrors;
- }
-
- /*public void Waypoint_Tracking(){
-
-        //boolean Waypoint_Reached = false;
-        double  RANGE_OFFSET = 1.0;
-
-        if ((DistanceErrors[0] < RANGE_OFFSET) &&
-            (DistanceErrors[1] < RANGE_OFFSET) &&
-            (DistanceErrors[2] < RANGE_OFFSET) &&
-                (DistanceErrors[3] < RANGE_OFFSET)
-        ){
-            CURRENT_WAYPOINT++;
-
-
+        // Check translation
+        if(X < inX + transMargin && X > inX - transMargin){
+            withinConstraint[0] = true;
+        }
+        if(Y < inY + transMargin && Y > inY - transMargin){
+            withinConstraint[1] = true;
         }
 
+        // Check rotation
+        double[] checkRotations = {clipDegrees(inR - rotMargin), clipDegrees(inR + rotMargin)}; // the range that the robot must be within
+        if(ROTATION_DEG - rotMargin < 0){ // account the range for the fact that it might fall close to the cut off point on the 360 degree range
+            checkRotations[0] -= 360;
+        }
+        else if(ROTATION_DEG + rotMargin >= 360){
+            checkRotations[1] += 360;
+        }
 
- }*/
+        if(ROTATION_DEG >= checkRotations[0] && ROTATION_DEG <= checkRotations[1]){ // check rotation
+            withinConstraint[2] = true;
+        }
+
+        if(withinConstraint[0] && withinConstraint[1] && withinConstraint[2]){ // if within parameters on all three constraints
+            output = true;
+        }
+
+        return (output);
+    }
+
+
 
  public void updateLocation(){
      updateRotation();
@@ -333,17 +253,116 @@ public class Navigation2019 {
  }
 
 
- public double clipDegrees(double inputDeg) {
+ public double clipDegrees(double inputDeg) { // utility function used to ensure a rotation value never goes to or above 360 degrees
      double output = inputDeg;
      if (output > 0) {
-         while (output > 360) {
+         while (output >= 360) {
              output -= 360;
          }
      } else {
-         while (output < -360) {
+         while (output <= -360) {
              output += 360;
          }
      }
     return (output);
  }
+
+
+  /*  public int getCurrentQuadrant(){
+
+        int Quadrant = 0;
+
+        //Set quadrant for autonomous start, probably need to add the skystone target also from Vuforia
+        if((LEFT_LIDAR_DISTANCE < FIELD_HALF_LENGTH) && (RIGHT_LIDAR_DISTANCE > FIELD_HALF_LENGTH)
+                && (BACK_LIDAR_DISTANCE < FIELD_HALF_WIDTH) && (FRONT_LIDAR_DISTANCE > FIELD_HALF_WIDTH)){
+
+            Quadrant = 1; // Blue 1
+
+            // Load position specific waypoints based on starting position
+
+            WAYPOINT[0][0] = 0.0;
+            WAYPOINT[0][1] = 0.0;
+            WAYPOINT[0][2] = 0.0;
+            WAYPOINT[0][3] = 0.0;
+
+            WAYPOINT[1][0] = 0.0;
+            WAYPOINT[1][1] = 0.0;
+            WAYPOINT[1][2] = 0.0;
+            WAYPOINT[1][3] = 0.0;
+
+            WAYPOINT[2][0] = 0.0;
+            WAYPOINT[2][1] = 0.0;
+            WAYPOINT[2][2] = 0.0;
+            WAYPOINT[2][3] = 0.0;
+
+            WAYPOINT[3][0] = 0.0;
+            WAYPOINT[3][1] = 0.0;
+            WAYPOINT[3][2] = 0.0;
+            WAYPOINT[3][3] = 0.0;
+
+        }
+
+        if((LEFT_LIDAR_DISTANCE > FIELD_HALF_LENGTH) && (RIGHT_LIDAR_DISTANCE < FIELD_HALF_LENGTH)
+                && (BACK_LIDAR_DISTANCE < FIELD_HALF_WIDTH) && (FRONT_LIDAR_DISTANCE > FIELD_HALF_WIDTH)){
+
+            Quadrant = 2; // Blue 2
+
+            // Load position specific waypoints based on starting position
+
+            WAYPOINT[0][0] = 0.0;
+            WAYPOINT[0][1] = 0.0;
+            WAYPOINT[0][2] = 0.0;
+            WAYPOINT[0][3] = 0.0;
+
+            WAYPOINT[1][0] = 0.0;
+            WAYPOINT[1][1] = 0.0;
+            WAYPOINT[1][2] = 0.0;
+            WAYPOINT[1][3] = 0.0;
+
+            WAYPOINT[2][0] = 0.0;
+            WAYPOINT[2][1] = 0.0;
+            WAYPOINT[2][2] = 0.0;
+            WAYPOINT[2][3] = 0.0;
+
+            WAYPOINT[3][0] = 0.0;
+            WAYPOINT[3][1] = 0.0;
+            WAYPOINT[3][2] = 0.0;
+            WAYPOINT[3][3] = 0.0;
+
+        }
+
+
+
+        return Quadrant;
+    }
+
+    public double[] getDistanceError(){
+
+        double DistanceErrorFront = 0.0;
+        double DistanceErrorBack = 0.0;
+        double DistanceErrorLeft = 0.0;
+        double DistanceErrorRight = 0.0;
+
+
+        int LEFT = 0;
+        int RIGHT = 1;
+        int BACK = 2;
+        int FRONT = 3;
+
+        DistanceErrorLeft = WAYPOINT[CURRENT_WAYPOINT][LEFT] - CURRENT_LOCATION[LEFT];
+        DistanceErrorRight = WAYPOINT[CURRENT_WAYPOINT][RIGHT] - CURRENT_LOCATION[RIGHT];
+        DistanceErrorBack = WAYPOINT[CURRENT_WAYPOINT][BACK] - CURRENT_LOCATION[BACK];
+        DistanceErrorFront = WAYPOINT[CURRENT_WAYPOINT][FRONT] - CURRENT_LOCATION[FRONT];
+
+
+        // May need to include some absolutes
+        DistanceErrors[0] = DistanceErrorLeft;
+        DistanceErrors[1] = DistanceErrorRight;
+        DistanceErrors[2] = DistanceErrorBack;
+        DistanceErrors[3] = DistanceErrorFront;
+
+        // Waypoint_Tracking();
+
+        return  DistanceErrors;
+    }*/
 }
