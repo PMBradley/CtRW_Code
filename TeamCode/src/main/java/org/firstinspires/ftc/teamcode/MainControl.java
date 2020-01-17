@@ -396,6 +396,9 @@ public class MainControl extends OpMode {
 
         checkSensors();
 
+
+
+        //navigation.updateLocation();
         // Telemetry
         //telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
       //  telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
@@ -409,6 +412,8 @@ public class MainControl extends OpMode {
      //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
       //  telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
        // telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
+        telemetry.addData("X Pos:", navigation.X);
+        telemetry.addData("Y Pos:", navigation.Y);
         telemetry.addData("Heading:", navigation.getRotation());
         telemetry.update();
 
@@ -422,7 +427,7 @@ public class MainControl extends OpMode {
 
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        meccanum.Drive_Vector(-drivePowerY, drivePowerX, -drivePowerR, navigation.getRotation());
+        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation());
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
@@ -465,7 +470,6 @@ public class MainControl extends OpMode {
 
     private double transApproachReduce = 15;
     private double rotApproachReduce = 10;
-
 
     public void AutoStep() {
         double liftPowerL = 0.0; // power variables for the manipulators
