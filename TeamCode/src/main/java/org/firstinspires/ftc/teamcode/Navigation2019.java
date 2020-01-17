@@ -118,7 +118,7 @@ public class Navigation2019 {
  public void updateLocation(){
      updateRotation();
      updateFlight();
-
+     //double temp = robot.readFlight(robot.flightFront0);
 
  }
 
@@ -187,8 +187,8 @@ public class Navigation2019 {
         }
 
         double wallOffset = 0; // mathematical offset for which wall is being measured
-
-        for(int j = 0; j < sensorWalls[i]; i++){
+//
+        for(int j = 0; j < sensorWalls[i]; j++){
             wallOffset += 90;
         }
 
@@ -243,24 +243,30 @@ public class Navigation2019 {
                 newX = tempX;
             }
         }
+
     }
 
-
+    X = newX;
+    Y = newY;
  }
 
  public void updateRotation(){
-     ROTATION_DEG = robot.getHeading();
+     double tempRot = robot.getHeading();
+
+     tempRot *= -1;
+
+     ROTATION_DEG = clipDegrees(tempRot);
  }
 
 
  public double clipDegrees(double inputDeg) { // utility function used to ensure a rotation value never goes to or above 360 degrees
      double output = inputDeg;
-     if (output > 0) {
+     if (output >= 0) {
          while (output >= 360) {
              output -= 360;
          }
      } else {
-         while (output <= -360) {
+         while (output < 0) {
              output += 360;
          }
      }
