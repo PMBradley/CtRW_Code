@@ -49,6 +49,8 @@ public class Drive_Meccanum {
       //  y *= -1;
        // r *= -1;
 
+        gyroHeading = ((gyroHeading - 180) * -1) + 180;
+
         double sin = Math.sin(-gyroHeading * 0.0174533);
         double cos = Math.cos(-gyroHeading * 0.0174533);
 
@@ -61,9 +63,9 @@ public class Drive_Meccanum {
         double bl = forward + clockwise - right;
         double br = forward - clockwise + right;
 
-        robot.driveFL.setPower(-fl);
+        robot.driveFL.setPower(fl);
         robot.driveFR.setPower(fr);
-        robot.driveBL.setPower(-bl);
+        robot.driveBL.setPower(bl);
         robot.driveBR.setPower(br);
     }
 
