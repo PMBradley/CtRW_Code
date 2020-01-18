@@ -165,6 +165,7 @@ public class MainControl extends OpMode {
             double liftPowerL = robot.gp2_ltrigger;
             double liftPowerR = robot.gp2_rtrigger;
             double pullerPower = ((1 - robot.gp1_rtrigger) / 2) + .5; // left trigger is positive power, right trigger is negative power
+            double Ltrigger = robot.gp1_ltrigger;
             boolean armSwingIn = robot.gp2_lbumper;
             boolean armSwingOut = robot.gp2_rbumper;
             boolean spinIntakeOut = robot.gp1_lbumper;
@@ -418,6 +419,11 @@ public class MainControl extends OpMode {
         telemetry.addData("X Pos:", navigation.X);
         telemetry.addData("Y Pos:", navigation.Y);
         telemetry.addData("Heading:", navigation.getRotation());
+        if(Ltrigger < .5)
+            telemetry.addData("Boost OFF", Ltrigger);
+        else
+            telemetry.addData("Boost ON!", Ltrigger);
+
         telemetry.update();
 
         //more failsafes
@@ -429,7 +435,7 @@ public class MainControl extends OpMode {
         }
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), true);
+        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
