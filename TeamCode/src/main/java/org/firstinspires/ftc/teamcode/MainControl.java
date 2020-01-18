@@ -98,6 +98,7 @@ public class MainControl extends OpMode {
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
             if(AUTO_MODE_ACTIVE){ // if auto-op
+                zomAuto(); // a hacked together autonomous
                 //AutoStep();
                 telemetry.addData("Mode","Auto");
             }
@@ -440,6 +441,31 @@ public class MainControl extends OpMode {
         lastTouchBlockCount = touchBlockCount;
     }
 
+
+
+    // Zombie Auto
+    private boolean zomFirstRun = true;
+    private double[] zomStateTimes = {2_000};
+    private int zomStateTargetTime = 0;
+    private double[][] zomCoords = {{0, -0.5, 0}};
+
+    public void zomAuto(){
+        double drivePowerX = 0; // set all values to their corresponding controller values
+        double drivePowerY = 0;
+        double drivePowerR = 0;
+
+        if(zomFirstRun){
+            zomStateTargetTime = (int)(runtime.milliseconds() + zomStateTimes[0]);
+        }
+
+        if(!excedesTime(zomStateTargetTime)){
+            drivePowerX = zomCoords[0][0];
+            drivePowerY = zomCoords[0][1];
+            drivePowerR = zomCoords[0][2];
+        }
+
+        meccanum.drive_Controller(drivePowerX, drivePowerY, drivePowerR);
+    }
 
 
     // Autonomous Code
