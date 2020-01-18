@@ -451,9 +451,9 @@ public class MainControl extends OpMode {
 
     // Zombie Auto
     private boolean zomFirstRun = true;
-    private double[] zomStateTimes = {2_000};
+    private double[] zomStateTimes = {1_000};
     private int zomStateTargetTime = 0;
-    private double[][] zomCoords = {{0, -0.5, 0}};
+    private double[][] zomCoords = {{0, 0.5, 0}};
 
     public void zomAuto(){
         double drivePowerX = 0; // set all values to their corresponding controller values
@@ -462,6 +462,7 @@ public class MainControl extends OpMode {
 
         if(zomFirstRun){
             zomStateTargetTime = (int)(runtime.milliseconds() + zomStateTimes[0]);
+            zomFirstRun = false;
         }
 
         if(!excedesTime(zomStateTargetTime)){
@@ -470,7 +471,7 @@ public class MainControl extends OpMode {
             drivePowerR = zomCoords[0][2];
         }
 
-        meccanum.drive_Controller(drivePowerX, drivePowerY, drivePowerR);
+        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), false);
     }
 
 
