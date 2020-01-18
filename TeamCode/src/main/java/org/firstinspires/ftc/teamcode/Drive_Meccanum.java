@@ -10,7 +10,7 @@ public class Drive_Meccanum {
     private Robot2019 robot;
 
     private double turnDivisor = 0.75;
-    private double speedDivisor = 0.60;
+    private double speedDivisor = 0.50;
 
 
     public Drive_Meccanum(Robot2019 robot)
@@ -45,15 +45,15 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Vector(double x, double y, double r, double heading) {
+    public void Drive_Vector(double x, double y, double r, double heading, boolean limiter) {
         //x = Math.sin(heading) * x;
         //y = Math.cos(heading) * y;
 
-        if (Math.abs(x) < .9)
+        if (Math.abs(x) < .9 && limiter == true)
         {
             x = x * speedDivisor;
         }
-        if(Math.abs(y) < .9)
+        if(Math.abs(y) < .9 && limiter == true)
         {
             y = y * speedDivisor;
         }
