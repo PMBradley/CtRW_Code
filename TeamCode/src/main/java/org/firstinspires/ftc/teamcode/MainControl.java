@@ -174,7 +174,9 @@ public class MainControl extends OpMode {
             checkSensors();
             //Setters
             if(robot.gp1_a == true || robot.gp2_a == true){ // if a is being pressed, drop intakes
-                intakeDropPower = .5;
+                //intakeDropPower = -1;
+                robot.intakeDropL.setPosition(1);
+                robot.intakeDropR.setPosition(.4);
             }
             else { // else don't
                 intakeDropPower = 0;
@@ -425,14 +427,14 @@ public class MainControl extends OpMode {
             liftPowerR = 0;
         }
 
-        meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-       // meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation());
+        //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
+        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation());
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
         arm_swing.set_clamp_position(clampRelease);
         pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
-        intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
+        //intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
 
 
         lastTouchBlockCount = touchBlockCount;
@@ -605,7 +607,7 @@ public class MainControl extends OpMode {
         }
 
 
-        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
+        //meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);

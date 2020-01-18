@@ -9,6 +9,9 @@ public class Drive_Meccanum {
 
     private Robot2019 robot;
 
+    private double turnDivisor = 0.75;
+    private double speedDivisor = 0.60;
+
 
     public Drive_Meccanum(Robot2019 robot)
     {
@@ -42,31 +45,28 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Vector(double x, double y, double r, double gyroHeading)
-    {
-        //if(!isInitilized)
-          //  init_motors();
-      //  y *= -1;
-       // r *= -1;
+    public void Drive_Vector(double x, double y, double r, double heading) {
+        //x = Math.sin(heading) * x;
+        //y = Math.cos(heading) * y;
 
-        gyroHeading = ((gyroHeading - 180) * -1) + 180;
+        if (Math.abs(x) < .9)
+        {
+            x = x * speedDivisor;
+        }
+        if(Math.abs(y) < .9)
+        {
+            y = y * speedDivisor;
+        }
 
-        double sin = Math.sin(-gyroHeading * 0.0174533);
-        double cos = Math.cos(-gyroHeading * 0.0174533);
-
-        double forward = x * sin + y * cos;
-        double clockwise = r;
-        double right = x * cos - y * sin;
-
-        double fl = forward + clockwise + right;
-        double fr = forward - clockwise - right;
-        double bl = forward + clockwise - right;
-        double br = forward - clockwise + right;
+        double fl = y - x - (r * turnDivisor);
+        double fr = y + x + (r * turnDivisor);
+        double bl = y + x - (r * turnDivisor);
+        double br = y - x + (r * turnDivisor);
 
         robot.driveFL.setPower(fl);
-        robot.driveFR.setPower(fr);
+        robot.driveFR.setPower(-fr);
         robot.driveBL.setPower(bl);
-        robot.driveBR.setPower(br);
+        robot.driveBR.setPower(-br);
     }
 
     public void drive_Controller(double lStickX, double lStickY, double rStickX)
