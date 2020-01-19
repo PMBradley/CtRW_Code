@@ -66,6 +66,13 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 //@Disabled
 public class VisionSystem extends LinearOpMode {
 
+    private Robot2019 robot;
+
+    public VisionSystem(Robot2019 robot)
+    {
+        this.robot = robot;
+    }
+
     //Assets and elements
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
@@ -111,7 +118,8 @@ public class VisionSystem extends LinearOpMode {
     private TFObjectDetector tfod;
 
     //Vuforia localizer parameters
-    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+  //  int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+    int cameraMonitorViewId = robot.mainMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", robot.mainMap.appContext.getPackageName());
     VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
     /*
@@ -159,7 +167,8 @@ public class VisionSystem extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+       // parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        parameters.cameraName = robot.webcamName;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
@@ -167,15 +176,18 @@ public class VisionSystem extends LinearOpMode {
 
         AppUtil.getInstance().ensureDirectoryExists(captureDirectory);
 
+        //Not esure what happens if we activate Vuforia and Tensorflow together may go boom?
         activateVuforia();
 
     }
 
     public void initTfod() {
-        // Start tensorflow object detection engine
+        // Start tensorflow object detection engine, init Vuforia prior to init Tensorflow
 
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        initVuforia();
+
+        int tfodMonitorViewId = robot.mainMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", robot.mainMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minimumConfidence = 0.8;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);

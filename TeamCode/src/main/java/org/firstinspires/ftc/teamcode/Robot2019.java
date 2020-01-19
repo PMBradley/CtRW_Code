@@ -35,6 +35,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 
 public class Robot2019 {
@@ -71,6 +72,7 @@ public class Robot2019 {
     public Rev2mDistanceSensor flightBack3 = null;
 
     public BNO055IMU imu = null;
+    public WebcamName webcamName = null;
 
     // The all important hardware map
     HardwareMap mainMap = null;
@@ -104,6 +106,7 @@ public class Robot2019 {
 
     public void init(HardwareMap hMap){
         mainMap = hMap;
+
 
         // Grabbing motors from hardware map
         driveFL = mainMap.get(DcMotor.class, "driveFL");
@@ -139,7 +142,7 @@ public class Robot2019 {
 
         imu = mainMap.get(BNO055IMU.class, "imu");
 
-        //webcam = mainMap.get(WebcamName.class, "webcam"); // the webcam for webcam things
+        webcamName = mainMap.get(WebcamName.class, "Webcam 1"); // the webcam for webcam things
 
         armPivot.setPosition(0.69);
 
