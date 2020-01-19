@@ -9,6 +9,9 @@ public class Drive_Meccanum {
 
     private Robot2019 robot;
 
+    private double turnDivisor = 0.5;
+    private double speedDivisor = 0.40;
+
 
     public Drive_Meccanum(Robot2019 robot)
     {
@@ -20,7 +23,7 @@ public class Drive_Meccanum {
     //Variables
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    static final double     WHEEL_DIAMETER_INCHES   = 3.0 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
@@ -42,15 +45,52 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Vector()
-    {
-        if(!isInitilized)
-            init_motors();
+    public void Drive_Vector(double x, double y, double r, double heading, boolean limiter) {
+        //x = Math.sin(heading) * x;
+        //y = Math.cos(heading) * y;
 
+        if (Math.abs(x) < .9 && limiter == true)
+        {
+            x = x * speedDivisor;
+        }
+        if(Math.abs(y) < .9 && limiter == true)
+        {
+            y = y * speedDivisor;
+        }
 
+        double fl = y - x - (r * turnDivisor);
+        double fr = y + x + (r * turnDivisor);
+        double bl = y + x - (r * turnDivisor);
+        double br = y - x + (r * turnDivisor);
+
+        robot.driveFL.setPower(fl);
+        robot.driveFR.setPower(-fr);
+        robot.driveBL.setPower(bl);
+        robot.driveBR.setPower(-br);
     }
 
-    public void Drive_Controller(double lStickX, double lStickY, double rStickX)
+    public void Drive_Vector(double x, double y, double r, double heading, double Ltrigger, boolean limiter) {
+        //x = Math.sin(heading) * x;
+        //y = Math.cos(heading) * y;
+
+        if (Ltrigger < .5 && limiter == true)
+        {
+            x = x * speedDivisor;
+            y = y * speedDivisor;
+        }
+
+        double fl = y - x - (r * turnDivisor);
+        double fr = y + x + (r * turnDivisor);
+        double bl = y + x - (r * turnDivisor);
+        double br = y - x + (r * turnDivisor);
+
+        robot.driveFL.setPower(fl);
+        robot.driveFR.setPower(-fr);
+        robot.driveBL.setPower(bl);
+        robot.driveBR.setPower(-br);
+    }
+
+    public void drive_Controller(double lStickX, double lStickY, double rStickX)
     {
        /* if(!isInitilized)
             init_motors();
