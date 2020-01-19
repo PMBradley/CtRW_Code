@@ -28,6 +28,8 @@ public class MainControl extends OpMode {
    // Lift_Linear          lift = new Lift_Linear();
    Arm_Swing arm_swing = new Arm_Swing(robot);
     Navigation2019 navigation = new Navigation2019();
+    VisionSystem visionsystem = new VisionSystem();
+
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
     Lift_Linear lift = new Lift_Linear(robot);
@@ -108,7 +110,7 @@ public class MainControl extends OpMode {
     }
 
     public void loop(){
-
+       //visionsystem.initVuforia();
     }
 
     public void manual_mode(){
@@ -239,6 +241,8 @@ public class MainControl extends OpMode {
 
 
     }
+
+
 
 
     public void Set_AutoMode(boolean mode){
