@@ -159,199 +159,199 @@ public class MainControl extends OpMode {
     double SPEED_REDUCE_THRESHOLD = .85;
 
     public void manual_mode(){
-            double drivePowerY = robot.gp1_lstickY; // set all values to their corresponding controller values
-            double drivePowerX = robot.gp1_lstickX;
-            double drivePowerR = robot.gp1_rstickX;
-            double liftPowerL = robot.gp2_ltrigger;
-            double liftPowerR = robot.gp2_rtrigger;
-            double pullerPower = ((1 - robot.gp1_rtrigger) / 2) + .5; // left trigger is positive power, right trigger is negative power
-            double Ltrigger = robot.gp1_ltrigger;
-            boolean armSwingIn = robot.gp2_lbumper;
-            boolean armSwingOut = robot.gp2_rbumper;
-            boolean spinIntakeOut = robot.gp1_lbumper;
-            boolean spinIntakeIn = robot.gp1_rbumper;
+        double drivePowerY = robot.gp1_lstickY; // set all values to their corresponding controller values
+        double drivePowerX = robot.gp1_lstickX;
+        double drivePowerR = robot.gp1_rstickX;
+        double liftPowerL = robot.gp2_ltrigger;
+        double liftPowerR = robot.gp2_rtrigger;
+        double pullerPower = ((1 - robot.gp1_rtrigger) / 2) + .5; // left trigger is positive power, right trigger is negative power
+        double Ltrigger = robot.gp1_ltrigger;
+        boolean armSwingIn = robot.gp2_lbumper;
+        boolean armSwingOut = robot.gp2_rbumper;
+        boolean spinIntakeOut = robot.gp1_lbumper;
+        boolean spinIntakeIn = robot.gp1_rbumper;
 
 
 
-            checkSensors();
-            //Setters
-            if(robot.gp1_a == true || robot.gp2_a == true){ // if a is being pressed, drop intakes
-                //intakeDropPower = -1;
-                robot.intakeDropL.setPosition(1);
-                robot.intakeDropR.setPosition(.4);
+        checkSensors();
+        //Setters
+        if(robot.gp1_a == true || robot.gp2_a == true){ // if a is being pressed, drop intakes
+            //intakeDropPower = -1;
+            robot.intakeDropL.setPosition(1);
+            robot.intakeDropR.setPosition(.4);
+        }
+        else { // else don't
+            intakeDropPower = 0;
+        }
+
+
+        if(Math.abs(robot.gp1_lstickY) < SPEED_REDUCE_THRESHOLD){ // reduce speed unless the stick is all the way forward
+            drivePowerY *= SPEED_REDUCE_VALUE;
+        }
+        if(Math.abs(robot.gp1_lstickX) < SPEED_REDUCE_THRESHOLD){
+            drivePowerX *= SPEED_REDUCE_VALUE;
+        }
+        if(Math.abs(robot.gp1_rstickX) < SPEED_REDUCE_THRESHOLD){
+            drivePowerR *= SPEED_REDUCE_VALUE;
+        }
+
+
+        //Toggles
+        if(robot.gp2_x && clampReleaseFirstRun){// toggling the clamp
+            clampRelease = !clampRelease; // toggle
+            clampReleaseFirstRun = false;
+        }
+        else if(!robot.gp2_x){
+            clampReleaseFirstRun = true;
+        }
+
+        if(robot.gp2_up && autoBlockUpFirstRun){ // toggling the autonomous movement up
+            autoBlockUp = !autoBlockUp; // toggle
+            autoBlockUpFirstRun = false;
+        }
+        else if(!robot.gp2_up){
+            autoBlockUpFirstRun = true;
+        }
+
+        if(robot.gp2_down && autoBlockDownFirstRun){ // toggling the autonomous movement down
+            autoBlockDown = !autoBlockDown; // toggle
+            autoBlockDownFirstRun = false;
+        }
+        else if(!robot.gp2_down){
+            autoBlockDownFirstRun = true;
+        }
+
+        if(robot.gp1_y && intakeFirstRun){ // toggling the autonomous intake
+            intake = !intake;
+            intakeFirstRun = false;
+        }
+        else if(!robot.gp1_y){
+            intakeFirstRun = true;
+        }
+
+        if(intake){
+            spinIntakeIn = true;
+        }
+
+        checkSensors();
+
+        // fail safes
+        if(autoBlockDown){ // prevents the robot from trying to move autonomously up and down at the same time - override to down
+            autoBlockUp = false;
+        }
+        if(autoBlockUp){ // if moving up, do not allow the autonomous intake to activate
+            autoIntake = false;
+        }
+
+
+        //Semi-Auto
+        if(autoIntake == true){
+            switch (intakeState){ // autonomous intake state machine
+                case IDLE:
+                    spinIntakeIn = false;
+                    spinIntakeOut = false;
+                    clampRelease = false;
+
+                    autoIntake = false;
+                    intakeState = State.STATE_0;
+                    break;
+                case STATE_0:  // clamp open state
+                    if(inStateFirstRun){
+                        inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[0]; // sets target fail safe time for this step
+
+                        inStateFirstRun = false;
+                    }
+                    spinIntakeIn = false;
+                    spinIntakeOut = false;
+
+                    clampRelease = true;
+
+                    if(excedesTime(inStateTargetTime)){ // continue conditions
+                        intakeState = State.STATE_1;
+                        inStateFirstRun = true;
+                    }
+
+                    break;
+                case STATE_1:  // spin up and inatke state
+                    if(inStateFirstRun){
+                        inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[1]; // sets target fail safe time for this step
+
+                        inStateFirstRun = false;
+                    }
+                    spinIntakeIn = true; // state actions
+                    spinIntakeOut = false;
+                    clampRelease = true; // maintain clamp open
+
+                    if(isTouchBlock() == true || excedesTime(inStateTargetTime)){ // continue conditions
+                        intakeState = State.STATE_2;
+                        inStateFirstRun = true;
+                    }
+                    break;
+                case STATE_2:  // spin up and inatke state
+                    if(inStateFirstRun){
+                        inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[2]; // sets target fail safe time for this step
+
+                        inStateFirstRun = false;
+                    }
+                    spinIntakeIn = true; // state actions
+                    spinIntakeOut = false;
+                    clampRelease = false; // close clamp
+
+                    if(!robot.touchClamp7.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
+                        intakeState = State.IDLE;
+                        inStateFirstRun = true;
+                    }
+                    break;
             }
-            else { // else don't
-                intakeDropPower = 0;
+        }
+        else {
+            intakeState = State.STATE_0; // reset state on disable
+        }
+
+        if(autoBlockUp){
+            switch (blockUpState){ // autonomous movement up state machine
+                case IDLE:
+                    armSwingIn = false; // stop arm
+                    armSwingOut = false;
+
+                    autoBlockUp = false;
+                    blockUpState = State.STATE_0;
+                    break;
+                case STATE_0:
+                    if(upStateFirstRun){
+                        upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[0]; // sets target fail safe time for this step
+
+                        upStateFirstRun = false;
+                    }
+                    liftPowerL = 0; // move lift up
+                    liftPowerR = 1;
+
+                    armSwingIn = false; // stop arm movement
+                    armSwingOut = false;
+
+                    if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
+                        blockUpState = State.STATE_1;
+                        upStateFirstRun = true;
+                    }
+                    break;
+                case STATE_1:
+                    if(upStateFirstRun) {
+                        upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[1]; // sets target fail safe time for this step
+
+                        upStateFirstRun = false;
+                    }
+                    liftPowerL = 0; // prevent movement down while the arm is swining
+
+                    armSwingIn = false; // move arm out
+                    armSwingOut = true;
+
+                    if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
+                        blockUpState = State.IDLE;
+                        upStateFirstRun = true;
+                    }
+                    break;
             }
-
-
-            if(Math.abs(robot.gp1_lstickY) < SPEED_REDUCE_THRESHOLD){ // reduce speed unless the stick is all the way forward
-                drivePowerY *= SPEED_REDUCE_VALUE;
-            }
-            if(Math.abs(robot.gp1_lstickX) < SPEED_REDUCE_THRESHOLD){
-                drivePowerX *= SPEED_REDUCE_VALUE;
-            }
-            if(Math.abs(robot.gp1_rstickX) < SPEED_REDUCE_THRESHOLD){
-                drivePowerR *= SPEED_REDUCE_VALUE;
-            }
-
-
-            //Toggles
-            if(robot.gp2_x && clampReleaseFirstRun){// toggling the clamp
-                clampRelease = !clampRelease; // toggle
-                clampReleaseFirstRun = false;
-            }
-            else if(!robot.gp2_x){
-                clampReleaseFirstRun = true;
-            }
-
-            if(robot.gp2_up && autoBlockUpFirstRun){ // toggling the autonomous movement up
-                autoBlockUp = !autoBlockUp; // toggle
-                autoBlockUpFirstRun = false;
-            }
-            else if(!robot.gp2_up){
-                autoBlockUpFirstRun = true;
-            }
-
-            if(robot.gp2_down && autoBlockDownFirstRun){ // toggling the autonomous movement down
-                autoBlockDown = !autoBlockDown; // toggle
-                autoBlockDownFirstRun = false;
-            }
-            else if(!robot.gp2_down){
-                autoBlockDownFirstRun = true;
-            }
-
-            if(robot.gp1_y && intakeFirstRun){ // toggling the autonomous intake
-                intake = !intake;
-                intakeFirstRun = false;
-            }
-            else if(!robot.gp1_y){
-                intakeFirstRun = true;
-            }
-
-            if(intake){
-                spinIntakeIn = true;
-            }
-
-            checkSensors();
-
-            // fail safes
-            if(autoBlockDown){ // prevents the robot from trying to move autonomously up and down at the same time - override to down
-                autoBlockUp = false;
-            }
-            if(autoBlockUp){ // if moving up, do not allow the autonomous intake to activate
-                autoIntake = false;
-            }
-
-
-            //Semi-Auto
-            if(autoIntake == true){
-                switch (intakeState){ // autonomous intake state machine
-                    case IDLE:
-                        spinIntakeIn = false;
-                        spinIntakeOut = false;
-                        clampRelease = false;
-
-                        autoIntake = false;
-                        intakeState = State.STATE_0;
-                        break;
-                    case STATE_0:  // clamp open state
-                        if(inStateFirstRun){
-                            inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[0]; // sets target fail safe time for this step
-
-                            inStateFirstRun = false;
-                        }
-                        spinIntakeIn = false;
-                        spinIntakeOut = false;
-
-                        clampRelease = true;
-
-                        if(excedesTime(inStateTargetTime)){ // continue conditions
-                            intakeState = State.STATE_1;
-                            inStateFirstRun = true;
-                        }
-
-                        break;
-                    case STATE_1:  // spin up and inatke state
-                        if(inStateFirstRun){
-                            inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[1]; // sets target fail safe time for this step
-
-                            inStateFirstRun = false;
-                        }
-                        spinIntakeIn = true; // state actions
-                        spinIntakeOut = false;
-                        clampRelease = true; // maintain clamp open
-
-                        if(isTouchBlock() == true || excedesTime(inStateTargetTime)){ // continue conditions
-                            intakeState = State.STATE_2;
-                            inStateFirstRun = true;
-                        }
-                        break;
-                    case STATE_2:  // spin up and inatke state
-                        if(inStateFirstRun){
-                            inStateTargetTime = (int) runtime.milliseconds() + inStepTimes[2]; // sets target fail safe time for this step
-
-                            inStateFirstRun = false;
-                        }
-                        spinIntakeIn = true; // state actions
-                        spinIntakeOut = false;
-                        clampRelease = false; // close clamp
-
-                        if(!robot.touchClamp7.getState() == true || excedesTime(inStateTargetTime)){ // continue conditions
-                            intakeState = State.IDLE;
-                            inStateFirstRun = true;
-                        }
-                        break;
-                }
-            }
-            else {
-                intakeState = State.STATE_0; // reset state on disable
-            }
-
-            if(autoBlockUp){
-                switch (blockUpState){ // autonomous movement up state machine
-                    case IDLE:
-                        armSwingIn = false; // stop arm
-                        armSwingOut = false;
-
-                        autoBlockUp = false;
-                        blockUpState = State.STATE_0;
-                        break;
-                    case STATE_0:
-                        if(upStateFirstRun){
-                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[0]; // sets target fail safe time for this step
-
-                            upStateFirstRun = false;
-                        }
-                        liftPowerL = 0; // move lift up
-                        liftPowerR = 1;
-
-                        armSwingIn = false; // stop arm movement
-                        armSwingOut = false;
-
-                        if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
-                            blockUpState = State.STATE_1;
-                            upStateFirstRun = true;
-                        }
-                        break;
-                    case STATE_1:
-                        if(upStateFirstRun) {
-                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[1]; // sets target fail safe time for this step
-
-                            upStateFirstRun = false;
-                        }
-                        liftPowerL = 0; // prevent movement down while the arm is swining
-
-                        armSwingIn = false; // move arm out
-                        armSwingOut = true;
-
-                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
-                            blockUpState = State.IDLE;
-                            upStateFirstRun = true;
-                        }
-                        break;
-                }
-            }
+        }
 
         if(autoBlockDown){
             switch (blockDownState){ // autonomous movement down state machine
@@ -405,17 +405,17 @@ public class MainControl extends OpMode {
         //navigation.updateLocation();
         // Telemetry
         //telemetry.addData("GP1_LTrigger:", robot.gp1_ltrigger);
-      //  telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
-      //  telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
-      //  telemetry.addData("Touch Block:", touchBlockCount);
-      //  telemetry.addData("Touch Arm:", !robot.touchArm1.getState());
+        //  telemetry.addData("Touch Lift:", !robot.touchLift0.getState());
+        //  telemetry.addData("Touch Clamp:", !robot.touchClamp7.getState());
+        //  telemetry.addData("Touch Block:", touchBlockCount);
+        //  telemetry.addData("Touch Arm:", !robot.touchArm1.getState());
         //telemetry.addData("Auto Intake:", autoIntake);
 
 
-     //   telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
-     //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
-      //  telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
-       // telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
+        //   telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
+        //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
+        //  telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
+        // telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
         telemetry.addData("X Pos:", navigation.X);
         telemetry.addData("Y Pos:", navigation.Y);
         telemetry.addData("Heading:", navigation.getRotation());
