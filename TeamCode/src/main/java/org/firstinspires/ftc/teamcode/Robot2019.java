@@ -102,6 +102,11 @@ public class Robot2019 {
     boolean gp2_up = false;
     boolean gp2_down = false;
 
+    double fl = 0;
+    double fr = 0;
+    double bl = 0;
+    double br = 0;
+
     public Robot2019(){ } // constructor
 
     public void init(HardwareMap hMap){

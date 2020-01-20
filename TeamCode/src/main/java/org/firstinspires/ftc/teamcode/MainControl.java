@@ -420,12 +420,12 @@ public class MainControl extends OpMode {
         //telemetry.addData("Auto Intake:", autoIntake);
 
 
-        telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
-        telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
-        telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
-        telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
-        telemetry.addData("X Pos:", navigation.X);
-        telemetry.addData("Y Pos:", navigation.Y);
+      //  telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
+     //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
+     //   telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
+     //   telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
+     //   telemetry.addData("X Pos:", navigation.X);
+      //  telemetry.addData("Y Pos:", navigation.Y);
         telemetry.addData("Heading:", navigation.getRotation());
         if(Ltrigger < .5) {
             telemetry.addData("Boost OFF", Ltrigger);
@@ -433,10 +433,15 @@ public class MainControl extends OpMode {
         else {
             telemetry.addData("Boost ON!", Ltrigger);
         }
+        
+        telemetry.addData("Power fl", robot.fl);
+        telemetry.addData("Power fr", robot.fr);
+        telemetry.addData("Power bl", robot.bl);
+        telemetry.addData("Power br", robot.br);
 
-        telemetry.addData("Lstick X:", drivePowerX);
-        telemetry.addData("Lstick Y:", drivePowerY);
-        telemetry.addData("Lstick R:", drivePowerR);
+      //  telemetry.addData("Lstick X:", drivePowerX);
+       // telemetry.addData("Lstick Y:", drivePowerY);
+       // telemetry.addData("Lstick R:", drivePowerR);
 
         telemetry.update();
 
@@ -449,8 +454,8 @@ public class MainControl extends OpMode {
         }
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        //meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
-        meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
+        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, navigation.getRotation(), Ltrigger, true);
+       // meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);

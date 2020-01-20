@@ -125,7 +125,7 @@ public class Drive_Meccanum {
         double cos = Math.cos(-heading * 0.0174533);
 
        // (AngleUnit.DEGREES.toRadians())
-        
+
 
         double fl = y - x - (r * turnDivisor);
         double fr = y + x + (r * turnDivisor);
@@ -149,21 +149,21 @@ public class Drive_Meccanum {
             y = y * speedDivisor;
         }
 
-        double sin = Math.sin(-heading * 0.0174533);
-        double cos = Math.cos(-heading * 0.0174533);
+        double sin = Math.sin(heading * 0.0174533);
+        double cos = Math.cos(heading * 0.0174533);
 
-        y = x * sin + y * cos;
-        x = x * cos - y * sin;
+        double forward = (x * sin) + (y * cos);
+        double right = (x * cos) - (y * sin);
 
-        double fl = y - x - (r * turnDivisor);
-        double fr = y + x + (r * turnDivisor);
-        double bl = y + x - (r * turnDivisor);
-        double br = y - x + (r * turnDivisor);
+        robot.fl = forward + (r * turnDivisor) + right;
+        robot.fr = (forward - (r * turnDivisor) - right);
+        robot.bl = forward + (r * turnDivisor) - right;
+        robot.br = (forward - (r * turnDivisor) + right);
 
-        robot.driveFL.setPower(fl);
-        robot.driveFR.setPower(-fr);
-        robot.driveBL.setPower(bl);
-        robot.driveBR.setPower(-br);
+        robot.driveFL.setPower(robot.fl);
+        robot.driveFR.setPower(-robot.fr);
+        robot.driveBL.setPower(robot.bl);
+        robot.driveBR.setPower(-robot.br);
     }
 
     public void drive_Controller(double lStickX, double lStickY, double rStickX)
