@@ -433,6 +433,11 @@ public class MainControl extends OpMode {
         else {
             telemetry.addData("Boost ON!", Ltrigger);
         }
+
+        telemetry.addData("Lstick X:", drivePowerX);
+        telemetry.addData("Lstick Y:", drivePowerY);
+        telemetry.addData("Lstick R:", drivePowerR);
+
         telemetry.update();
 
         //more failsafes
@@ -444,7 +449,8 @@ public class MainControl extends OpMode {
         }
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
+        //meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
+        meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);

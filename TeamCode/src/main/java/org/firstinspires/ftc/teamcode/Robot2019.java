@@ -72,7 +72,7 @@ public class Robot2019 {
     public Rev2mDistanceSensor flightBack3 = null;
 
     public BNO055IMU imu = null;
-    //public WebcamName webcamName = null;
+    public WebcamName webcamName = null;
 
     // The all important hardware map
     HardwareMap mainMap = null;

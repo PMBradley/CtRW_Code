@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class Drive_Meccanum {
 
@@ -88,6 +91,10 @@ public class Drive_Meccanum {
             y = y * speedDivisor;
         }
 
+        double[] tmp = adapt_Heading(x, y, heading);
+        x = tmp[0];
+        y = tmp[1];
+
         double fl = y - x - (r * turnDivisor);
         double fr = y + x + (r * turnDivisor);
         double bl = y + x - (r * turnDivisor);
@@ -117,8 +124,8 @@ public class Drive_Meccanum {
         double sin = Math.sin(-heading * 0.0174533);
         double cos = Math.cos(-heading * 0.0174533);
 
-        y = x * sin + y * cos;
-        x = x * cos - y * sin;
+       // (AngleUnit.DEGREES.toRadians())
+        
 
         double fl = y - x - (r * turnDivisor);
         double fr = y + x + (r * turnDivisor);
@@ -141,6 +148,12 @@ public class Drive_Meccanum {
             x = x * speedDivisor;
             y = y * speedDivisor;
         }
+
+        double sin = Math.sin(-heading * 0.0174533);
+        double cos = Math.cos(-heading * 0.0174533);
+
+        y = x * sin + y * cos;
+        x = x * cos - y * sin;
 
         double fl = y - x - (r * turnDivisor);
         double fr = y + x + (r * turnDivisor);
@@ -173,5 +186,18 @@ public class Drive_Meccanum {
         robot.driveFR.setPower(driveFRPwr);
         robot.driveBL.setPower(driveBLPwr);
         robot.driveBR.setPower(driveBRPwr);
+    }
+
+    private double[] adapt_Heading(double x, double y, double heading)
+    {
+        double r = Math.sqrt(x*x + y*y);
+        double Θ = Math.asin((y * Math.sin(Math.PI/2))/r);
+
+        Θ += heading * (Math.PI/180);
+
+        double newX = r * Math.cos(Θ);
+        double newY = r * Math.sin(Θ);
+
+        return new double[] {newX, newY};
     }
 }
