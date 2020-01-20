@@ -420,10 +420,10 @@ public class MainControl extends OpMode {
         //telemetry.addData("Auto Intake:", autoIntake);
 
 
-        //   telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
-        //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
-        //  telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
-        // telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
+        telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
+        telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
+        telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
+        telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
         telemetry.addData("X Pos:", navigation.X);
         telemetry.addData("Y Pos:", navigation.Y);
         telemetry.addData("Heading:", navigation.getRotation());
