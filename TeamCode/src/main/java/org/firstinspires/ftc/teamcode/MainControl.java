@@ -427,11 +427,12 @@ public class MainControl extends OpMode {
         telemetry.addData("X Pos:", navigation.X);
         telemetry.addData("Y Pos:", navigation.Y);
         telemetry.addData("Heading:", navigation.getRotation());
-        if(Ltrigger < .5)
+        if(Ltrigger < .5) {
             telemetry.addData("Boost OFF", Ltrigger);
-        else
+        }
+        else {
             telemetry.addData("Boost ON!", Ltrigger);
-
+        }
         telemetry.update();
 
         //more failsafes

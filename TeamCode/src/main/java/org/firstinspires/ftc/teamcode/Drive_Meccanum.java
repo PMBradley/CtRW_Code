@@ -45,9 +45,11 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Vector(double x, double y, double r, double heading, boolean limiter) {
+    public void Drive_Vector(double x, double y, double r, double heading, boolean limiter) { // use with auto only
         //x = Math.sin(heading) * x;
         //y = Math.cos(heading) * y;
+
+        y *= -1; // negate y to emulate the negative values given by controller y
 
         if (Math.abs(x) < .9 && limiter == true)
         {
@@ -57,6 +59,12 @@ public class Drive_Meccanum {
         {
             y = y * speedDivisor;
         }
+
+        double sin = Math.sin(-heading * 0.0174533);
+        double cos = Math.cos(-heading * 0.0174533);
+
+        y = x * sin + y * cos;
+        x = x * cos - y * sin;
 
         double fl = y - x - (r * turnDivisor);
         double fr = y + x + (r * turnDivisor);
@@ -69,11 +77,12 @@ public class Drive_Meccanum {
         robot.driveBR.setPower(-br);
     }
 
-    public void Drive_Vector(double x, double y, double r, double heading, double Ltrigger, boolean limiter) {
+    public void Drive_Vector(double x, double y, double r, double heading, double Ltrigger, boolean limiter) { // use with controller only
         //x = Math.sin(heading) * x;
         //y = Math.cos(heading) * y;
+        double boostFactor = Ltrigger;
 
-        if (Ltrigger < .5 && limiter == true)
+        if (boostFactor < .5 && limiter == true)
         {
             x = x * speedDivisor;
             y = y * speedDivisor;
