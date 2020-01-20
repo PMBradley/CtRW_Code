@@ -72,7 +72,7 @@ public class Robot2019 {
     public Rev2mDistanceSensor flightBack3 = null;
 
     public BNO055IMU imu = null;
-    public WebcamName webcamName = null;
+    //public WebcamName webcamName = null;
 
     // The all important hardware map
     HardwareMap mainMap = null;
@@ -142,7 +142,7 @@ public class Robot2019 {
 
         imu = mainMap.get(BNO055IMU.class, "imu");
 
-        webcamName = mainMap.get(WebcamName.class, "Webcam 1"); // the webcam for webcam things
+        //webcamName = mainMap.get(WebcamName.class, "Webcam 1"); // the webcam for webcam things
 
         armPivot.setPosition(0.69);
 
