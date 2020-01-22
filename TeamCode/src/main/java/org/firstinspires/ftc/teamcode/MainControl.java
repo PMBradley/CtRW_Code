@@ -32,7 +32,7 @@ public class MainControl extends OpMode {
     Arm_Swing arm_swing = new Arm_Swing(robot); // Hardware classes
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
-    //VisionSystem visionsystem = new VisionSystem(robot);
+    VisionSystem visionsystem = new VisionSystem(robot);
     Lift_Linear lift = new Lift_Linear(robot);
     DropServo_DuoMirrored intakeDrop = new DropServo_DuoMirrored(robot, robot.intakeDropL, robot.intakeDropR);
     DropServo_DuoMirrored pullerDrop = new DropServo_DuoMirrored(robot, robot.pullerDropL, robot.pullerDropR);
@@ -81,10 +81,9 @@ public class MainControl extends OpMode {
 
         /*
         Add vision system init stuff here and active
+        */
 
-
-
-         */
+        visionsystem.initVuforia();
     }
 
     public void loop(){ // main loop
