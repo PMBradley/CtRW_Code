@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
+//import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
 
 
 @TeleOp(name = "MainControl")
@@ -89,7 +89,7 @@ public class MainControl extends OpMode {
     public void loop(){ // main loop
         updateControls(); // update the controllers and check the sensors
         checkSensors(); // (checking sensors happens multiple times in the loop to avoid missing an input)
-     
+
 
         if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct
             runtime.reset();
