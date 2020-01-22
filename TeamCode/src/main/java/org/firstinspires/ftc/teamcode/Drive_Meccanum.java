@@ -112,30 +112,27 @@ public class Drive_Meccanum {
 
         y *= -1; // negate y to emulate the negative values given by controller y
 
-        if (Math.abs(x) < .9 && limiter == true)
+        if (limiter == true)
         {
             x = x * speedDivisor;
-        }
-        if(Math.abs(y) < .9 && limiter == true)
-        {
             y = y * speedDivisor;
         }
 
-        double sin = Math.sin(-heading * 0.0174533);
-        double cos = Math.cos(-heading * 0.0174533);
+        double sin = Math.sin(heading * 0.0174533);
+        double cos = Math.cos(heading * 0.0174533);
 
-       // (AngleUnit.DEGREES.toRadians())
+        double forward = (x * sin) + (y * cos);
+        double right = (x * cos) - (y * sin);
 
+        robot.fl = forward + (r * turnDivisor) + right;
+        robot.fr = (forward - (r * turnDivisor) - right);
+        robot.bl = forward + (r * turnDivisor) - right;
+        robot.br = (forward - (r * turnDivisor) + right);
 
-        double fl = y - x - (r * turnDivisor);
-        double fr = y + x + (r * turnDivisor);
-        double bl = y + x - (r * turnDivisor);
-        double br = y - x + (r * turnDivisor);
-
-        robot.driveFL.setPower(fl);
-        robot.driveFR.setPower(-fr);
-        robot.driveBL.setPower(bl);
-        robot.driveBR.setPower(-br);
+        robot.driveFL.setPower(robot.fl);
+        robot.driveFR.setPower(-robot.fr);
+        robot.driveBL.setPower(robot.bl);
+        robot.driveBR.setPower(-robot.br);
     }
 
     public void Drive_Vector(double x, double y, double r, double heading, double Ltrigger, boolean limiter) { // use with controller only
