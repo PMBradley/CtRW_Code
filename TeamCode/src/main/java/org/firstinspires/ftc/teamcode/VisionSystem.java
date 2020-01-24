@@ -30,6 +30,7 @@ package org.firstinspires.ftc.teamcode;/* Copyright (c) 2019 FIRST. All rights r
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -104,23 +105,23 @@ public class VisionSystem extends LinearOpMode {
     private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
     //Variable for Targets (Need to replace with RISE asset targets)
-    public VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+    public VuforiaTrackables targetsSkyStone;
 
     //Capture count and directory
-    int captureCounter = 0;
+    public int captureCounter = 0;
     File captureDirectory = AppUtil.ROBOT_DATA_DIR;
 
 
     //Vuforia localizer definition
-    private VuforiaLocalizer vuforia;
+    public VuforiaLocalizer vuforia;
 
     //Tfod detector definition
-    private TFObjectDetector tfod;
+    public TFObjectDetector tfod;
 
     //Vuforia localizer parameters
   //  int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-    int cameraMonitorViewId = robot.mainMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", robot.mainMap.appContext.getPackageName());
-    VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//    public int cameraMonitorViewId = robot.mainMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", robot.mainMap.appContext.getPackageName());
+ //   VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -135,7 +136,7 @@ public class VisionSystem extends LinearOpMode {
      * and paste it in to your code on the next line, between the double quotes.
      */
     private static final String VUFORIA_KEY =
-            " AQICQI//////AAABmeVTX5jQ80ZEmLPY3sGyPX6K7pmz/sOPUl18jBKN3GFqwCrtS9j2Qusl4h67U0lP7PtXe/1BMC+QsdYEgzYDJp7sMNoE9zvJTv57v3uNZj+O84ZcNWwsOHvB4r/TLLahSUW0md/njq1SeVrdxh1nezdTTDNWw73RxfUw/41IBwULVjPjlZVxaSFMqg4Zx99ndTsJEQ0DhJhQF6R5REQwkj7yiTSZqZS7QoNDdIzikgD6CmC/b7KhHgr6j8LdO6comvfc2but1QVq+rcqErNvXjYHdnJytS6I1yZ9JxSSEsAAQUsFfQFBfwXfxcAdx2XM3taHlPCs3qOcmwFx4YCh7saw+ydzF4y12HijkORNlgLC";
+            "AQICQI//////AAABmeVTX5jQ80ZEmLPY3sGyPX6K7pmz/sOPUl18jBKN3GFqwCrtS9j2Qusl4h67U0lP7PtXe/1BMC+QsdYEgzYDJp7sMNoE9zvJTv57v3uNZj+O84ZcNWwsOHvB4r/TLLahSUW0md/njq1SeVrdxh1nezdTTDNWw73RxfUw/41IBwULVjPjlZVxaSFMqg4Zx99ndTsJEQ0DhJhQF6R5REQwkj7yiTSZqZS7QoNDdIzikgD6CmC/b7KhHgr6j8LdO6comvfc2but1QVq+rcqErNvXjYHdnJytS6I1yZ9JxSSEsAAQUsFfQFBfwXfxcAdx2XM3taHlPCs3qOcmwFx4YCh7saw+ydzF4y12HijkORNlgLC";
 
 
     /**
@@ -160,11 +161,14 @@ public class VisionSystem extends LinearOpMode {
      * Initialize the Vuforia localization engine.
      */
 
-    public void initVuforia() {
+    public void initVuforia(HardwareMap hMap) {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        int cameraMonitorViewId = robot.mainMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", robot.mainMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
        // parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -177,24 +181,26 @@ public class VisionSystem extends LinearOpMode {
         AppUtil.getInstance().ensureDirectoryExists(captureDirectory);
 
         //Not esure what happens if we activate Vuforia and Tensorflow together may go boom?
-        activateVuforia();
+        setTrackables();
+
+        //activateVuforia();
 
     }
 
-    public void initTfod() {
+    public void initTfod(HardwareMap hMap) {
         // Start tensorflow object detection engine, init Vuforia prior to init Tensorflow
 
-        initVuforia();
+        initVuforia(hMap);
 
-        int tfodMonitorViewId = robot.mainMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", robot.mainMap.appContext.getPackageName());
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minimumConfidence = 0.8;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod();
+         //   initTfod();
         } else {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
@@ -206,7 +212,7 @@ public class VisionSystem extends LinearOpMode {
     public void setTrackables() {
         // Trackables setup must initVuforia() before using
 
-
+        targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
         VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);

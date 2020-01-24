@@ -83,7 +83,7 @@ public class MainControl extends OpMode {
         Add vision system init stuff here and active
         */
 
-        visionsystem.initVuforia();
+     //   visionsystem.initVuforia(hardwareMap);
     }
 
     public void loop(){ // main loop
