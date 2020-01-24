@@ -99,14 +99,14 @@ public class Vision {
 
     //When called activates tracking for targets
     public void activateTracking(){
-        if(targets != null){
-            targets.activate();
+        if(targetsSkyStone != null){
+            targetsSkyStone.activate();
         }
     }
 
     public void deactivateTracking(){
-        if(targets != null){
-            targets.deactivate();
+        if(targetsSkyStone != null){
+            targetsSkyStone.deactivate();
 
 
         }
@@ -156,6 +156,7 @@ public class Vision {
         targetBKP.setName("BackWall");
         */
 
+
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
         VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
@@ -183,7 +184,7 @@ public class Vision {
         VuforiaTrackable rear2 = targetsSkyStone.get(12);
         rear2.setName("Rear Perimeter 2");
 
-        allTrackables.addAll(targets);
+        allTrackables.addAll(targetsSkyStone);
 
         float mmPerInch        = 25.4f;
         float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
@@ -225,6 +226,7 @@ public class Vision {
         */
 
         listenerStoneTarget = (VuforiaTrackableDefaultListener)stoneTarget.getListener();
+        /*
         listenerblue1 = (VuforiaTrackableDefaultListener)blue1.getListener();
         listenerblue2 = (VuforiaTrackableDefaultListener)blue2.getListener();
         listenerblueFrontBridge = (VuforiaTrackableDefaultListener)blueFrontBridge.getListener();
@@ -237,7 +239,7 @@ public class Vision {
         listenerredRearBridge = (VuforiaTrackableDefaultListener)redRearBridge.getListener();
         listenerred1 = (VuforiaTrackableDefaultListener)red1.getListener();
         listenerred2 = (VuforiaTrackableDefaultListener)red2.getListener();
-
+        */
     }
 
     public String targetsAreVisible(){

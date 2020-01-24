@@ -86,6 +86,10 @@ public class MainControl extends OpMode {
 
 
          */
+    telemetry.addData("Test point:", "1");
+    telemetry.update();
+        vision.initVuforia();
+        vision.activateTracking();
     }
 
     public void loop(){ // main loop
@@ -186,11 +190,11 @@ public class MainControl extends OpMode {
         //Setters
         if(robot.gp1_a == true || robot.gp2_a == true){ // if a is being pressed, drop intakes
             //intakeDropPower = -1;
-            robot.intakeDropL.setPosition(1);
-            robot.intakeDropR.setPosition(.4);
+            robot.intakeDropL.setPosition(1.0);
+            robot.intakeDropR.setPosition(0.0);
         }
         else { // else don't
-            intakeDropPower = 0;
+          //  intakeDropPower = 0;
         }
 
 
@@ -231,7 +235,7 @@ public class MainControl extends OpMode {
         }
 
         if(robot.gp1_y && intakeFirstRun){ // toggling the autonomous intake
-            intake = !intake;
+         //   intake = !intake;
             intakeFirstRun = false;
         }
         else if(!robot.gp1_y){
