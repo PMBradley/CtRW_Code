@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
-//import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
 
 
 @TeleOp(name = "MainControl")
@@ -32,7 +32,7 @@ public class MainControl extends OpMode {
     Arm_Swing arm_swing = new Arm_Swing(robot); // Hardware classes
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
     Flywheel_DuoMirrored flyIntake = new Flywheel_DuoMirrored(robot);
-    VisionSystem visionsystem = new VisionSystem(robot);
+    Vision vision = new Vision(robot);
     Lift_Linear lift = new Lift_Linear(robot);
     DropServo_DuoMirrored intakeDrop = new DropServo_DuoMirrored(robot, robot.intakeDropL, robot.intakeDropR);
     DropServo_DuoMirrored pullerDrop = new DropServo_DuoMirrored(robot, robot.pullerDropL, robot.pullerDropR);
@@ -79,17 +79,19 @@ public class MainControl extends OpMode {
 
         telemetry.addData("Say", "It's Droopy McCool Time!");
 
+        
         /*
         Add vision system init stuff here and active
-        */
 
-     //   visionsystem.initVuforia(hardwareMap);
+
+
+         */
     }
 
     public void loop(){ // main loop
         updateControls(); // update the controllers and check the sensors
         checkSensors(); // (checking sensors happens multiple times in the loop to avoid missing an input)
-
+     
 
         if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct
             runtime.reset();
@@ -432,7 +434,7 @@ public class MainControl extends OpMode {
         else {
             telemetry.addData("Boost ON!", Ltrigger);
         }
-        
+
         telemetry.addData("Power fl", robot.fl);
         telemetry.addData("Power fr", robot.fr);
         telemetry.addData("Power bl", robot.bl);
