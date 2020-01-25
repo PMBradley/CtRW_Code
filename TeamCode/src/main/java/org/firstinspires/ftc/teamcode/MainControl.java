@@ -509,8 +509,8 @@ public class MainControl extends OpMode {
 
     private double[][][] driveCoords = {
             { // quadrant 0 coordinates
-                    {0.0, 0.0, 90.0},
-                    {0.0, 0.0, 90.0},
+                    {0.0, 0.0, 180.0},
+                    {0.0, 10.0, 0.0},
                     {0.0, 0.0, 90.0},
                     {0.0, 0.0, 90.0},
                     {0.0, 0.0, 90.0},
@@ -533,7 +533,7 @@ public class MainControl extends OpMode {
     private boolean autoStateFirstRun = true;
 
     private double transApproachReduce = 15;
-    private double rotApproachReduce = 100;
+    private double rotApproachReduce = 120;
 
     public void AutoStep() {
         double liftPowerL = 0.0; // power variables for the manipulators
@@ -593,6 +593,7 @@ public class MainControl extends OpMode {
                 break;
             case STATE_1:
                 stateInc = 1;
+                pictureRelative = true;
 
                 if(autoStateFirstRun){
                     autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
@@ -696,7 +697,7 @@ public class MainControl extends OpMode {
                 moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
 
               //  if(excedesTime(autoStartTime + 36_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
-                    AUTO_MODE_ACTIVE = false;
+                 //   AUTO_MODE_ACTIVE = false;
               //  }
 
                 break;
@@ -717,13 +718,22 @@ public class MainControl extends OpMode {
             checkRotations[1] += 360; // create a ghost layer above the regular target value
         }
         if(Math.abs(checkRotations[1] - navigation.ROTATION_DEG) > Math.abs(checkRotations[0] - navigation.ROTATION_DEG)){ // if one is closer
-            movePowers[2] = (checkRotations[1] - navigation.ROTATION_DEG) / rotApproachReduce; // move towards that one
+          //  movePowers[2] = (checkRotations[1] - navigation.ROTATION_DEG) / rotApproachReduce; // move towards that one
         }
         else { // else
-            movePowers[2] = (checkRotations[0] - navigation.ROTATION_DEG) / rotApproachReduce; // move away from that one
+           // movePowers[2] = (checkRotations[0] - navigation.ROTATION_DEG) / rotApproachReduce; // move away from that one
         }
 
-        telemetry.addData("Heading: ", navigation.getRotation());
+        if(navigation.getRotation() < moveCoords[2]){
+            movePowers[2] = (moveCoords[2] - navigation.getRotation()) / rotApproachReduce;
+        }
+        else if (navigation.getRotation() > moveCoords[2]){
+            movePowers[2] = (moveCoords[2] - navigation.getRotation()) / rotApproachReduce;
+        }
+
+        telemetry.addData("Heading:", navigation.getRotation());
+        telemetry.addData("Check pos 0:", checkRotations[0]);
+        telemetry.addData("Check pos 1:", checkRotations[1]);
         telemetry.addData("State: ", autoState);
 
         telemetry.update();

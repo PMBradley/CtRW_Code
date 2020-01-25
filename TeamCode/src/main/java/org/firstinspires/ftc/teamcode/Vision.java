@@ -62,6 +62,7 @@ public class Vision {
     private boolean targetFound = false;
     private String targetString = "NULL";
 
+
     /*
 
     private VuforiaTrackable targetBLP;
