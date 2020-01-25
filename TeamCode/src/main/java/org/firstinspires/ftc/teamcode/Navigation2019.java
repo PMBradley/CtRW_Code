@@ -33,7 +33,7 @@ public class Navigation2019 {
     private double[] FLIGHT_OFFSETS = {20, 17, 24, 21}; // offsets from middle for each time of flight sensor
 
     private double transMargin = 5; // the number of centimeters that the robot has to be within the target translational position
-    private double rotMargin = 3; // the number of degrees that the robot has to be within the target rotation
+    private double rotMargin = 5; // the number of degrees that the robot has to be within the target rotation
 
     //Waypoints
  //   private double[][] WAYPOINT;
@@ -113,6 +113,24 @@ public class Navigation2019 {
         return (output);
     }
 
+    public boolean atRot(double inR){
+        boolean output = false;
+
+        // Check rotation
+        double[] checkRotations = {clipDegrees(inR - rotMargin), clipDegrees(inR + rotMargin)}; // the range that the robot must be within
+        if(ROTATION_DEG - rotMargin < 0){ // account the range for the fact that it might fall close to the cut off point on the 360 degree range
+            checkRotations[0] -= 360;
+        }
+        else if(ROTATION_DEG + rotMargin >= 360){
+            checkRotations[1] += 360;
+        }
+
+        if(ROTATION_DEG >= checkRotations[0] && ROTATION_DEG <= checkRotations[1]){ // check rotation
+            output = true;
+        }
+
+        return output;
+    }
 
 
  public void updateLocation(){

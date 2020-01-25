@@ -111,9 +111,11 @@ public class MainControl extends OpMode {
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
             if(AUTO_MODE_ACTIVE){ // if auto-op
-                zomAuto(); // a hacked together autonomous
-                //AutoStep();
+               // zomAuto(); // a hacked together autonomous
+
                 telemetry.addData("Mode","Auto");
+                AutoStep();
+
             }
             else { // if tele-op
                 manual_mode();
@@ -507,11 +509,11 @@ public class MainControl extends OpMode {
 
     private double[][][] driveCoords = {
             { // quadrant 0 coordinates
-                    {30.0, 30.0, 0.0},
-                    {30.0, 30.0, 90.0},
-                    {30.0, 30.0, 180.0},
-                    {30.0, 30.0, 270.0},
-                    {30.0, 30.0, 0.0},
+                    {0.0, 0.0, 90.0},
+                    {0.0, 0.0, 90.0},
+                    {0.0, 0.0, 90.0},
+                    {0.0, 0.0, 90.0},
+                    {0.0, 0.0, 90.0},
             },
 
             { // quadrant 1 coordinates
@@ -525,13 +527,13 @@ public class MainControl extends OpMode {
     private double[][] pictureOrder = {
 
     };
-    private int[] autoStepTimes = {5_000, 5_000, 5_000, 5_000, 5_000}; // fail safe times for each step in the autonomous program - in milisecs
+    private int[] autoStepTimes = {0_000, 0_000, 1_000, 1_000, 1_000}; // fail safe times for each step in the autonomous program - in milisecs
     private int autoStartTime = 0;
     private int autoStateTargetTime = 0;
     private boolean autoStateFirstRun = true;
 
     private double transApproachReduce = 15;
-    private double rotApproachReduce = 10;
+    private double rotApproachReduce = 100;
 
     public void AutoStep() {
         double liftPowerL = 0.0; // power variables for the manipulators
@@ -543,38 +545,51 @@ public class MainControl extends OpMode {
         boolean spinIntakeIn = false;
         boolean pictureRelative = false;
 
-        double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
+        double relativeRotation = navigation.getRotation();
+
+        double[] moveCoords = {0.0, 0.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
 
-        navigation.updateLocation();
+        navigation.updateRotation();
 
 
         switch (autoState){ // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
             case IDLE:
                 autoStartTime = (int) runtime.milliseconds();
 
-                quadrant = navigation.getCurrentQuadrant(); // set which quadrant we are starting in
+             //   quadrant = navigation.getCurrentQuadrant(); // set which quadrant we are starting in
 
                 stateInc = 0;
-                moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
+          //      moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
 
-                blockDownState = State.STATE_0;
+                autoState = State.STATE_0;
                 break;
             case STATE_0:
                 stateInc = 0;
 
                 if(autoStateFirstRun){
                     autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
-
                     autoStateFirstRun = false;
                 }
+
                 moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                    blockDownState = State.STATE_1;
-                    autoStateFirstRun = true;
+
+                // continue conditions
+                if(pictureRelative){ // go to relative position
+                    if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.COMPLETE;
+                        autoStateFirstRun = true;
+                    }
                 }
+                else { // if not relative, drive by time (and rotation
+                    if(navigation.atRot(moveCoords[2]) && excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.COMPLETE;
+                        autoStateFirstRun = true;
+                    }
+                }
+
                 break;
             case STATE_1:
                 stateInc = 1;
@@ -587,9 +602,19 @@ public class MainControl extends OpMode {
                 moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                    blockDownState = State.STATE_1;
-                    autoStateFirstRun = true;
+
+                // continue conditions
+                if(pictureRelative){ // go to relative position
+                    if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.STATE_2;
+                        autoStateFirstRun = true;
+                    }
+                }
+                else { // if not relative, drive by time (and rotation
+                    if(navigation.atRot(moveCoords[2]) && excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.STATE_2;
+                        autoStateFirstRun = true;
+                    }
                 }
                 break;
             case STATE_2:
@@ -603,9 +628,19 @@ public class MainControl extends OpMode {
                 moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                    blockDownState = State.STATE_1;
-                    autoStateFirstRun = true;
+
+                // continue conditions
+                if(pictureRelative){ // go to relative position
+                    if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.STATE_3;
+                        autoStateFirstRun = true;
+                    }
+                }
+                else { // if not relative, drive by time (and rotation
+                    if(navigation.atRot(moveCoords[2]) && excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.STATE_3;
+                        autoStateFirstRun = true;
+                    }
                 }
                 break;
             case STATE_3:
@@ -619,9 +654,18 @@ public class MainControl extends OpMode {
                 moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                    blockDownState = State.STATE_1;
-                    autoStateFirstRun = true;
+                // continue conditions
+                if(pictureRelative){ // go to relative pos
+                    if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.STATE_4;
+                        autoStateFirstRun = true;
+                    }
+                }
+                else { // if not relative, drive by time (and rotation
+                    if(navigation.atRot(moveCoords[2]) && excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.STATE_4;
+                        autoStateFirstRun = true;
+                    }
                 }
                 break;
             case STATE_4:
@@ -635,17 +679,25 @@ public class MainControl extends OpMode {
                 moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-                if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                    blockDownState = State.STATE_1;
-                    autoStateFirstRun = true;
+                if(pictureRelative){ // go to relative position
+                    if(navigation.atCoord(moveCoords[0], moveCoords[1], moveCoords[2]) || excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.COMPLETE;
+                        autoStateFirstRun = true;
+                    }
+                }
+                else { // if not relative, drive by time (and rotation
+                    if(navigation.atRot(moveCoords[2]) && excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                        autoState = State.COMPLETE;
+                        autoStateFirstRun = true;
+                    }
                 }
                 break;
             case COMPLETE:
                 moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
 
-                if(excedesTime(autoStartTime + 36_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
+              //  if(excedesTime(autoStartTime + 36_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
                     AUTO_MODE_ACTIVE = false;
-                }
+              //  }
 
                 break;
         }
@@ -671,8 +723,13 @@ public class MainControl extends OpMode {
             movePowers[2] = (checkRotations[0] - navigation.ROTATION_DEG) / rotApproachReduce; // move away from that one
         }
 
+        telemetry.addData("Heading: ", navigation.getRotation());
+        telemetry.addData("State: ", autoState);
 
-        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation(), false);
+        telemetry.update();
+
+
+        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], relativeRotation, false);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
