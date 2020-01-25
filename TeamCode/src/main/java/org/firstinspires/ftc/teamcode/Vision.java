@@ -247,13 +247,10 @@ public class Vision {
         if(listenerStoneTarget.isVisible()){
             targetString = "StoneTarget";
         }
-
-        if(listenerblue1.isVisible()){
+        else if(listenerblue1.isVisible()){
             targetString = "Blue1";
         }
-
-        //Logic for Returning which target is visible
-        if(listenerblue2.isVisible()){
+        else if(listenerblue2.isVisible()){
             targetString = "Blue2";
         }
         else if (listenerred1.isVisible()){

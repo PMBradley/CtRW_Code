@@ -459,7 +459,7 @@ public class MainControl extends OpMode {
         }
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, navigation.getRotation(), Ltrigger, true);
+        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, navigation.getRotation(), true, Ltrigger);
        // meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
@@ -522,6 +522,9 @@ public class MainControl extends OpMode {
                     {30.0, 30.0, 0.0},
             },
     }; // Holds the coordinate points to be used with our navigation - first state holds the quadrant differences - second dimension holds the state - the thrid dimension holds x, y, and r (in that order)
+    private double[][] pictureOrder = {
+
+    };
     private int[] autoStepTimes = {5_000, 5_000, 5_000, 5_000, 5_000}; // fail safe times for each step in the autonomous program - in milisecs
     private int autoStartTime = 0;
     private int autoStateTargetTime = 0;
