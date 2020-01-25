@@ -459,7 +459,7 @@ public class MainControl extends OpMode {
         }
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, navigation.getRotation(), Ltrigger, true);
+        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, navigation.getRotation(), true, Ltrigger);
        // meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
@@ -538,6 +538,7 @@ public class MainControl extends OpMode {
         boolean armSwingOut = false;
         boolean spinIntakeOut = false;
         boolean spinIntakeIn = false;
+        boolean pictureRelative = false;
 
         double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
@@ -647,8 +648,11 @@ public class MainControl extends OpMode {
         }
 
         // Set Translational power values
-        movePowers[0] = (moveCoords[0] - navigation.X) / transApproachReduce; // if the target X move position is less than current X position, move that direction and visa versa
-        movePowers[1] = (moveCoords[1] - navigation.Y) / transApproachReduce; // if the target Y move position is less than current Y position, move that direction and visa versa
+        if(pictureRelative){ // if driving relative to a picture
+            movePowers[0] = (moveCoords[0] - navigation.X) / transApproachReduce; // if the target X move position is less than current X position, move that direction and visa versa
+            movePowers[1] = (moveCoords[1] - navigation.Y) / transApproachReduce; // if the target Y move position is less than current Y position, move that direction and visa versa
+        }
+
         // Set Rotational Power Values
         double[] checkRotations = {moveCoords[2], moveCoords[2]};
         if(navigation.ROTATION_DEG - 180 < 0){ // account the range for the fact that it might fall close to the cut off point on the 360 degree range
@@ -665,7 +669,7 @@ public class MainControl extends OpMode {
         }
 
 
-        //meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
+        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation(), false);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
