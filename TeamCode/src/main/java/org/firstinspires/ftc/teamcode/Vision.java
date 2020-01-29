@@ -61,6 +61,15 @@ public class Vision {
     static OpenGLMatrix robotFromCamera;
     private boolean targetFound = false;
     private String targetString = "NULL";
+    public String trackableString = "NULL";
+    public boolean targetVisible = false;
+    private OpenGLMatrix lastLocation = null;
+
+    private static final float mmPerInch        = 25.4f;
+
+    private float phoneXRotate    = 0;
+    private float phoneYRotate    = 0;
+    private float phoneZRotate    = 0;
 
     /*
 
@@ -244,48 +253,36 @@ public class Vision {
 
     public String targetsAreVisible(){
 
-        if(listenerStoneTarget.isVisible()){
-            targetString = "StoneTarget";
+        float xTranslation = 0;
+        float yTranslation = 0;
+        float zTranslation = 0;
+
+        VectorF translation = lastLocation.getTranslation();
+        for (VuforiaTrackable trackable : allTrackables) {
+            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                trackableString = trackable.getName();
+                xTranslation = translation.get(0) / mmPerInch;
+                yTranslation = translation.get(1) / mmPerInch;
+                zTranslation = translation.get(2) / mmPerInch;
+
+                targetString = "Visible Target: " + trackableString + " Pos (in) {X, Y, Z} = "
+                        + String.valueOf(xTranslation) + " " + String.valueOf(yTranslation) + " "
+                        + String.valueOf(zTranslation);
+
+
+                targetVisible = true;
+
+                // getUpdatedRobotLocation() will return null if no new information is available since
+                // the last time that call was made, or if the trackable is not currently visible.
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+                break;
+            }
         }
-        else if(listenerblue1.isVisible()){
-            targetString = "Blue1";
-        }
-        else if(listenerblue2.isVisible()){
-            targetString = "Blue2";
-        }
-        else if (listenerred1.isVisible()){
-            targetString = "Red1";
-        }
-        else if (listenerred2.isVisible()){
-            targetString = "Red2";
-        }
-        else if (listenerfront1.isVisible()){
-            targetString = "Front1";
-        }
-        else if (listenerfront2.isVisible()){
-            targetString = "Front2";
-        }
-        else if (listenerrear1.isVisible()){
-            targetString = "rear1";
-        }
-        else if (listenerrear2.isVisible()){
-            targetString = "rear2";
-        }
-        else if (listenerredFrontBridge.isVisible()){
-            targetString = "RedFrontBridge";
-        }
-        else if (listenerredRearBridge.isVisible()){
-            targetString = "RedRearBridge";
-        }
-        else if (listenerblueFrontBridge.isVisible()){
-            targetString = "BlueFrontBridge";
-        }
-        else if (listenerblueRearBridge.isVisible()){
-            targetString = "BlueRearBridge";
-        }
-        else{
-            targetString = "None";
-        }
+
+
 
 
         return targetString;

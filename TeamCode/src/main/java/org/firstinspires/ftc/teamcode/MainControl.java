@@ -183,7 +183,11 @@ public class MainControl extends OpMode {
         boolean armSwingOut = robot.gp2_rbumper;
         boolean spinIntakeOut = robot.gp1_lbumper;
         boolean spinIntakeIn = robot.gp1_rbumper;
+        String targetInfo = "NUL";
 
+        // Testing vision code
+        targetInfo = vision.targetsAreVisible();
+        telemetry.addData("Target Information:", targetInfo);
 
 
         checkSensors();
