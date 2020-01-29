@@ -482,12 +482,21 @@ public class MainControl extends OpMode {
     private boolean testFirstRun = true;
     private double[] testStateTimes = {5_000};
     private int testStateTargetTime = 0;
-    private double[][] testCoords = {{
-            0, // X pos
-            0, // Y pos
-            .5,// R speed & direction
-            90 // Rotation in degrees
-    }};
+    private double[][] testCoords = {
+            {
+                    0,      // X pos
+                    .5,      // Y pos
+                    .5,     // R speed & direction
+                    90,     // Rotation in degrees
+                    1_000   //Time
+            },
+            {
+                    .5,
+                    0,
+                    0,
+                    700
+            }
+    };
 
     public void testAuto(){
         double drivePowerX = 0; // set all values to their corresponding controller values
@@ -508,6 +517,13 @@ public class MainControl extends OpMode {
             else
             {
                 testState = State.COMPLETE;
+            }
+
+            if(testState == State.COMPLETE)
+            {
+                drivePowerX = testCoords[1][0];
+                drivePowerY = testCoords[1][1];
+                drivePowerR = testCoords[1][2];
             }
         }
 
