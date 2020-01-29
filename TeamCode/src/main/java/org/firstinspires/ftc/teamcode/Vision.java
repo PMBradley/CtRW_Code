@@ -71,6 +71,7 @@ public class Vision {
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
 
+
     /*
 
     private VuforiaTrackable targetBLP;
