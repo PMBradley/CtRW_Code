@@ -267,8 +267,8 @@ public class Vision {
                 zTranslation = translation.get(2) / mmPerInch;
 
                 targetString = "Visible Target: " + trackableString + " Pos (in) {X, Y, Z} = "
-                        + String.valueOf(xTranslation) + " " + String.valueOf(yTranslation) + " "
-                        + String.valueOf(zTranslation);
+                        + (xTranslation) + " " + (yTranslation) + " "
+                        + (zTranslation);
 
 
                 targetVisible = true;
