@@ -478,23 +478,23 @@ public class MainControl extends OpMode {
 
 
     // Test Auto
-    private State testState = State.STATE_0;
-    private boolean testFirstRun = true;
-    private double[] testStateTimes = {5_000};
+    //private State testState = State.STATE_0;
+    private int testStep = 0;
+    private boolean testMainFirstRun = true;
+    private boolean testStateFirstRun = true;
+    private double testMainStateTime = 25_000;
+    private int testMainStateTargetTime = 0;
     private int testStateTargetTime = 0;
     private double[][] testCoords = {
             {
-                    0,      // X pos
-                    .5,      // Y pos
-                    .5,     // R speed & direction
-                    90,     // Rotation in degrees
-                    1_000   //Time
+                    0, .5, 0, // X, Y, R Power
+                    0,     // Rotation in degrees
+                    200   //Time
             },
             {
-                    .5,
-                    0,
-                    0,
-                    700
+                    .5, 0, -.5,
+                    270,
+                    1_000
             }
     };
 
@@ -503,31 +503,56 @@ public class MainControl extends OpMode {
         double drivePowerY = 0;
         double drivePowerR = 0;
 
-        if(testFirstRun){
-            testStateTargetTime = (int)(runtime.milliseconds() + testStateTimes[0]);
-            testFirstRun = false;
+        if(testMainFirstRun){ // first run time limiter
+            testMainStateTargetTime = (int)(runtime.milliseconds() + testMainStateTime);
+            testMainFirstRun = false;
         }
 
-        if(!excedesTime(testStateTargetTime))
+        if(!excedesTime(testMainStateTargetTime)) // auto fail safe
         {
-            if(!meccanum.gyroTurn(testCoords[0][3], navigation.getRawRotation()))
+            // NOTE: this was made because i (Mark) didn't know how to use the state machine so i made a stepper
+            switch (testStep) // process stepper
             {
-                drivePowerR = testCoords[0][2];
-            }
-            else
-            {
-                testState = State.COMPLETE;
-            }
-
-            if(testState == State.COMPLETE)
-            {
-                drivePowerX = testCoords[1][0];
-                drivePowerY = testCoords[1][1];
-                drivePowerR = testCoords[1][2];
+                case 0: //step 0
+                {
+                    if(testStateFirstRun){ //step timer
+                        testStateTargetTime = (int)(runtime.milliseconds() + testCoords[testStep][4]);
+                        testStateFirstRun = false;
+                    }
+                    if(!excedesTime(testMainStateTargetTime)) //main code
+                    {
+                        drivePowerX = testCoords[testStep][0];
+                        drivePowerY = testCoords[testStep][1];
+                        drivePowerR = testCoords[testStep][2];
+                    }
+                    else //change to next step and reset step timer
+                    {
+                        testStep++;
+                        testStateFirstRun = true;
+                    }
+                }
+                case 1: //step 1
+                {
+                    if(testStateFirstRun){ //step time limit
+                        testStateTargetTime = (int)(runtime.milliseconds() + testCoords[testStep][4]);
+                        testStateFirstRun = false;
+                    }
+                    if(!excedesTime(testMainStateTargetTime)) //main code
+                    {
+                        drivePowerX = testCoords[testStep][0];
+                        drivePowerY = testCoords[testStep][1];
+                        drivePowerR = meccanum.gyroTurn(testCoords[testStep][3], navigation.getRotation(), testCoords[testStep][2]); //gyro turn
+                    }
+                    else //change to next step and reset step timer
+                    {
+                        testStep++;
+                        testStateFirstRun = true;
+                    }
+                }
             }
         }
 
-        telemetry.addData("State:", testState);
+        telemetry.addData("State:", testStep);
         telemetry.addData("Heading:", navigation.getRotation());
         telemetry.addData("Raw Heading:", navigation.getRawRotation());
 
