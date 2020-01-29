@@ -254,9 +254,9 @@ public class Vision {
 
     public String targetsAreVisible(){
 
-        float xTranslation = 0;
-        float yTranslation = 0;
-        float zTranslation = 0;
+        float xTranslation;
+        float yTranslation;
+        float zTranslation;
 
         VectorF translation = lastLocation.getTranslation();
         for (VuforiaTrackable trackable : allTrackables) {
