@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.provider.ContactsContract;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -49,6 +51,7 @@ public class Navigation2019 {
     public double X = 10.0;
     public double Y = 10.0;
     public double ROTATION_DEG = 0.0;
+    public double RAW_DEG = 0.0;
     private double lastX = X;
     private double lastY = Y;
 
@@ -74,6 +77,12 @@ public class Navigation2019 {
         updateRotation();
 
         return ROTATION_DEG;
+    }
+
+    public double getRawRotation(){
+        updateRotation();
+
+        return robot.getHeading();
     }
 
     void setNavMargin(double inTranslationMargin, double inRotationMargin){
@@ -274,6 +283,7 @@ public class Navigation2019 {
      tempRot *= -1;
 
      ROTATION_DEG = clipDegrees(tempRot);
+     RAW_DEG = robot.getHeading();
  }
 
 

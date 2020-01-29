@@ -105,13 +105,16 @@ public class Drive_Meccanum {
         //double targetHeading  - 0 to 360
         //double turnSpeed      - -1 to 1
         //double currentHeading - 0 to 360
-        double turntolerance = 0.5; //turn tolerance in degrees
+        double turntolerance = 5; //turn tolerance in degrees
 
         if(Math.abs(currentHeading - targetHeading) <= turntolerance)
         {
             gyroTurnComplete = true;
         }
-        
+        else {
+            gyroTurnComplete = false;
+        }
+
         return gyroTurnComplete;
     }
 }

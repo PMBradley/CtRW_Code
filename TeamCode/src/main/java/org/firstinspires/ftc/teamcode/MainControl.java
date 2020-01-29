@@ -88,8 +88,8 @@ public class MainControl extends OpMode {
          */
     telemetry.addData("Test point:", "1");
     telemetry.update();
-        vision.initVuforia();
-        vision.activateTracking();
+        //vision.initVuforia();
+        //vision.activateTracking();
     }
 
     public void loop(){ // main loop
@@ -183,7 +183,10 @@ public class MainControl extends OpMode {
         boolean armSwingOut = robot.gp2_rbumper;
         boolean spinIntakeOut = robot.gp1_lbumper;
         boolean spinIntakeIn = robot.gp1_rbumper;
+        String targetInfo = "NULL";
 
+        targetInfo = vision.targetsAreVisible();
+        telemetry.addData("Target Info:", targetInfo);
 
 
         checkSensors();
@@ -475,6 +478,7 @@ public class MainControl extends OpMode {
 
 
     // Test Auto
+    private State testState = State.STATE_0;
     private boolean testFirstRun = true;
     private double[] testStateTimes = {5_000};
     private int testStateTargetTime = 0;
@@ -497,13 +501,23 @@ public class MainControl extends OpMode {
 
         if(!excedesTime(testStateTargetTime))
         {
-            if(meccanum.gyroTurn(testCoords[0][3], navigation.getRotation()))
+            if(!meccanum.gyroTurn(testCoords[0][3], navigation.getRawRotation()))
             {
-
+                drivePowerR = testCoords[0][2];
+            }
+            else
+            {
+                testState = State.COMPLETE;
             }
         }
 
-        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation());
+        telemetry.addData("State:", testState);
+        telemetry.addData("Heading:", navigation.getRotation());
+        telemetry.addData("Raw Heading:", navigation.getRawRotation());
+
+        telemetry.update();
+
+        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRawRotation());
     }
 
 
