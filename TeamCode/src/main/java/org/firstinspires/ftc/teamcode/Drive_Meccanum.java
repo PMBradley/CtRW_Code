@@ -32,7 +32,7 @@ public class Drive_Meccanum {
     static final double     TURN_SPEED              = 0.5;
 
     boolean isInitilized = false;
-
+    boolean gyroTurnComplete = false;
 
     public void init_motors(){
         // robot.init(hardwareMap);
@@ -48,17 +48,11 @@ public class Drive_Meccanum {
 
     }
 
-    public void Drive_Vector(double x, double y, double r, double heading, boolean limiter) { // use with auto only
+    public void Drive_Vector(double x, double y, double r, double heading) { // use with auto only
         //x = Math.sin(heading) * x;
         //y = Math.cos(heading) * y;
 
         y *= -1; // negate y to emulate the negative values given by controller y
-
-        if (limiter == true)
-        {
-            x = x * speedDivisor;
-            y = y * speedDivisor;
-        }
 
         double sin = Math.sin(heading * 0.0174533);
         double cos = Math.cos(heading * 0.0174533);
@@ -103,5 +97,21 @@ public class Drive_Meccanum {
         robot.driveFR.setPower(-robot.fr);
         robot.driveBL.setPower(robot.bl);
         robot.driveBR.setPower(-robot.br);
+    }
+
+    public boolean gyroTurn(double targetHeading, double currentHeading)
+    {
+        //Gyro turn code
+        //double targetHeading  - 0 to 360
+        //double turnSpeed      - -1 to 1
+        //double currentHeading - 0 to 360
+        double turntolerance = 0.5; //turn tolerance in degrees
+
+        if(Math.abs(currentHeading - targetHeading) <= turntolerance)
+        {
+            gyroTurnComplete = true;
+        }
+        
+        return gyroTurnComplete;
     }
 }

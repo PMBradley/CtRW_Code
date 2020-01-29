@@ -111,7 +111,7 @@ public class MainControl extends OpMode {
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
             if(AUTO_MODE_ACTIVE){ // if auto-op
-                zomAuto(); // a hacked together autonomous
+                testAuto(); // a hacked together autonomous
                 //AutoStep();
                 telemetry.addData("Mode","Auto");
             }
@@ -474,29 +474,36 @@ public class MainControl extends OpMode {
 
 
 
-    // Zombie Auto
-    private boolean zomFirstRun = true;
-    private double[] zomStateTimes = {1_000};
-    private int zomStateTargetTime = 0;
-    private double[][] zomCoords = {{0, 0.5, 0}};
+    // Test Auto
+    private boolean testFirstRun = true;
+    private double[] testStateTimes = {5_000};
+    private int testStateTargetTime = 0;
+    private double[][] testCoords = {{
+            0, // X pos
+            0, // Y pos
+            .5,// R speed & direction
+            90 // Rotation in degrees
+    }};
 
-    public void zomAuto(){
+    public void testAuto(){
         double drivePowerX = 0; // set all values to their corresponding controller values
         double drivePowerY = 0;
         double drivePowerR = 0;
 
-        if(zomFirstRun){
-            zomStateTargetTime = (int)(runtime.milliseconds() + zomStateTimes[0]);
-            zomFirstRun = false;
+        if(testFirstRun){
+            testStateTargetTime = (int)(runtime.milliseconds() + testStateTimes[0]);
+            testFirstRun = false;
         }
 
-        if(!excedesTime(zomStateTargetTime)){
-            drivePowerX = zomCoords[0][0];
-            drivePowerY = zomCoords[0][1];
-            drivePowerR = zomCoords[0][2];
+        if(!excedesTime(testStateTargetTime))
+        {
+            if(meccanum.gyroTurn(testCoords[0][3], navigation.getRotation()))
+            {
+
+            }
         }
 
-        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), false);
+        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation());
     }
 
 
@@ -547,6 +554,8 @@ public class MainControl extends OpMode {
 
         navigation.updateLocation();
 
+
+        //State Machine
 
         switch (autoState){ // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
             case IDLE:
@@ -648,6 +657,8 @@ public class MainControl extends OpMode {
 
                 break;
         }
+
+        //Patrick's home grown turn code
 
         // Set Translational power values
         movePowers[0] = (moveCoords[0] - navigation.X) / transApproachReduce; // if the target X move position is less than current X position, move that direction and visa versa
