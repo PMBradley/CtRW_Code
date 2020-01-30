@@ -98,29 +98,18 @@ public class Drive_Meccanum {
         robot.driveBR.setPower(-robot.br);
     }
 
-    public double gyroTurn(double targetHeading, double currentHeading, double turnDirection)
+    public boolean gyroTurn(double targetHeading, double currentHeading, double turntolerance)
     {
         //Gyro turn code
         //double targetHeading  - 0 to 360
         //double currentHeading - 0 to 360
         //double turnDirection  - -1 to 1
-        double turntolerance = 2; //turn tolerance in degrees
-        double turnSpeed = 0;
-        double turnSpeedMod = 0.1;
+        boolean turnComplete = false;
 
         if(Math.abs(currentHeading - targetHeading) <= turntolerance)
         {
-            turnSpeed = 0;
+            turnComplete = true;
         }
-        else
-        {
-            turnSpeed =  Math.abs(currentHeading - targetHeading) * turnSpeedMod * (turnDirection / Math.abs(turnDirection));
-            if(Math.abs(turnSpeed) > Math.abs(turnDirection))
-            {
-                turnSpeed = turnDirection;
-            }
-        }
-
-        return turnSpeed;
+        return turnComplete;
     }
 }
