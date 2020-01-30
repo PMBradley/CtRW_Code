@@ -149,6 +149,13 @@ public class MainControl extends OpMode {
         STATE_5,
         STATE_6,
         STATE_7,
+        STATE_8,
+        STATE_9,
+        STATE_10,
+        STATE_11,
+        STATE_12,
+        STATE_13,
+        STATE_14,
     }
 
     State intakeState = State.STATE_0;
@@ -570,13 +577,18 @@ public class MainControl extends OpMode {
 
     private double[][][] driveCoords = {
             { // quadrant 0 coordinates
-                    {0, 0.3, 0, 0},
-                    {0, 0, 0.5, 90},
-                    {-0.3, 0, 0, 0},
-                    {0.0, .3, 0, 0},
-                    {0.0, 0.0, 0.0, 0},
-                    {0.0, 0.0, -0.7, 0},
-                    {0.0, 0.0, 0.0, 0},
+                    {0, 0.3, 0, 0}, // move forward to mat
+                    {0, 0, 0.5, 90}, // rotate to line up with mat
+                    {-0.3, 0, 0, 0}, // move back to line up with mat
+                    {0.0, .3, 0, 0}, // move against mat
+                    {0.0, 0.0, 0.0, 0}, // drop pullers
+                    {0.0, 0.0, -0.7, 0}, // rotate with mat
+                    {0.0, -0.4, 0.0, 0}, // move backwards with mat
+                    {-0.4, 0.0, 0.0, 0}, // push mat against wall
+                    {0.4, 0.0, 0.0, 0}, // back away from mat
+                    {0.0, -0.25, 0.0, 0}, // readjust against wall
+                    {0, 0.3, 0, 0}, // move forwards
+                    {0.3, 0, 0, 0}, // move left under bridge
             },
 
             { // quadrant 1 coordinates
@@ -590,7 +602,8 @@ public class MainControl extends OpMode {
     private double[][] pictureOrder = {
 
     };
-    private int[] autoStepTimes = {170, 5_000, 110, 50, 100, 6_000}; // fail safe times for each step in the autonomous program - in milisecs
+    private int[] autoStepTimes = {170, 5_000, 110, 50, 100, 6_000, 700, 100, 100, 100, 170, 110}; // fail safe times for each step in the autonomous program - in milisecs
+    //                              0     1     2   3    4     5     6    7    8    9   10    11
     private int autoStartTime = 0;
     private int autoStateTargetTime = 0;
     private boolean autoStateFirstRun = true;
@@ -623,6 +636,8 @@ public class MainControl extends OpMode {
                 quadrant = 0; // set which quadrant we are starting in
 
                 stateInc = 0;
+
+                pullerPower = 0.5;
            //     moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
 
                 autoState = State.STATE_0;
@@ -747,13 +762,126 @@ public class MainControl extends OpMode {
                     movePowers[2] = driveCoords[quadrant][stateInc][2];
                 }
 
+                if(excedesTime(autoStateTargetTime) || turnComp){ // continue conditions (including failsafe times)
+                    autoState = State.STATE_6;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_6:
+                stateInc = 6;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                movePowers[0] = driveCoords[quadrant][stateInc][0];
+                movePowers[1] = driveCoords[quadrant][stateInc][1];
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+
+                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    autoState = State.STATE_7;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_7:
+                stateInc = 7;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                movePowers[0] = driveCoords[quadrant][stateInc][0];
+                movePowers[1] = driveCoords[quadrant][stateInc][1];
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                pullerPower = 0.5;
+
+                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    autoState = State.STATE_8;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_8:
+                stateInc = 8;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                movePowers[0] = driveCoords[quadrant][stateInc][0];
+                movePowers[1] = driveCoords[quadrant][stateInc][1];
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                pullerPower = 0.5;
+
+                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    autoState = State.STATE_9;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_9:
+                stateInc = 9;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                movePowers[0] = driveCoords[quadrant][stateInc][0];
+                movePowers[1] = driveCoords[quadrant][stateInc][1];
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                pullerPower = 0.5;
+
+                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    autoState = State.STATE_10;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_10:
+                stateInc = 10;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                movePowers[0] = driveCoords[quadrant][stateInc][0];
+                movePowers[1] = driveCoords[quadrant][stateInc][1];
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                pullerPower = 0.5;
+
+                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                    autoState = State.STATE_11;
+                    autoStateFirstRun = true;
+                }
+                break;
+            case STATE_11:
+                stateInc = 11;
+
+                if(autoStateFirstRun){
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+
+                    autoStateFirstRun = false;
+                }
+                movePowers[0] = driveCoords[quadrant][stateInc][0];
+                movePowers[1] = driveCoords[quadrant][stateInc][1];
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                pullerPower = 0.5;
+
                 if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
                     autoState = State.COMPLETE;
                     autoStateFirstRun = true;
                 }
                 break;
             case COMPLETE:
-                moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
+                //moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
 
                 if(excedesTime(autoStartTime + 36_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
                     //AUTO_MODE_ACTIVE = false;
