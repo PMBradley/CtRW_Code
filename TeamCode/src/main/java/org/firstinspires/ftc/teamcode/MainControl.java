@@ -584,7 +584,7 @@ public class MainControl extends OpMode {
                     {0.0, 0.0, 0.0, 0}, // drop pullers
                     {0.0, 0.0, -0.7, 0}, // rotate with mat
                     {0.0, -0.4, 0.0, 0}, // move backwards with mat
-                    {-0.4, 0.0, 0.0, 0}, // push mat against wall
+                    {0.0, 0.0, -0.7, 0}, // rotate with mat (push it agaist wall)
                     {0.4, 0.0, 0.0, 0}, // back away from mat
                     {0.0, -0.25, 0.0, 0}, // readjust against wall
                     {0, 0.3, 0, 0}, // move forwards
@@ -602,7 +602,7 @@ public class MainControl extends OpMode {
     private double[][] pictureOrder = {
 
     };
-    private int[] autoStepTimes = {170, 5_000, 110, 50, 100, 6_000, 700, 100, 100, 100, 170, 110}; // fail safe times for each step in the autonomous program - in milisecs
+    private int[] autoStepTimes = {170, 5_000, 110, 50, 100, 6_000, 700, 5_000, 100, 100, 170, 110}; // fail safe times for each step in the autonomous program - in milisecs
     //                              0     1     2   3    4     5     6    7    8    9   10    11
     private int autoStartTime = 0;
     private int autoStateTargetTime = 0;
@@ -795,11 +795,13 @@ public class MainControl extends OpMode {
                 }
                 movePowers[0] = driveCoords[quadrant][stateInc][0];
                 movePowers[1] = driveCoords[quadrant][stateInc][1];
-                movePowers[2] = driveCoords[quadrant][stateInc][2];
+                turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 10);
+                if(!turnComp)
+                {
+                    movePowers[2] = driveCoords[quadrant][stateInc][2];
+                }
 
-                pullerPower = 0.5;
-
-                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
+                if(excedesTime(autoStateTargetTime) || turnComp){ // continue conditions (including failsafe times)
                     autoState = State.STATE_8;
                     autoStateFirstRun = true;
                 }
