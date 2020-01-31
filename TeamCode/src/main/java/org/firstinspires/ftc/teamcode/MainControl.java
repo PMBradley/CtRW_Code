@@ -576,9 +576,9 @@ public class MainControl extends OpMode {
     public int quadrant = 0;
 
     private double[][][] driveCoords = {
-            { // quadrant 0 coordinates
+            { // quadrant 0 coordinates (red mat side)
                     {0, 0.3, 0, 0}, // move forward to mat
-                    {0, 0, 0.5, 90}, // rotate to line up with mat
+                    {0, 0, 0.4, 90}, // rotate to line up with mat
                     {-0.3, 0, 0, 0}, // move back to line up with mat
                     {0.0, .3, 0, 0}, // move against mat
                     {0.0, 0.0, 0.0, 0}, // drop pullers
@@ -591,19 +591,33 @@ public class MainControl extends OpMode {
                     {0.3, 0, 0, 0}, // move left under bridge
             },
 
-            { // quadrant 1 coordinates
-                    {0, .35, 0, 0},
-                    {0, 0, .5, 90},
-                    {30.0, 30.0, 180.0, 0},
-                    {30.0, 30.0, 270.0, 0},
-                    {30.0, 30.0, 0.0, 0},
+            { // quadrant 1 coordinates (blue mat side)
+                    {0, 0.3, 0, 0}, // move forward to mat
+                    {0, 0, -0.4, -90}, // rotate to line up with mat
+                    {0.3, 0, 0, 0}, // move back to line up with mat
+                    {0.0, .3, 0, 0}, // move against mat
+                    {0.0, 0.0, 0.0, 0}, // drop pullers
+                    {0.0, 0.0, 0.7, 180}, // rotate with mat
+                    {0.0, -0.4, 0.0, 0}, // move backwards with mat
+                    {0.0, 0.0, 0.7, 180}, // rotate with mat (push it agaist wall)
+                    {-0.4, 0.0, 0.0, 0}, // back away from mat
+                    {0.0, -0.25, 0.0, 0}, // readjust against wall
+                    {0, 0.3, 0, 0}, // move forwards
+                    {-0.3, 0, 0, 0}, // move left under bridge
             },
     }; // Holds the coordinate points to be used with our navigation - first state holds the quadrant differences - second dimension holds the state - the thrid dimension holds x, y, and r (in that order)
     private double[][] pictureOrder = {
 
     };
-    private int[] autoStepTimes = {170, 5_000, 110, 50, 100, 6_000, 700, 5_000, 100, 100, 170, 110}; // fail safe times for each step in the autonomous program - in milisecs
-    //                              0     1     2   3    4     5     6    7    8    9   10    11
+    private int[][] autoStepTimes = {
+//            0     1     2   3    4     5     6    7    8    9   10    11
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 0 times (red side mat)
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 1 times (blue side mat)
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 2 times (red side block)
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 3 times (blue side block)
+
+    }; // fail safe times for each step in the autonomous program - in milisecs
+
     private int autoStartTime = 0;
     private int autoStateTargetTime = 0;
     private boolean autoStateFirstRun = true;
@@ -646,7 +660,7 @@ public class MainControl extends OpMode {
                 stateInc = 0;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -665,7 +679,7 @@ public class MainControl extends OpMode {
                 stateInc = 1;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -690,7 +704,7 @@ public class MainControl extends OpMode {
                 stateInc = 2;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -711,7 +725,7 @@ public class MainControl extends OpMode {
                 stateInc = 3;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -730,7 +744,7 @@ public class MainControl extends OpMode {
                 stateInc = 4;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -750,7 +764,7 @@ public class MainControl extends OpMode {
                 stateInc = 5;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -771,7 +785,7 @@ public class MainControl extends OpMode {
                 stateInc = 6;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -789,7 +803,7 @@ public class MainControl extends OpMode {
                 stateInc = 7;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -810,7 +824,7 @@ public class MainControl extends OpMode {
                 stateInc = 8;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -829,7 +843,7 @@ public class MainControl extends OpMode {
                 stateInc = 9;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -848,7 +862,7 @@ public class MainControl extends OpMode {
                 stateInc = 10;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -857,6 +871,8 @@ public class MainControl extends OpMode {
                 movePowers[2] = driveCoords[quadrant][stateInc][2];
 
                 pullerPower = 0.5;
+                robot.intakeDropL.setPosition(0.0); //
+                robot.intakeDropR.setPosition(1.0);
 
                 if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
                     autoState = State.STATE_11;
@@ -867,7 +883,7 @@ public class MainControl extends OpMode {
                 stateInc = 11;
 
                 if(autoStateFirstRun){
-                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[stateInc]; // sets target fail safe time for this step
+                    autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
                     autoStateFirstRun = false;
                 }
@@ -876,6 +892,8 @@ public class MainControl extends OpMode {
                 movePowers[2] = driveCoords[quadrant][stateInc][2];
 
                 pullerPower = 0.5;
+                robot.intakeDropL.setPosition(0.0); //
+                robot.intakeDropR.setPosition(1.0);
 
                 if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
                     autoState = State.COMPLETE;
@@ -885,9 +903,11 @@ public class MainControl extends OpMode {
             case COMPLETE:
                 //moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
 
-                if(excedesTime(autoStartTime + 36_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
+             //   if(excedesTime(autoStartTime + 38_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
                     //AUTO_MODE_ACTIVE = false;
-                }
+               // }
+                robot.intakeDropL.setPosition(0.0); //
+                robot.intakeDropR.setPosition(1.0);
 
                 break;
         }
