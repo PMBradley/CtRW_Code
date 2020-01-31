@@ -597,13 +597,10 @@ public class MainControl extends OpMode {
                     {0.3, 0, 0, 0}, // move left to line up with mat
                     {0.0, .3, 0, 0}, // move against mat
                     {0.0, 0.0, 0.0, 0}, // drop pullers
-                    {0.0, 0.0, 0.7, 180}, // rotate with mat
-                    {0.0, -0.4, 0.0, 0}, // move backwards with mat
-                    {0.0, 0.0, 0.7, 180}, // rotate with mat (push it agaist wall)
-                    {-0.4, 0.0, 0.0, 0}, // back away from mat
-                    {0.0, -0.25, 0.0, 0}, // readjust against wall
-                    {0, 0.3, 0, 0}, // move forwards
-                    {-0.3, 0, 0, 0}, // move left under bridge
+                    {0.0, -0.5, 0.0, 0}, // move backwards with mat
+                    {-0.3, 0.0, 0.0, 0}, // right away from mat
+                    {0.0, 0.3, 0.0, 0}, // readjust against wall
+                    {-0.3, 0, 0, 0}, // move right under bridge
             },
     }; // Holds the coordinate points to be used with our navigation - first state holds the quadrant differences - second dimension holds the state - the thrid dimension holds x, y, and r (in that order)
     private double[][] pictureOrder = {
@@ -612,7 +609,7 @@ public class MainControl extends OpMode {
     private int[][] autoStepTimes = {
 //            0     1     2   3    4     5     6    7    8    9   10    11
             {170, 5_000, 110, 90, 200, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 0 times (red side mat)
-            {170, 5_000, 25, 90, 200, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 1 times (blue side mat)
+            {900, 5_000, 800, 600, 300, 2_000, 1_200, 1_600, 800, 0, 0, 0}, // quadrant 1 times (blue side mat)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 2 times (red side block)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 3 times (blue side block)
 
@@ -638,7 +635,7 @@ public class MainControl extends OpMode {
         double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
 
-        navigation.updateLocation();
+        navigation.updateRotation();
 
 
         //State Machine
@@ -732,7 +729,7 @@ public class MainControl extends OpMode {
                 movePowers[0] = driveCoords[quadrant][stateInc][0];
                 movePowers[1] = driveCoords[quadrant][stateInc][1];
                 movePowers[2] = driveCoords[quadrant][stateInc][2];
-              //  moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
                 pullerPower = 0.5;
 
                 if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
@@ -752,7 +749,7 @@ public class MainControl extends OpMode {
                 movePowers[1] = driveCoords[quadrant][stateInc][1];
                 movePowers[2] = driveCoords[quadrant][stateInc][2];
 
-            //    moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
                 // Have a whole state to drop the servo
 
                 if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
@@ -770,13 +767,11 @@ public class MainControl extends OpMode {
                 }
                 movePowers[0] = driveCoords[quadrant][stateInc][0];
                 movePowers[1] = driveCoords[quadrant][stateInc][1];
-                turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 10);
-                if(!turnComp)
-                {
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-                }
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
 
-                if(excedesTime(autoStateTargetTime) || turnComp){ // continue conditions (including failsafe times)
+
+
+                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
                     autoState = State.STATE_6;
                     autoStateFirstRun = true;
                 }
@@ -794,6 +789,8 @@ public class MainControl extends OpMode {
                 movePowers[2] = driveCoords[quadrant][stateInc][2];
 
 
+                pullerPower = 0.5;
+
                 if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
                     autoState = State.STATE_7;
                     autoStateFirstRun = true;
@@ -809,13 +806,11 @@ public class MainControl extends OpMode {
                 }
                 movePowers[0] = driveCoords[quadrant][stateInc][0];
                 movePowers[1] = driveCoords[quadrant][stateInc][1];
-                turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 10);
-                if(!turnComp)
-                {
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-                }
+                movePowers[2] = driveCoords[quadrant][stateInc][2];
 
-                if(excedesTime(autoStateTargetTime) || turnComp){ // continue conditions (including failsafe times)
+                pullerPower = 0.5;
+
+                if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
                     autoState = State.STATE_8;
                     autoStateFirstRun = true;
                 }
