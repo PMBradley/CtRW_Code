@@ -579,7 +579,7 @@ public class MainControl extends OpMode {
             { // quadrant 0 coordinates (red mat side)
                     {0, 0.3, 0, 0}, // move forward to mat
                     {0, 0, 0.4, 90}, // rotate to line up with mat
-                    {-0.3, 0, 0, 0}, // move back to line up with mat
+                    {-0.3, 0, 0, 0}, // move right to line up with mat
                     {0.0, .3, 0, 0}, // move against mat
                     {0.0, 0.0, 0.0, 0}, // drop pullers
                     {0.0, 0.0, -0.7, 0}, // rotate with mat
@@ -593,8 +593,8 @@ public class MainControl extends OpMode {
 
             { // quadrant 1 coordinates (blue mat side)
                     {0, 0.3, 0, 0}, // move forward to mat
-                    {0, 0, -0.4, -90}, // rotate to line up with mat
-                    {0.3, 0, 0, 0}, // move back to line up with mat
+                    {0, 0, 0.4, 90}, // rotate to line up with mat
+                    {0.3, 0, 0, 0}, // move left to line up with mat
                     {0.0, .3, 0, 0}, // move against mat
                     {0.0, 0.0, 0.0, 0}, // drop pullers
                     {0.0, 0.0, 0.7, 180}, // rotate with mat
@@ -611,8 +611,8 @@ public class MainControl extends OpMode {
     };
     private int[][] autoStepTimes = {
 //            0     1     2   3    4     5     6    7    8    9   10    11
-            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 0 times (red side mat)
-            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 1 times (blue side mat)
+            {170, 5_000, 110, 90, 200, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 0 times (red side mat)
+            {170, 5_000, 25, 90, 200, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 1 times (blue side mat)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 2 times (red side block)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220}, // quadrant 3 times (blue side block)
 
@@ -647,7 +647,7 @@ public class MainControl extends OpMode {
             case IDLE:
                 autoStartTime = (int) runtime.milliseconds();
 
-                quadrant = 0; // set which quadrant we are starting in
+                quadrant = 1; // set which quadrant we are starting in
 
                 stateInc = 0;
 
