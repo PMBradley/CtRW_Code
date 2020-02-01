@@ -21,9 +21,9 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
 
 
-@TeleOp(name = "MainControl")
-@Disabled
-public class MainControl extends OpMode {
+@TeleOp(name = "MainZomMoveRight")
+
+public class MainZomRight extends OpMode {
 
 
     // Create the instances of each class for the robot
@@ -81,15 +81,15 @@ public class MainControl extends OpMode {
 
         telemetry.addData("Say", "It's Droopy McCool Time!");
 
-        
+
         /*
         Add vision system init stuff here and active
 
 
 
          */
-    telemetry.addData("Test point:", "1");
-    telemetry.update();
+        telemetry.addData("Test point:", "1");
+        telemetry.update();
         //vision.initVuforia();
         //vision.activateTracking();
     }
@@ -97,7 +97,7 @@ public class MainControl extends OpMode {
     public void loop(){ // main loop
         updateControls(); // update the controllers and check the sensors
         checkSensors(); // (checking sensors happens multiple times in the loop to avoid missing an input)
-     
+
 
         if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct
             runtime.reset();
@@ -113,7 +113,7 @@ public class MainControl extends OpMode {
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
             if(AUTO_MODE_ACTIVE){ // if auto-op
-               // testAuto(); // a hacked together autonomous
+                // testAuto(); // a hacked together autonomous
                 AutoStep();
                 //telemetry.addData("Mode","Auto");
             }
@@ -194,7 +194,7 @@ public class MainControl extends OpMode {
         boolean spinIntakeIn = robot.gp1_rbumper;
         String targetInfo = "NULL";
 
-      //  targetInfo = vision.targetsAreVisible();
+        //  targetInfo = vision.targetsAreVisible();
         telemetry.addData("Target Info:", targetInfo);
 
 
@@ -206,7 +206,7 @@ public class MainControl extends OpMode {
             robot.intakeDropR.setPosition(0.0);
         }
         else { // else don't
-          //  intakeDropPower = 0;
+            //  intakeDropPower = 0;
         }
 
 
@@ -247,7 +247,7 @@ public class MainControl extends OpMode {
         }
 
         if(robot.gp1_y && intakeFirstRun){ // toggling the autonomous intake
-         //   intake = !intake;
+            //   intake = !intake;
             intakeFirstRun = false;
         }
         else if(!robot.gp1_y){
@@ -437,12 +437,12 @@ public class MainControl extends OpMode {
         //telemetry.addData("Auto Intake:", autoIntake);
 
 
-      //  telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
-     //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
-     //   telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
-     //   telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
-     //   telemetry.addData("X Pos:", navigation.X);
-      //  telemetry.addData("Y Pos:", navigation.Y);
+        //  telemetry.addData("Lidar F:", robot.readFlight(robot.flightFront0));
+        //   telemetry.addData("Lidar R:", robot.readFlight(robot.flightRight2));
+        //   telemetry.addData("Lidar B:", robot.readFlight(robot.flightBack3));
+        //   telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
+        //   telemetry.addData("X Pos:", navigation.X);
+        //  telemetry.addData("Y Pos:", navigation.Y);
         telemetry.addData("Heading:", navigation.getRotation());
         if(Ltrigger < .5) {
             telemetry.addData("Boost OFF", Ltrigger);
@@ -452,14 +452,14 @@ public class MainControl extends OpMode {
         }
 
         telemetry.addData("Puler power:", pullerPower);
-    //    telemetry.addData("Power fl", robot.fl);
-    //    telemetry.addData("Power fr", robot.fr);
-    //    telemetry.addData("Power bl", robot.bl);
-    //    telemetry.addData("Power br", robot.br);
+        //    telemetry.addData("Power fl", robot.fl);
+        //    telemetry.addData("Power fr", robot.fr);
+        //    telemetry.addData("Power bl", robot.bl);
+        //    telemetry.addData("Power br", robot.br);
 
-      //  telemetry.addData("Lstick X:", drivePowerX);
-       // telemetry.addData("Lstick Y:", drivePowerY);
-       // telemetry.addData("Lstick R:", drivePowerR);
+        //  telemetry.addData("Lstick X:", drivePowerX);
+        // telemetry.addData("Lstick Y:", drivePowerY);
+        // telemetry.addData("Lstick R:", drivePowerR);
 
         telemetry.update();
 
@@ -473,7 +473,7 @@ public class MainControl extends OpMode {
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
         meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, navigation.getRotation(), true, Ltrigger);
-       // meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
+        // meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
@@ -578,32 +578,32 @@ public class MainControl extends OpMode {
     public int quadrant = 0;
 
     private double[][][] driveCoords = {
-            { // quadrant 0 coordinates (red mat side)
-                    {0, 0.3, 0, 0}, // move forward to mat
-                    {0, 0, 0.4, 90}, // rotate to line up with mat
-                    {-0.3, 0, 0, 0}, // move right to line up with mat
-                    {0.0, .3, 0, 0}, // move against mat
-                    {0.0, 0.0, 0.0, 0}, // drop pullers
-                    {0.0, -0.5, 0.0, 0}, // move backwards with mat
-                    {0.3, 0.0, 0.0, 0}, // left away from mat
-                    {0.0, 0.3, 0.0, 0}, // readjust against wall
-                    {-0.4, 0.0, 0.0, 0}, // push mat into place (make sure it is in pos)
+            { // quadrant 0 coordinates (Left)
                     {0.3, 0, 0, 0}, // move left under bridge
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
             },
 
-            { // quadrant 1 coordinates (blue mat side)
-                    {0, 0.3, 0, 0}, // move forward to mat
-                    {0, 0, 0.4, 90}, // rotate to line up with mat
-                    {0.3, 0, 0, 0}, // move left to line up with mat
-                    {0.0, .3, 0, 0}, // move against mat
-                    {0.0, 0.0, 0.0, 0}, // drop pullers
-                    {0.0, -0.5, 0.0, 0}, // move backwards with mat
-                    {-0.3, 0.0, 0.0, 0}, // right away from mat
-                    {0.0, 0.3, 0.0, 0}, // readjust against wall
-                    {0.4, 0.0, 0.0, 0}, // push mat into place (make sure it is in pos)
-                    {-0.3, 0, 0, 0}, // move right under bridge
+            { // quadrant 1 coordinates (Right)
+                    {-0.3, 0.0, 0, 0}, // move right under bridge
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
             },
@@ -613,8 +613,8 @@ public class MainControl extends OpMode {
     };
     private int[][] autoStepTimes = {
 //            0     1     2   3    4     5     6    7    8    9   10    11
-            {880, 5_000, 700, 900, 400, 1_525, 1_300, 2_100, 400, 1_000, 0, 0, 0}, // quadrant 0 times (red side mat)
-            {780, 5_000, 400, 600, 400, 1_550, 1_300, 2_500, 400, 1_000, 0, 0, 0}, // quadrant 1 times (blue side mat)
+            {700, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // quadrant 0 times (left)
+            {700, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // quadrant 1 times (right)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0}, // quadrant 2 times (red side block)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0}, // quadrant 3 times (blue side block)
 
@@ -649,12 +649,12 @@ public class MainControl extends OpMode {
             case IDLE:
                 autoStartTime = (int) runtime.milliseconds();
 
-                quadrant = 0; // set which quadrant we are starting in
+                quadrant = 1; // set which quadrant we are starting in
 
                 stateInc = 0;
 
                 pullerPower = 0.5;
-           //     moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
+                //     moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
 
                 autoState = State.STATE_0;
                 break;
@@ -713,7 +713,7 @@ public class MainControl extends OpMode {
                 movePowers[0] = driveCoords[quadrant][stateInc][0];
                 movePowers[1] = driveCoords[quadrant][stateInc][1];
                 movePowers[2] = driveCoords[quadrant][stateInc][2];
-             //   moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+                //   moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
                 pullerPower = 0.5;
 
@@ -903,9 +903,9 @@ public class MainControl extends OpMode {
             case COMPLETE:
                 //moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
 
-             //   if(excedesTime(autoStartTime + 38_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
-                    //AUTO_MODE_ACTIVE = false;
-               // }
+                //   if(excedesTime(autoStartTime + 38_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
+                //AUTO_MODE_ACTIVE = false;
+                // }
                 robot.intakeDropL.setPosition(0.0); //
                 robot.intakeDropR.setPosition(1.0);
 
@@ -936,12 +936,12 @@ public class MainControl extends OpMode {
         telemetry.update();
 
         //meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
-     //   flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
-      //  lift.move_Controller(liftPowerR , liftPowerL);
-      //  arm_swing.set_arm_position(armSwingIn, armSwingOut);
-      //  arm_swing.set_clamp_position(clampRelease);
-      //  pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
-      //  intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
+        //   flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+        //  lift.move_Controller(liftPowerR , liftPowerL);
+        //  arm_swing.set_arm_position(armSwingIn, armSwingOut);
+        //  arm_swing.set_clamp_position(clampRelease);
+        //  pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
+        //  intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
     }
 
 
