@@ -156,6 +156,10 @@ public class Robot2019 {
         armPivot.setPosition(0.69);
 
         // Set up the Internal Measurement Unit
+        init_imu();
+    }
+
+    public void init_imu(){
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
