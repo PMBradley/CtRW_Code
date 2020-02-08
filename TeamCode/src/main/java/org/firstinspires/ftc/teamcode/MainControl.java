@@ -752,10 +752,28 @@ public class MainControl extends OpMode {
                     movePowers[0] = detectCoords[detectInc][0];
                     movePowers[1] = detectCoords[detectInc][1];
                     movePowers[2] = detectCoords[detectInc][2];
-                    //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
+                    String currentTrackable = vision.getVisibleTarget();
+
+                    if (currentTrackable != "NULL") {
+                        switch (currentTrackable) {
+                            case "Red Perimeter 2":
+                                quadrant = 0;
+                                break;
+                            case "Red Perimeter 1":
+                                quadrant = 1;
+                                break;
+                            case "Blue Perimeter 1":
+                                quadrant = 2;
+                                break;
+                            case "Blue Perimeter 2":
+                                quadrant = 3;
+                                break;
+                        }
+                    }
 
 
-                    if (excedesTime(detectStateTargetTime)) { // continue conditions (including failsafe times)
+                    if (excedesTime(detectStateTargetTime) || currentTrackable != "NULL") { // continue conditions (including failsafe times)
                         detectState = State.STATE_3;
                         detectStateFirstRun = true;
                     }
@@ -783,6 +801,7 @@ public class MainControl extends OpMode {
                         detectStateFirstRun = true;
                     }
                     break;
+
             }
         }
         else{ // if quadrant found, run the main auto portion

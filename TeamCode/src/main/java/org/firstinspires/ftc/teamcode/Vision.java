@@ -21,6 +21,7 @@ import java.util.List;
 
 import static android.R.attr.angle;
 import static android.R.attr.targetName;
+import static android.R.attr.track;
 import static android.view.View.X;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -291,7 +292,78 @@ public class Vision {
         return targetString;
     }
 
+    public String getVisibleTarget(){
 
+        float xTranslation;
+        float yTranslation;
+        float zTranslation;
+        trackableString = "NULL";
+
+        for (VuforiaTrackable trackable : allTrackables) {
+            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                VectorF translation = robotLocationTransform.getTranslation();
+                trackableString = trackable.getName();
+                xTranslation = translation.get(0) / mmPerInch;
+                yTranslation = translation.get(1) / mmPerInch;
+                zTranslation = translation.get(2) / mmPerInch;
+
+
+                targetVisible = true;
+
+                // getUpdatedRobotLocation() will return null if no new information is available since
+                // the last time that call was made, or if the trackable is not currently visible.
+
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+                break;
+            }
+        }
+
+
+
+
+        return trackableString;
+    }
+
+    public double[] getTranslation(){
+
+        float xTranslation = 0;
+        float yTranslation = 0;
+        float zTranslation = 0;
+
+        targetVisible = false;
+
+
+        for (VuforiaTrackable trackable : allTrackables) {
+            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                VectorF translation = robotLocationTransform.getTranslation();
+                trackableString = trackable.getName();
+                xTranslation = translation.get(0) / mmPerInch;
+                yTranslation = translation.get(1) / mmPerInch;
+                zTranslation = translation.get(2) / mmPerInch;
+
+
+
+                targetVisible = true;
+
+                // getUpdatedRobotLocation() will return null if no new information is available since
+                // the last time that call was made, or if the trackable is not currently visible.
+
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+                break;
+            }
+        }
+
+
+        double[] output = {xTranslation, yTranslation, zTranslation};
+
+        return output;
+    }
 
 
 
