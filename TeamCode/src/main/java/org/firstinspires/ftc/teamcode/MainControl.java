@@ -54,6 +54,7 @@ public class MainControl extends OpMode {
     public boolean INIT_COMPLETE = false;
     public boolean INIT_FAIL = false;
     public boolean AUTO_MODE_ACTIVE = true; // assumes autonomous until given an input
+    public boolean DYNAMIC_PARK_ACTIVE = false; // used to start the dynamic parking state machine
 
     // Game Flags
     public boolean WAYPOINT_REACHED = false;
@@ -66,18 +67,6 @@ public class MainControl extends OpMode {
 
     //Game double
     public double LIFT_LEVEL = 0.0;
-
-    // Dynamic Parking Variables
-    public double[] lidarValues = {0, 0, 0, 0};
-    //                             L BL BR  R
-    
-    public enum ParkState{
-        IDLE,
-        TRANSFORM,
-        GYROTURN,
-        GETLIDAR,
-    }
-    public ParkState parkState = ParkState.IDLE;
 
     // Startup initialization
 
@@ -1078,23 +1067,14 @@ public class MainControl extends OpMode {
 
             }
 
-            // ---Dynamic Park Code---
-
-
-            switch (parkState) {
-                case IDLE:
-
-                    break;
-                case TRANSFORM:
-
-                    break;
-                case GYROTURN:
-
-                    break;
-                case GETLIDAR:
-
-                    break;
-            }
+        if(DYNAMIC_PARK_ACTIVE = true)
+        {
+            double[] nPwr = DynamicPark(); //setting powers from dynamic park
+            movePowers[0] = nPwr[0];
+            movePowers[1] = nPwr[1];
+            movePowers[2] = nPwr[2];
+            pullerPower   = nPwr[3];
+        }
 
 
             if (quadrant == 0 || quadrant == 1) {
@@ -1115,11 +1095,162 @@ public class MainControl extends OpMode {
 
 
 
+    // ---Dynamic Park Code---
+    // Dynamic Parking Variables
+    private double[] lidarValues = {0, 0, 0, 0};
+    //                              L BL BR  R
+    private int parkStep = 0;
+    private int wallDistance = 0;
+    private boolean parkFirstRun = true;
+    private boolean wallLeft = false;
+    private boolean wallRight = false;
+    private boolean moveWallSide = true;
+    private boolean firstRunStep4 = true;
+
+    public double[] DynamicPark()
+    {
+        double[] movePower = {0, 0, 0};
+        double pullerPower = 0;
+
+        if(parkFirstRun)
+        {
+            parkStep = 1;
+            parkFirstRun = false;
+        }
+        switch (parkStep)
+        {
+            case 1:
+            {
+                lidarValues = getLidar(0);
+                if (lidarValues[0] < 100)
+                {
+                    wallLeft = true;
+                    parkStep = 2;
+                }
+                else if (lidarValues[3] < 100)
+                {
+                    wallRight = true;
+                    parkStep = 3;
+                }
+            }
+            case 2:
+            {
+                lidarValues = getLidar(1);
+                if(moveWallSide)
+                {
+                    if(lidarValues[0] > 10)
+                    {
+                        if(lidarValues[1] < 100 || lidarValues[2] < 100)
+                        {
+                            movePower[1] = -0.3;
+                        }
+                        else
+                        {
+                            parkStep = 4;
+                        }
+                    }
+                    else
+                    {
+                        moveWallSide = false;
+                    }
+                }
+                else
+                {
+                    if(lidarValues[0] < 100)
+                    {
+                        if(lidarValues[1] < 100 || lidarValues[2] < 100)
+                        {
+                            movePower[1] = 0.3;
+                        }
+                        else
+                        {
+                            parkStep = 4;
+                        }
+                    }
+                }
+            }
+            case 3:
+            {
+                lidarValues = getLidar(2);
+                if(moveWallSide)
+                {
+                    if(lidarValues[3] > 10)
+                    {
+                        if(lidarValues[1] < 100 || lidarValues[2] < 100)
+                        {
+                            movePower[1] = -0.3;
+                        }
+                        else
+                        {
+                            parkStep = 4;
+                        }
+                    }
+                    else
+                    {
+                        moveWallSide = false;
+                    }
+                }
+                else
+                {
+                    if(lidarValues[3] < 100)
+                    {
+                        if(lidarValues[1] < 100 || lidarValues[2] < 100)
+                        {
+                            movePower[1] = 0.3;
+                        }
+                        else
+                        {
+                            parkStep = 4;
+                        }
+                    }
+                }
+            }
+            case 4:
+            {
+                int sideFacingWall = 0;
+                if(wallLeft)
+                {
+                    sideFacingWall = 1;
+                }
+                else if(wallRight)
+                {
+                    sideFacingWall = 2;
+                }
+                if(firstRunStep4)
+                {
+                    firstRunStep4 = false;
+
+                }
+            }
+        }
+
+        return new double[] {movePower[0], movePower[1], movePower[2], pullerPower};
+    }
+    private double[] getLidar(int side) // 0 = All lidars, 1 = Left Lidars, 2 = Right lidars
+    {
+        double lValue[] = {0, 0, 0, 0};
+        switch (side)
+        {
+            case 0:
+                lValue[0] = robot.readFlight(robot.flightLeft1);
+                lValue[3] = robot.readFlight(robot.flightRight2);
+                break;
+            case 1:
+                lValue[0] = robot.readFlight(robot.flightLeft1);
+                break;
+            case 2:
+                lValue[3] = robot.readFlight(robot.flightRight2);
+                break;
+        }
+        lValue[1] = robot.readFlight(robot.flightFront0);
+        lValue[2] = robot.readFlight(robot.flightBack3);
+
+        return lValue;
+    }
+
     // Utility Functions
     public void Set_AutoMode(boolean mode){
         AUTO_MODE_ACTIVE = mode;
-
-
     }
 
     int touchBlockCount = 0;
