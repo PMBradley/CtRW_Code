@@ -712,6 +712,7 @@ public class MainControl extends OpMode {
                     movePowers[2] = detectCoords[detectInc][2];
                     //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
+                    pullerPower = 0.5;
 
                     if (excedesTime(detectStateTargetTime)) { // continue conditions (including failsafe times)
                         detectState = State.STATE_1;
@@ -735,6 +736,7 @@ public class MainControl extends OpMode {
                     }
                     //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
+                    pullerPower = 0.5;
 
                     if (excedesTime(detectStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
                         detectState = State.STATE_2;
@@ -752,6 +754,8 @@ public class MainControl extends OpMode {
                     movePowers[0] = detectCoords[detectInc][0];
                     movePowers[1] = detectCoords[detectInc][1];
                     movePowers[2] = detectCoords[detectInc][2];
+
+                    pullerPower = 0.5;
 
                     String currentTrackable = vision.getVisibleTarget();
 
@@ -792,8 +796,8 @@ public class MainControl extends OpMode {
                     if (!turnComp) {
                         movePowers[2] = detectCoords[detectInc][2];
                     }
-                    //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
+                    pullerPower = 0.5;
 
                     if (excedesTime(detectStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
                         detectState = State.COMPLETE;
