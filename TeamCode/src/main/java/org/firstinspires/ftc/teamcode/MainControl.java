@@ -67,6 +67,17 @@ public class MainControl extends OpMode {
     //Game double
     public double LIFT_LEVEL = 0.0;
 
+    // Dynamic Parking Variables
+    public double[] lidarValues = {0, 0, 0, 0};
+    //                             L BL BR  R
+    
+    public enum ParkState{
+        IDLE,
+        TRANSFORM,
+        GYROTURN,
+        GETLIDAR,
+    }
+    public ParkState parkState = ParkState.IDLE;
 
     // Startup initialization
 
@@ -908,6 +919,25 @@ public class MainControl extends OpMode {
                // }
                 robot.intakeDropL.setPosition(0.0); //
                 robot.intakeDropR.setPosition(1.0);
+
+                break;
+        }
+
+        // ---Dynamic Park Code---
+
+
+        switch (parkState)
+        {
+            case IDLE:
+
+                break;
+            case TRANSFORM:
+
+                break;
+            case GYROTURN:
+
+                break;
+            case GETLIDAR:
 
                 break;
         }
