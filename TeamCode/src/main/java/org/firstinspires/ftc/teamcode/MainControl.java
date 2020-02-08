@@ -722,11 +722,11 @@ public class MainControl extends OpMode {
                     detectInc = 1;
 
                     if (detectStateFirstRun) {
-                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[detectInc]; // sets target fail safe time for this step
 
                         detectStateFirstRun = false;
                     }
-                    turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 5);
+                    turnComp = meccanum.gyroTurn(detectCoords[detectInc][3], navigation.getRawRotation(), 5);
 
                     movePowers[0] = detectCoords[detectInc][0];
                     movePowers[1] = detectCoords[detectInc][1];
@@ -772,7 +772,6 @@ public class MainControl extends OpMode {
                         }
                     }
 
-
                     if (excedesTime(detectStateTargetTime) || currentTrackable != "NULL") { // continue conditions (including failsafe times)
                         detectState = State.STATE_3;
                         detectStateFirstRun = true;
@@ -786,7 +785,7 @@ public class MainControl extends OpMode {
 
                         detectStateFirstRun = false;
                     }
-                    turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 5);
+                    turnComp = meccanum.gyroTurn(detectCoords[detectInc][3], navigation.getRawRotation(), 5);
 
                     movePowers[0] = detectCoords[detectInc][0];
                     movePowers[1] = detectCoords[detectInc][1];
