@@ -166,17 +166,17 @@ public class Vision {
         targetBKP.setName("BackWall");
         */
 
-
+        // Trackables
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
-        VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
+      /*  VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
         blueRearBridge.setName("Blue Rear Bridge");
         VuforiaTrackable redRearBridge = targetsSkyStone.get(2);
         redRearBridge.setName("Red Rear Bridge");
         VuforiaTrackable redFrontBridge = targetsSkyStone.get(3);
         redFrontBridge.setName("Red Front Bridge");
         VuforiaTrackable blueFrontBridge = targetsSkyStone.get(4);
-        blueFrontBridge.setName("Blue Front Bridge");
+        blueFrontBridge.setName("Blue Front Bridge"); */
         VuforiaTrackable red1 = targetsSkyStone.get(5);
         red1.setName("Red Perimeter 1");
         VuforiaTrackable red2 = targetsSkyStone.get(6);
@@ -258,9 +258,11 @@ public class Vision {
         float yTranslation;
         float zTranslation;
 
-        VectorF translation = lastLocation.getTranslation();
+
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                VectorF translation = robotLocationTransform.getTranslation();
                 trackableString = trackable.getName();
                 xTranslation = translation.get(0) / mmPerInch;
                 yTranslation = translation.get(1) / mmPerInch;
@@ -275,7 +277,7 @@ public class Vision {
 
                 // getUpdatedRobotLocation() will return null if no new information is available since
                 // the last time that call was made, or if the trackable is not currently visible.
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+
                 if (robotLocationTransform != null) {
                     lastLocation = robotLocationTransform;
                 }

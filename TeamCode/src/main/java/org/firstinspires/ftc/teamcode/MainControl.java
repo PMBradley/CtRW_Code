@@ -22,7 +22,7 @@ import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistanc
 
 
 @TeleOp(name = "MainControl")
-@Disabled
+
 public class MainControl extends OpMode {
 
 
@@ -101,8 +101,8 @@ public class MainControl extends OpMode {
          */
     telemetry.addData("Test point:", "1");
     telemetry.update();
-        //vision.initVuforia();
-        //vision.activateTracking();
+        vision.initVuforia();
+        vision.activateTracking();
     }
 
     public void loop(){ // main loop
@@ -205,7 +205,7 @@ public class MainControl extends OpMode {
         boolean spinIntakeIn = robot.gp1_rbumper;
         String targetInfo = "NULL";
 
-      //  targetInfo = vision.targetsAreVisible();
+        targetInfo = vision.targetsAreVisible();
         telemetry.addData("Target Info:", targetInfo);
 
 
@@ -578,9 +578,8 @@ public class MainControl extends OpMode {
         }
 
         telemetry.addData("State:", testStep);
-        telemetry.addData("Heading:", navigation.getRotation());
+       // telemetry.addData("Heading:", navigation.getRotation());
         telemetry.addData("Raw Heading:", navigation.getRawRotation());
-
         telemetry.update();
 
         meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation());
@@ -589,10 +588,32 @@ public class MainControl extends OpMode {
 
 
     // Autonomous Code
+    // Quadrant Detection Variables
+    public State detectState = State.IDLE; // state machine flag - holds which step the state machine is on
+    public int detectInc = 0; // keeps an index of which state we are at (only starts counting when at state 0)
+    public boolean quadrantFound = false; //lol jk☺ - Rohit
+
+    private double[][] detectCoords = {
+                    {0, 0.3, 0, 0}, // move forward to be able to rotate
+                    {0, 0, 0.6, 180}, // rotate 180 to look at picture
+                    {0, 0, 0, 0}, // move right to line up with mat
+                    {0.0, .3, -0.6, 0}, // rotate back to 0
+
+    }; // Holds the coordinate points to be used with our navigation - first state holds the quadrant differences - second dimension holds the state - the thrid dimension holds x, y, and r (in that order)
+
+    private int[] detectStepTimes = {
+//            0     1     2   3    4     5     6    7    8    9   10    11
+            300, 3_000, 500, 3_000, // Times in milisecs
+    }; // fail safe times for each step in the autonomous program - in milisecs
+
+    private int detectStartTime = 0;
+    private int detectStateTargetTime = 0;
+    private boolean detectStateFirstRun = true;
+
+    // Main Auto Variables
     public State autoState = State.IDLE; // state machine flag - holds which step the state machine is on
     public int stateInc = 0; // keeps an index of which state we are at (only starts counting when at state 0)
     public int quadrant = 0;
-    public boolean quadrantFound = false;
 
     private double[][][] driveCoords = {
             { // quadrant 0 coordinates (red mat side)
@@ -657,340 +678,419 @@ public class MainControl extends OpMode {
         double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
 
+        String targetInfo = "NULL";
+
+        targetInfo = vision.targetsAreVisible();
         navigation.updateRotation();
-
-
 
 
         //State Machine
 
-        if(!quadrantFound){ // if a quadrant has not yet been found, run the quadrant finding state machine
-            
-        }
-        else{ // if quadrant found, run the main auto portion
-            switch (autoState){ // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
+        if (!quadrantFound) { // if a quadrant has not yet been found, run the quadrant finding state machine
+            switch (detectState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
                 case IDLE:
-                    autoStartTime = (int) runtime.milliseconds();
+                    detectStartTime = (int) runtime.milliseconds();
 
 
-                    stateInc = 0;
+                    detectInc = 0;
 
                     pullerPower = 0.5;
                     //     moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
 
-                    autoState = State.STATE_0;
+                    detectState = State.STATE_0;
                     break;
                 case STATE_0:
-                    stateInc = 0;
+                    detectInc = 0;
 
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+                    if (detectStateFirstRun) {
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
 
-                        autoStateFirstRun = false;
+                        detectStateFirstRun = false;
                     }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
+                    movePowers[0] = detectCoords[detectInc][0];
+                    movePowers[1] = detectCoords[detectInc][1];
+                    movePowers[2] = detectCoords[detectInc][2];
                     //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_1;
-                        autoStateFirstRun = true;
+                    if (excedesTime(detectStateTargetTime)) { // continue conditions (including failsafe times)
+                        detectState = State.STATE_1;
+                        detectStateFirstRun = true;
                     }
                     break;
                 case STATE_1:
-                    stateInc = 1;
+                    detectInc = 1;
 
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+                    if (detectStateFirstRun) {
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
 
-                        autoStateFirstRun = false;
+                        detectStateFirstRun = false;
                     }
-                    turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 10);
+                    turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 5);
 
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    if(!turnComp)
-                    {
-                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+                    movePowers[0] = detectCoords[detectInc][0];
+                    movePowers[1] = detectCoords[detectInc][1];
+                    if (!turnComp) {
+                        movePowers[2] = detectCoords[detectInc][2];
                     }
                     //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
-                    pullerPower = 0.5;
 
-                    if(excedesTime(autoStateTargetTime) || turnComp){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_2;
-                        autoStateFirstRun = true;
+                    if (excedesTime(detectStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
+                        detectState = State.STATE_2;
+                        detectStateFirstRun = true;
                     }
                     break;
                 case STATE_2:
-                    stateInc = 2;
+                    detectInc = 2;
 
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+                    if (detectStateFirstRun) {
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
 
-                        autoStateFirstRun = false;
+                        detectStateFirstRun = false;
                     }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-                    //   moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
-
-                    pullerPower = 0.5;
+                    movePowers[0] = detectCoords[detectInc][0];
+                    movePowers[1] = detectCoords[detectInc][1];
+                    movePowers[2] = detectCoords[detectInc][2];
+                    //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_3;
-                        autoStateFirstRun = true;
+                    if (excedesTime(detectStateTargetTime)) { // continue conditions (including failsafe times)
+                        detectState = State.STATE_3;
+                        detectStateFirstRun = true;
                     }
                     break;
                 case STATE_3:
-                    stateInc = 3;
+                    detectInc = 3;
 
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+                    if (detectStateFirstRun) {
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
 
-                        autoStateFirstRun = false;
+                        detectStateFirstRun = false;
                     }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
+                    turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 5);
 
-                    pullerPower = 0.5;
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_4;
-                        autoStateFirstRun = true;
+                    movePowers[0] = detectCoords[detectInc][0];
+                    movePowers[1] = detectCoords[detectInc][1];
+                    if (!turnComp) {
+                        movePowers[2] = detectCoords[detectInc][2];
                     }
-                    break;
-                case STATE_4:
-                    stateInc = 4;
+                    //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
-                        autoStateFirstRun = false;
+                    if (excedesTime(detectStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
+                        detectState = State.COMPLETE;
+                        detectStateFirstRun = true;
                     }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-
-                    // Have a whole state to drop the servo
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_5;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case STATE_5:
-                    stateInc = 5;
-
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
-                        autoStateFirstRun = false;
-                    }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_6;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case STATE_6:
-                    stateInc = 6;
-
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
-                        autoStateFirstRun = false;
-                    }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-
-                    pullerPower = 0.5;
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_7;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case STATE_7:
-                    stateInc = 7;
-
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
-                        autoStateFirstRun = false;
-                    }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-                    pullerPower = 0.5;
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_8;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case STATE_8:
-                    stateInc = 8;
-
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
-                        autoStateFirstRun = false;
-                    }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-                    pullerPower = 0.5;
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_9;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case STATE_9:
-                    stateInc = 9;
-
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
-                        autoStateFirstRun = false;
-                    }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-                    pullerPower = 0.5;
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_10;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case STATE_10:
-                    stateInc = 10;
-
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
-                        autoStateFirstRun = false;
-                    }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-                    pullerPower = 0.5;
-                    robot.intakeDropL.setPosition(0.0); //
-                    robot.intakeDropR.setPosition(1.0);
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.STATE_11;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case STATE_11:
-                    stateInc = 11;
-
-                    if(autoStateFirstRun){
-                        autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
-                        autoStateFirstRun = false;
-                    }
-                    movePowers[0] = driveCoords[quadrant][stateInc][0];
-                    movePowers[1] = driveCoords[quadrant][stateInc][1];
-                    movePowers[2] = driveCoords[quadrant][stateInc][2];
-
-                    pullerPower = 0.5;
-                    robot.intakeDropL.setPosition(0.0); //
-                    robot.intakeDropR.setPosition(1.0);
-
-                    if(excedesTime(autoStateTargetTime)){ // continue conditions (including failsafe times)
-                        autoState = State.COMPLETE;
-                        autoStateFirstRun = true;
-                    }
-                    break;
-                case COMPLETE:
-                    //moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
-
-                    //   if(excedesTime(autoStartTime + 38_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
-                    //AUTO_MODE_ACTIVE = false;
-                    // }
-                    robot.intakeDropL.setPosition(0.0); //
-                    robot.intakeDropR.setPosition(1.0);
-
                     break;
             }
         }
+        else{ // if quadrant found, run the main auto portion
+                switch (autoState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
+                    case IDLE:
+                        autoStartTime = (int) runtime.milliseconds();
 
 
+                        stateInc = 0;
 
-        if(autoState == State.COMPLETE){
+                        pullerPower = 0.5;
+                        //     moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
+
+                        autoState = State.STATE_0;
+                        break;
+                    case STATE_0:
+                        stateInc = 0;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+                        //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_1;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_1:
+                        stateInc = 1;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 10);
+
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        if (!turnComp) {
+                            movePowers[2] = driveCoords[quadrant][stateInc][2];
+                        }
+                        //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
+                        pullerPower = 0.5;
+
+                        if (excedesTime(autoStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_2;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_2:
+                        stateInc = 2;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+                        //   moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
+                        pullerPower = 0.5;
+
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_3;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_3:
+                        stateInc = 3;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                        pullerPower = 0.5;
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_4;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_4:
+                        stateInc = 4;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+
+                        // Have a whole state to drop the servo
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_5;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_5:
+                        stateInc = 5;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_6;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_6:
+                        stateInc = 6;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+
+                        pullerPower = 0.5;
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_7;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_7:
+                        stateInc = 7;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                        pullerPower = 0.5;
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_8;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_8:
+                        stateInc = 8;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                        pullerPower = 0.5;
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_9;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_9:
+                        stateInc = 9;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                        pullerPower = 0.5;
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_10;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_10:
+                        stateInc = 10;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                        pullerPower = 0.5;
+                        robot.intakeDropL.setPosition(0.0); //
+                        robot.intakeDropR.setPosition(1.0);
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.STATE_11;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_11:
+                        stateInc = 11;
+
+                        if (autoStateFirstRun) {
+                            autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoStateFirstRun = false;
+                        }
+                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+                        movePowers[1] = driveCoords[quadrant][stateInc][1];
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                        pullerPower = 0.5;
+                        robot.intakeDropL.setPosition(0.0); //
+                        robot.intakeDropR.setPosition(1.0);
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            autoState = State.COMPLETE;
+                            autoStateFirstRun = true;
+                        }
+                        break;
+                    case COMPLETE:
+                        //moveCoords = driveCoords[quadrant][stateInc]; // keep going to the last known position
+
+                        //   if(excedesTime(autoStartTime + 38_000)){ // automatically disable the autonomous mode after there has been enough time for tele-op to start
+                        //AUTO_MODE_ACTIVE = false;
+                        // }
+                        robot.intakeDropL.setPosition(0.0); //
+                        robot.intakeDropR.setPosition(1.0);
+
+                        break;
+                }
+            }
+
+
+            if (autoState == State.COMPLETE) {
+
+            }
+
+            // ---Dynamic Park Code---
+
+
+            switch (parkState) {
+                case IDLE:
+
+                    break;
+                case TRANSFORM:
+
+                    break;
+                case GYROTURN:
+
+                    break;
+                case GETLIDAR:
+
+                    break;
+            }
+
+
+            if (quadrant == 0 || quadrant == 1) {
+                robot.intakeDropL.setPosition(0.0); //
+                robot.intakeDropR.setPosition(1.0);
+            }
+
+
+            meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
+            pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
+
+
+            telemetry.addData("State:", autoState);
+            telemetry.addData("", targetInfo);
+            telemetry.update();
 
         }
 
-        // ---Dynamic Park Code---
-
-
-        switch (parkState)
-        {
-            case IDLE:
-
-                break;
-            case TRANSFORM:
-
-                break;
-            case GYROTURN:
-
-                break;
-            case GETLIDAR:
-
-                break;
-        }
-
-        //Patrick's home grown turn code
-
-        // Set Translational power values
-        /*
-        movePowers[0] = (moveCoords[0] - navigation.X) / transApproachReduce; // if the target X move position is less than current X position, move that direction and visa versa
-        movePowers[1] = (moveCoords[1] - navigation.Y) / transApproachReduce; // if the target Y move position is less than current Y position, move that direction and visa versa
-
-        // Set Rotational Power Values
-         */
-
-        if(quadrant == 0 || quadrant == 1){
-            robot.intakeDropL.setPosition(0.0); //
-            robot.intakeDropR.setPosition(1.0);
-        }
-
-
-        meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
-        pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
-
-
-        telemetry.addData("State:", autoState);
-        telemetry.update();
-
-        //meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
-     //   flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
-      //  lift.move_Controller(liftPowerR , liftPowerL);
-      //  arm_swing.set_arm_position(armSwingIn, armSwingOut);
-      //  arm_swing.set_clamp_position(clampRelease);
-      //  pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
-      //  intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
-    }
 
 
     // Utility Functions

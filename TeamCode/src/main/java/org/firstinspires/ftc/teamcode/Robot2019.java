@@ -148,7 +148,7 @@ public class Robot2019 {
 
         imu = mainMap.get(BNO055IMU.class, "imu");
 
-        //webcamName = mainMap.get(WebcamName.class, "Webcam 1"); // the webcam for webcam things
+        webcamName = mainMap.get(WebcamName.class, "Webcam 1"); // the webcam for webcam things
 
         int cameraMonitorViewId = mainMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", mainMap.appContext.getPackageName());
         viewId = cameraMonitorViewId;
