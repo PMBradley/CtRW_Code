@@ -1083,7 +1083,7 @@ public class MainControl extends OpMode {
             }
 
 
-            meccanum.Drive_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation());
+            meccanum.Drive_Gyro_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation(), driveCoords[quadrant][stateInc][3]);
             pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
 
 

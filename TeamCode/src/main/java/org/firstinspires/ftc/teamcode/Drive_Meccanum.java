@@ -98,6 +98,47 @@ public class Drive_Meccanum {
         robot.driveBR.setPower(-robot.br);
     }
 
+    public void Drive_Gyro_Vector(double x, double y, double r, double heading, double targetHeading) { // use with auto only
+        //x = Math.sin(heading) * x;
+        //y = Math.cos(heading) * y;
+        double minRotPower = 0.32;
+
+        y *= -1; // negate y to emulate the negative values given by controller y
+
+
+        if(targetHeading > heading + 180){
+            targetHeading -= 360;
+        }
+        else if(targetHeading < heading - 180){
+            targetHeading += 360;
+        }
+
+        r = r * (targetHeading - heading)/20;
+
+        if(r > 0 && r < minRotPower){
+            r = minRotPower;
+        }
+        else if(r < 0 && r > -minRotPower){
+            r = -minRotPower;
+        }
+
+        double sin = Math.sin(heading * 0.0174533);
+        double cos = Math.cos(heading * 0.0174533);
+
+        double forward = (x * sin) + (y * cos);
+        double right = (x * cos) - (y * sin);
+
+        robot.fl = forward + (r * turnDivisor) + right;
+        robot.fr = (forward - (r * turnDivisor) - right);
+        robot.bl = forward + (r * turnDivisor) - right;
+        robot.br = (forward - (r * turnDivisor) + right);
+
+        robot.driveFL.setPower(robot.fl);
+        robot.driveFR.setPower(-robot.fr);
+        robot.driveBL.setPower(robot.bl);
+        robot.driveBR.setPower(-robot.br);
+    }
+
     public boolean gyroTurn(double targetHeading, double currentHeading, double turntolerance)
     {
         //Gyro turn code
