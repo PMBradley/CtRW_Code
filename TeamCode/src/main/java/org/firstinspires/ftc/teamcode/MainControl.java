@@ -1141,12 +1141,15 @@ public class MainControl extends OpMode {
     //                              L BL BR  R
     private int parkStep = 0;
     private int lidarSide = 0;
+    private int step5StartTime = 0;
     private double wallDistance = 0;
     private boolean parkFirstRun = true;
     private boolean wallLeft = false;
     private boolean wallRight = false;
     private boolean moveWallSide = true;
     private boolean firstRunStep4 = true;
+    private boolean firstRunStep5 = true;
+    private boolean parkFinishêd = false;
 
     public double[] DynamicPark()
     {
@@ -1259,6 +1262,7 @@ public class MainControl extends OpMode {
             case 4:
             {
                 lidarValues = getLidar(lidarSide);
+                double totalWallDistance = 0;
                 if(firstRunStep4)
                 {
                     firstRunStep4 = false;
@@ -1273,20 +1277,49 @@ public class MainControl extends OpMode {
                 }
                 if(wallLeft)
                 {
-                    if(moveWallSide)
-                    {
+                    totalWallDistance = Math.abs(wallDistance - lidarValues[0]);
+                }
+                if(wallRight)
+                {
+                    totalWallDistance = Math.abs(wallDistance - lidarValues[3]);
+                }
+
+                if(totalWallDistance < 10)
+                {
+                    if (moveWallSide) {
 
                         movePower[1] = -0.3;
-                    }
-                    else
-                    {
+                    } else {
 
                         movePower[1] = 0.3;
                     }
                 }
-                if(wallRight)
+                else
                 {
-
+                    parkStep = 5;
+                }
+            }
+            case 5:
+            {
+                if(firstRunStep5)
+                {
+                    step5StartTime = (int)runtime.milliseconds();
+                    firstRunStep5 = false;
+                }
+                if(!excedesTime(step5StartTime + 500))
+                {
+                    if(wallLeft)
+                    {
+                        movePower[0] = 0.3;
+                    }
+                    if(wallRight)
+                    {
+                        movePower[0] = -0.3;
+                    }
+                }
+                else
+                {
+                    parkStep = 6;
                 }
             }
         }
