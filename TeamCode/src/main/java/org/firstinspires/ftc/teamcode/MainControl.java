@@ -1100,7 +1100,8 @@ public class MainControl extends OpMode {
     private double[] lidarValues = {0, 0, 0, 0};
     //                              L BL BR  R
     private int parkStep = 0;
-    private int wallDistance = 0;
+    private int lidarSide = 0;
+    private double wallDistance = 0;
     private boolean parkFirstRun = true;
     private boolean wallLeft = false;
     private boolean wallRight = false;
@@ -1124,11 +1125,13 @@ public class MainControl extends OpMode {
                 lidarValues = getLidar(0);
                 if (lidarValues[0] < 100)
                 {
+                    lidarSide = 1;
                     wallLeft = true;
                     parkStep = 2;
                 }
                 else if (lidarValues[3] < 100)
                 {
+                    lidarSide = 2;
                     wallRight = true;
                     parkStep = 3;
                 }
@@ -1167,6 +1170,10 @@ public class MainControl extends OpMode {
                             parkStep = 4;
                         }
                     }
+                    else
+                    {
+                        moveWallSide = true;
+                    }
                 }
             }
             case 3:
@@ -1203,22 +1210,42 @@ public class MainControl extends OpMode {
                             parkStep = 4;
                         }
                     }
+                    else
+                    {
+                        moveWallSide = true;
+                    }
                 }
             }
             case 4:
             {
-                int sideFacingWall = 0;
-                if(wallLeft)
-                {
-                    sideFacingWall = 1;
-                }
-                else if(wallRight)
-                {
-                    sideFacingWall = 2;
-                }
+                lidarValues = getLidar(lidarSide);
                 if(firstRunStep4)
                 {
                     firstRunStep4 = false;
+                    if(wallLeft)
+                    {
+                        wallDistance = lidarValues[0];
+                    }
+                    if(wallRight)
+                    {
+                        wallDistance = lidarValues[3];
+                    }
+                }
+                if(wallLeft)
+                {
+                    if(moveWallSide)
+                    {
+
+                        movePower[1] = -0.3;
+                    }
+                    else
+                    {
+
+                        movePower[1] = 0.3;
+                    }
+                }
+                if(wallRight)
+                {
 
                 }
             }
