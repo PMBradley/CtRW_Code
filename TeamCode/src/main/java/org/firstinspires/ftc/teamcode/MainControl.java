@@ -194,6 +194,8 @@ public class MainControl extends OpMode {
         boolean spinIntakeIn = robot.gp1_rbumper;
         String targetInfo = "NULL";
 
+        double relativeHeading =  navigation.getRotation();
+
         targetInfo = vision.targetsAreVisible();
         telemetry.addData("Target Info:", targetInfo);
 
@@ -222,7 +224,15 @@ public class MainControl extends OpMode {
 
 
         //Toggles
-        if(robot.gp1_x == true){
+        if(robot.gp1_b == true){ // moves the robot slowly while we have the mat
+            drivePowerX = -0.4; // set movement left power
+
+            pullerPower = 0.5; // set pullers to be down
+
+            relativeHeading = 0; // set robot to drive relative to field
+        }
+
+        if(robot.gp1_x == true){ // gyro reset
             robot.init_imu();
         }
 
@@ -251,7 +261,7 @@ public class MainControl extends OpMode {
         }
 
         if(robot.gp1_y && intakeFirstRun){ // toggling the autonomous intake
-         //   intake = !intake;
+            intake = !intake;
             intakeFirstRun = false;
         }
         else if(!robot.gp1_y){
@@ -476,7 +486,7 @@ public class MainControl extends OpMode {
         }
 
         //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, navigation.getRotation(), true, Ltrigger);
+        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, relativeHeading, true, Ltrigger);
        // meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
@@ -789,14 +799,44 @@ public class MainControl extends OpMode {
                     pullerPower = 0.5;
 
                     if (excedesTime(detectStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
+                        detectState = State.STATE_4;
+                        detectStateFirstRun = true;
+                    }
+                    break;
+                case STATE_4:
+                    detectInc = 4;
+
+                    if (detectStateFirstRun) {
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
+
+                        detectStateFirstRun = false;
+                    }
+                    turnComp = meccanum.gyroTurn(detectCoords[detectInc][3], navigation.getRawRotation(), 5);
+
+                    movePowers[0] = detectCoords[detectInc][0];
+                    movePowers[1] = detectCoords[detectInc][1];
+
+                    if (!turnComp) {
+                        movePowers[2] = detectCoords[detectInc][2];
+                    }
+
+
+                    pullerPower = 0.5;
+
+                    if (excedesTime(detectStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
                         detectState = State.COMPLETE;
                         detectStateFirstRun = true;
                     }
                     break;
+                case COMPLETE:
 
+                    pullerPower = 0.5;
+                    quadrantFound = true;
+
+                    break;
             }
         }
-        else{ // if quadrant found, run the main auto portion
+        else if(quadrantFound && (quadrant == 0 || quadrant == 2)){ // if quadrant found, run the main auto portion
                 switch (autoState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
                     case IDLE:
                         autoStartTime = (int) runtime.milliseconds();
