@@ -615,36 +615,96 @@ public class MainControl extends OpMode {
     public int quadrant = 0;
 
     private double[][][] driveCoords = {
-            { // quadrant 0 coordinates (red mat side)
-                    {0, 0.3, 0, 0}, // move forward to mat
-                    {0, 0, 0.4, 90}, // rotate to line up with mat
-                    {-0.3, 0, 0, 0}, // move right to line up with mat
-                    {0.0, .3, 0, 0}, // move against mat
-                    {0.0, 0.0, 0.0, 0}, // drop pullers
-                    {0.0, -0.5, 0.0, 0}, // move backwards with mat
-                    {0.3, 0.0, 0.0, 0}, // left away from mat
-                    {0.0, 0.3, 0.0, 0}, // readjust against wall
-                    {-0.4, 0.0, 0.0, 0}, // push mat into place (make sure it is in pos)
-                    {0.3, 0, 0, 0}, // move left under bridge
+            { // quadrant 0 coordinates (red quarry side)
+                    {0.0, 0.0, 0.5, 0}, // determine which spot the block is in
+                    {0.0, 0.0, 0.5, 80}, // lock onto the picture
+                    {0.0, -60.0, 0.5, 80}, // move to line up with block
+                    {10.0, -50.0, 0.5, 90}, // get da block
+                    {-5.0, -50.0, 0.5, 90}, // move down to move under bridge
+                    {-5.0, -110.0, 0.5, 90}, // move to align with foundation
+                    {-1.0, 1.0, 0.5, 90}, // move up to mat (lidar)
+                    {0.0, 0.0, 0.0, 90}, // drop pullers
+                    {-1.0, 0.0, 0.5, 0}, // rotate mat into position
+                    {1.0, 1.0, 0.5, 0}, // ensure mat is in the proper position (lidar)
+                    {1.0, 1.0, 0.5, 90}, // rotate and align with mat to place the block (while dropping the lift) (lidar)
+                    {1.0, 1.0, 0.0, 0}, // align to move under the bridge (lidar)
+                    {-5.0, -20.0, 0.5, 90}, // move to line up with 2nd block
+                    {10.0, -20.0, 0.5, 120}, // move to line up with 2nd block via on the other axses
+                    {10.0, -10.0, 0.5, 120}, // get da 2nd block
+                    {-5.0, -10.0, 0.5, 90}, // move down to move under bridge
+                    {-5.0, -110.0, 0.5, 90}, // move to foundation side
+                    {1.0, 1.0, 0.5, 90}, // align with mat to place the block (lidar)
+                    {0.0, 0.0, 0.0, 0}, // do the block placement things
+                    {0.0, 0.0, 0.0, 0}, // move to prep to park
+            },
+
+            { // quadrant 1 coordinates (red mat side)
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
             },
 
-            { // quadrant 1 coordinates (blue mat side)
-                    {0, 0.3, 0, 0}, // move forward to mat
-                    {0, 0, 0.4, 90}, // rotate to line up with mat
-                    {0.3, 0, 0, 0}, // move left to line up with mat
-                    {0.0, .3, 0, 0}, // move against mat
-                    {0.0, 0.0, 0.0, 0}, // drop pullers
-                    {0.0, -0.5, 0.0, 0}, // move backwards with mat
-                    {-0.3, 0.0, 0.0, 0}, // right away from mat
-                    {0.0, 0.3, 0.0, 0}, // readjust against wall
-                    {0.4, 0.0, 0.0, 0}, // push mat into place (make sure it is in pos)
-                    {-0.3, 0, 0, 0}, // move right under bridge
+            { // quadrant 2 coordinates (blue quarry side)
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+                    {0.0, 0.0, 0.0, 0}, //
+            },
+
+            { // quadrant 3 coordinates (blue mat side)
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
                     {0.0, 0.0, 0.0, 0}, // Empty step
             },
     }; // Holds the coordinate points to be used with our navigation - first state holds the quadrant differences - second dimension holds the state - the thrid dimension holds x, y, and r (in that order)
+
+    private double[][][] lidarCoords = {
+            { // quadrant 0 coordinates (red quarry side)
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //  // determine which spot the block is in
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, // move up to mat (lidar)
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, // ensure mat is in the proper position (lidar)
+                    {0.0, 0.0}, // rotate and align with mat to place the block (while dropping the lift) (lidar)
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+            },
+
+            { // quadrant 1 coordinates (red mat side)
+                    {0.0, 0.0}, // Empty step
+
+            },
+
+            { // quadrant 2 coordinates (blue quarry side)
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+
+            },
+
+            { // quadrant 3 coordinates (blue mat side)
+                    {0.0, 0.0}, // Empty step
+            },
+    }; // holds the desired distances for lidars on each step
+
     private double[][] pictureOrder = {
 
     };
@@ -832,6 +892,10 @@ public class MainControl extends OpMode {
 
                     pullerPower = 0.5;
                     quadrantFound = true;
+
+                    if(quadrant == 1 || quadrant == 3){ // if the quadrant is either mat side
+                        autoState = State.COMPLETE;
+                    }
 
                     break;
             }
@@ -1104,21 +1168,21 @@ public class MainControl extends OpMode {
 
 
             if (autoState == State.COMPLETE) {
-
+                DYNAMIC_PARK_ACTIVE = true;
             }
 
-        if(DYNAMIC_PARK_ACTIVE = true)
-        {
-            double[] nPwr = DynamicPark(); //setting powers from dynamic park
-            movePowers[0] = nPwr[0];
-            movePowers[1] = nPwr[1];
-            movePowers[2] = nPwr[2];
-            pullerPower   = nPwr[3];
-        }
+            if(DYNAMIC_PARK_ACTIVE = true)
+            {//☺
+                double[] nPwr = DynamicPark(); //setting powers from dynamic park
+                movePowers[0] = nPwr[0];
+                movePowers[1] = nPwr[1];
+                movePowers[2] = nPwr[2];
+                pullerPower   = nPwr[3];
+            }
 
 
-            if (quadrant == 0 || quadrant == 1) {
-                robot.intakeDropL.setPosition(0.0); //
+            if (quadrant == 0 || quadrant == 2) { // move intakes up if doing skystone auto (if in the right
+                robot.intakeDropL.setPosition(0.0);
                 robot.intakeDropR.setPosition(1.0);
             }
 

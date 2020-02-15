@@ -67,6 +67,7 @@ public class Vision {
     private OpenGLMatrix lastLocation = null;
 
     private static final float mmPerInch        = 25.4f;
+    private float cmPerInch = 2.54f;
 
     private float phoneXRotate    = 0;
     private float phoneYRotate    = 0;
@@ -341,9 +342,9 @@ public class Vision {
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
                 VectorF translation = robotLocationTransform.getTranslation();
                 trackableString = trackable.getName();
-                xTranslation = translation.get(0) / mmPerInch;
-                yTranslation = translation.get(1) / mmPerInch;
-                zTranslation = translation.get(2) / mmPerInch;
+                xTranslation = translation.get(0) / cmPerInch;
+                yTranslation = translation.get(1) / cmPerInch;
+                zTranslation = translation.get(2) / cmPerInch;
 
 
 
