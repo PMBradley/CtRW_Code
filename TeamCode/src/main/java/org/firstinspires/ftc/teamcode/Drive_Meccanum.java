@@ -31,6 +31,8 @@ public class Drive_Meccanum {
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
     private double teleTargetHeading = 0;
+    private double rotateSpeedFactor = 10;
+    private double correctionPower = 0.5;
 
     boolean isInitilized = false;
 
@@ -99,11 +101,18 @@ public class Drive_Meccanum {
         robot.driveBR.setPower(-robot.br);
     }
 
-    public void Drive_Gyro_Vector(double x, double y, double r, double heading, boolean limiter, double boostFactor) { // use with auto only
-        //x = Math.sin(heading) * x;
-        //y = Math.cos(heading) * y;
-        teleTargetHeading += r * 5;
-        double minRotPower = 0.32;
+    public void Drive_Gyro_Vector(double x, double y, double r, double heading, boolean limiter, double boostFactor) { // use with tele-op only
+        double minRotPower = 0.2;
+        double correctionDegreeMargin = 2;
+        double correctionDivisor = 0.02;
+        double rPower = 0.0;
+
+        x *= -1; // negate the inputs to correct for controller deviations
+        r *= -1;
+
+        teleTargetHeading += r * rotateSpeedFactor; // move the target heading
+
+        double tempTargetHeading = teleTargetHeading;
 
         if (boostFactor < .5 && limiter == true)//hi
         {
@@ -111,21 +120,27 @@ public class Drive_Meccanum {
             y = y * speedDivisor;
         }
 
-        if(teleTargetHeading > heading + 180){
-            teleTargetHeading -= 360;
+        if(tempTargetHeading > heading + 180){
+            tempTargetHeading -= 360;
         }
-        else if(teleTargetHeading < heading - 180){
-            teleTargetHeading += 360;
+        else if(tempTargetHeading < heading - 180){
+            tempTargetHeading += 360;
         }
 
-        r = r * (teleTargetHeading - heading)/20;
+        rPower = (tempTargetHeading - heading)*correctionDivisor; // do math to set the power
 
-        if(r > 0 && r < minRotPower){
-            r = minRotPower;
+        if(!(Math.abs(heading - tempTargetHeading) < correctionDegreeMargin)){ // if it is not within the degree margin of error, then move at minimum power towards target
+            if(r > 0 && r < minRotPower){
+                rPower = minRotPower;
+            }
+            else if(r < 0 && r > -minRotPower){
+                rPower = -minRotPower;
+            }
         }
-        else if(r < 0 && r > -minRotPower){
-            r = -minRotPower;
+        else {
+            rPower = 0;
         }
+
 
         double sin = Math.sin(heading * 0.0174533);
         double cos = Math.cos(heading * 0.0174533);
@@ -133,10 +148,10 @@ public class Drive_Meccanum {
         double forward = (x * sin) + (y * cos);
         double right = (x * cos) - (y * sin);
 
-        robot.fl = forward + (r * turnDivisor) + right;
-        robot.fr = (forward - (r * turnDivisor) - right);
-        robot.bl = forward + (r * turnDivisor) - right;
-        robot.br = (forward - (r * turnDivisor) + right);
+        robot.fl = forward + (rPower * turnDivisor) + right;
+        robot.fr = (forward - (rPower * turnDivisor) - right);
+        robot.bl = forward + (rPower * turnDivisor) - right;
+        robot.br = (forward - (rPower * turnDivisor) + right);
 
         robot.driveFL.setPower(robot.fl);
         robot.driveFR.setPower(-robot.fr);
@@ -145,9 +160,9 @@ public class Drive_Meccanum {
     }
 
     public void Drive_Gyro_Vector(double x, double y, double r, double heading, double targetHeading) { // use with auto only
-        //x = Math.sin(heading) * x;
-        //y = Math.cos(heading) * y;
-        double minRotPower = 0.32;
+        double minRotPower = 0.1;
+        double correctionDegreeMargin = 1;
+        double correctionDivisor = .01;
 
         y *= -1; // negate y to emulate the negative values given by controller y
 
@@ -159,13 +174,22 @@ public class Drive_Meccanum {
             targetHeading += 360;
         }
 
-        r = r * (targetHeading - heading)/20;
+        //r = r * (Math.sqrt(Math.abs(targetHeading - heading)))/correctionDivisor;
+        r = (targetHeading - heading) * correctionDivisor;
 
-        if(r > 0 && r < minRotPower){
-            r = minRotPower;
+        if(targetHeading - heading < 0){
+            r *= -1;
         }
-        else if(r < 0 && r > -minRotPower){
-            r = -minRotPower;
+
+        if(!(Math.abs(heading - targetHeading) < correctionDegreeMargin)) { // if it is not within the degree margin of error, then move at minimum power towards target
+            if (r > 0 && r < minRotPower) {
+                r = minRotPower;
+            } else if (r < 0 && r > -minRotPower) {
+                r = -minRotPower;
+            }
+        }
+        else {
+            r = 0;
         }
 
         double sin = Math.sin(heading * 0.0174533);

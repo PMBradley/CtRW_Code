@@ -44,7 +44,7 @@ public class MainControl extends OpMode {
     public int AUTO_RUNS_TOT = 3;
     public int CURR_RUN_TOT = 0;
 
-    public int MODE_CHOICE_TIME = 3000;
+    public int MODE_CHOICE_TIME = 2000; // time it waits for you to press the button for tele-op before going to autonomous
 
     // Startup flags
     public boolean LOOP_FIRST_RUN = true; // used to indicate if it is the first run of the main loop
@@ -88,10 +88,10 @@ public class MainControl extends OpMode {
 
 
          */
-    telemetry.addData("Test point:", "1");
+    // telemetry.addData("Test point:", "1");
     telemetry.update();
-        vision.initVuforia();
-        vision.activateTracking();
+     //   vision.initVuforia();/
+       // vision.activateTracking();
     }
 
     public void loop(){ // main loop
@@ -113,9 +113,9 @@ public class MainControl extends OpMode {
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
             if(AUTO_MODE_ACTIVE){ // if auto-op
-               // testAuto(); // a hacked together autonomous
-                AutoStep();
-                //telemetry.addData("Mode","Auto");
+                testAuto(); // the testing auto
+             //   AutoStep(); // regular auto function
+
             }
             else { // if tele-op
                 manual_mode();
@@ -166,7 +166,7 @@ public class MainControl extends OpMode {
     int inStateTargetTime = 0;
 
     State blockUpState = State.STATE_0;
-    private int[] upStepTimes = {6_400, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    private int[] upStepTimes = {4_400, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
@@ -186,7 +186,7 @@ public class MainControl extends OpMode {
         double drivePowerR = robot.gp1_rstickX;
         double liftPowerL = robot.gp2_ltrigger;
         double liftPowerR = robot.gp2_rtrigger;
-        double pullerPower = ((1 - robot.gp1_rtrigger) / 2) + .5; // left trigger is positive power, right trigger is negative power
+        double pullerPower = ((robot.gp1_rtrigger) / 2) + .5; // right trigger
         double Ltrigger = robot.gp1_ltrigger;
         boolean armSwingIn = robot.gp2_lbumper;
         boolean armSwingOut = robot.gp2_rbumper;
@@ -194,7 +194,7 @@ public class MainControl extends OpMode {
         boolean spinIntakeIn = robot.gp1_rbumper;
         String targetInfo = "NULL";
 
-        double relativeHeading =  navigation.getRotation();
+        double relativeHeading =  navigation.getRawRotation();
 
         targetInfo = vision.targetsAreVisible();
         telemetry.addData("Target Info:", targetInfo);
@@ -485,9 +485,9 @@ public class MainControl extends OpMode {
             liftPowerR = 0;
         }
 
-        //meccanum.drive_Controller(-drivePowerY, drivePowerX, -drivePowerR);
-        meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, relativeHeading, true, Ltrigger);
-       // meccanum.Drive_Polar(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation(), Ltrigger, true);
+        meccanum.Drive_Gyro_Vector(drivePowerX, drivePowerY, drivePowerR, relativeHeading, true, Ltrigger);
+      //  meccanum.Drive_Vector(-drivePowerX, drivePowerY, -drivePowerR, relativeHeading, true, Ltrigger);
+
         flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
         lift.move_Controller(liftPowerR , liftPowerL);
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
@@ -510,78 +510,32 @@ public class MainControl extends OpMode {
     private int testMainStateTargetTime = 0;
     private int testStateTargetTime = 0;
     private double[][] testCoords = {
-            {
-                    0, .5, 0, // X, Y, R Power
-                    0,     // Rotation in degrees
-                    200   //Time
-            },
-            {
-                    .5, 0, -.5,
-                    270,
-                    1_000
-            }
+             // quadrant 1 coordinates (red mat side)
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+                    {0.0, 0.0, 0.0, 0}, // Empty step
+
     };
 
     public void testAuto(){
         double drivePowerX = 0; // set all values to their corresponding controller values
         double drivePowerY = 0;
         double drivePowerR = 0;
+        double targetHeading = 0;
 
-        if(testMainFirstRun){ // first run time limiter
-            testMainStateTargetTime = (int)(runtime.milliseconds() + testMainStateTime);
-            testMainFirstRun = false;
-        }
 
         if(!excedesTime(testMainStateTime)) // auto fail safe
         {
-            // NOTE: this was made because i (Mark) didn't know how to use the state machine so i made a stepper
-            switch (testStep) // process stepper
-            {
-                case 0: //step 0
-                {
-                    if(testStateFirstRun){ //step timer
-                        testStateTargetTime = (int)(runtime.milliseconds() + testCoords[testStep][4]);
-                        testStateFirstRun = false;
-                    }
-                    if(!excedesTime(testMainStateTargetTime)) //main code
-                    {
-                        drivePowerX = testCoords[testStep][0];
-                        drivePowerY = testCoords[testStep][1];
-                        drivePowerR = testCoords[testStep][2];
-                    }
-                    else //change to next step and reset step timer
-                    {
-                        testStep++;
-                        testStateFirstRun = true;
-                    }
-                }
-                case 1: //step 1
-                {
-                    if(testStateFirstRun){ //step time limit
-                        testStateTargetTime = (int)(runtime.milliseconds() + testCoords[testStep][4]);
-                        testStateFirstRun = false;
-                    }
-                    if(!excedesTime(testMainStateTargetTime)) //main code
-                    {
-                        drivePowerX = testCoords[testStep][0];
-                        drivePowerY = testCoords[testStep][1];
-                        //drivePowerR = meccanum.gyroTurn(testCoords[testStep][3], navigation.getRotation(), testCoords[testStep][2]); //gyro turn
-                    }
-                    else //change to next step and reset step timer
-                    {
-                        testStep++;
-                        testStateFirstRun = true;
-                    }
-                }
-            }
+            drivePowerR = 0.5;
+            targetHeading = 90;
         }
 
-        telemetry.addData("State:", testStep);
-       // telemetry.addData("Heading:", navigation.getRotation());
-        telemetry.addData("Raw Heading:", navigation.getRawRotation());
+
         telemetry.update();
 
-        meccanum.Drive_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRotation());
+        meccanum.Drive_Gyro_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRawRotation(), targetHeading);
     }
 
 
@@ -1187,7 +1141,7 @@ public class MainControl extends OpMode {
             }
 
 
-            meccanum.Drive_Gyro_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRotation(), driveCoords[quadrant][stateInc][3]);
+            meccanum.Drive_Gyro_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRawRotation(), driveCoords[quadrant][stateInc][3]);
             pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
 
 
