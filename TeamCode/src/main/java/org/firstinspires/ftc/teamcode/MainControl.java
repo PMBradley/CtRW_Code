@@ -1464,18 +1464,10 @@ public class MainControl extends OpMode {
     }
 
     boolean atPosition(double targetX, double targetY, double targetR, double X, double Y, double R){ // a function that determines if you are at a position (or at least within accepted margin of error)
-        boolean output = true;
-        double transMargin = 4;
-        double rotMargin = 4;
+        boolean output = false;
 
-        if(Math.abs(targetX - X) > transMargin){
-            output = false;
-        }
-        else if(Math.abs(targetY - Y) > transMargin){
-            output = false;
-        }
-        else if(Math.abs(targetR - R) > rotMargin){
-            output = false;
+        if(atTranslation(targetX, X) && atTranslation(targetY, Y) && atRotation(targetR, R)){
+            output = true;
         }
 
         return output;
@@ -1485,6 +1477,16 @@ public class MainControl extends OpMode {
         double rotMargin = 4;
 
         if(Math.abs(targetR - R) > rotMargin){
+            output = false;
+        }
+
+        return output;
+    }
+    boolean atTranslation(double targetT, double T){
+        boolean output = true;
+        double transMargin = 4;
+
+        if(Math.abs(targetT - T) > transMargin){
             output = false;
         }
 
