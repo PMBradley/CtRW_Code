@@ -30,6 +30,6 @@ public class Flywheel_DuoMirrored {
         else if(intakeDirectionOut)
             power = -1;
         robot.motorIntakeL.setPower(power);
-        robot.motorIntakeR.setPower(power);
+        robot.motorIntakeR.setPower(-power);
     }
 }

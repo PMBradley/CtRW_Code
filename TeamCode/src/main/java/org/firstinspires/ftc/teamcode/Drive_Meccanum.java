@@ -106,7 +106,7 @@ public class Drive_Meccanum {
     double[] PIDMargins = {1, 8, 80, 360};
     double[] PIDPowers = {0, 0.2, 0.6, 0.7};
 
-    public void Drive_Gyro_Vector(double x, double y, double r, double heading, boolean limiter, double boostFactor) { // use with tele-op only
+    public void Drive_Gyro_Vector(double x, double y, double r, double weirdHeading, double rawHeading, boolean limiter, double boostFactor) { // use with tele-op only
         double minRotPower = 0.2;
         double correctionDegreeMargin = 1;
         double correctionDivisor = 0.02;
@@ -125,14 +125,14 @@ public class Drive_Meccanum {
             y = y * speedDivisor;
         }
 
-        if(tempTargetHeading > heading + 180){
+        if(tempTargetHeading > rawHeading + 180){
             tempTargetHeading -= 360;
         }
-        else if(tempTargetHeading < heading - 180){
+        else if(tempTargetHeading < rawHeading - 180){
             tempTargetHeading += 360;
         }
 
-        double targetDelta = Math.abs(heading - tempTargetHeading); // the raw distance to the target
+        double targetDelta = Math.abs(rawHeading - tempTargetHeading); // the raw distance to the target
 
        // rPower = (tempTargetHeading - heading)*correctionDivisor; // do math to set the power
 
@@ -149,13 +149,13 @@ public class Drive_Meccanum {
             rPower = PIDPowers[3];
         }
 
-        if(tempTargetHeading - heading < 0){ // negate the power if the target is in a negative direction relative to the heading
+        if(tempTargetHeading - rawHeading < 0){ // negate the power if the target is in a negative direction relative to the heading
             rPower *= -1;
         }
 
 
-        double sin = Math.sin(heading * 0.0174533);
-        double cos = Math.cos(heading * 0.0174533);
+        double sin = Math.sin(weirdHeading * 0.0174533);
+        double cos = Math.cos(weirdHeading * 0.0174533);
 
         double forward = (x * sin) + (y * cos);
         double right = (x * cos) - (y * sin);
@@ -170,10 +170,10 @@ public class Drive_Meccanum {
         robot.driveBL.setPower(robot.bl);
         robot.driveBR.setPower(-robot.br);
 
-        lastHeading = heading; // for debugging purposes
+        lastHeading = rawHeading; // for debugging purposes
     }
 
-    public void Drive_Gyro_Vector(double x, double y, double r, double heading, double targetHeading) { // use with auto only
+    public void Drive_Gyro_Vector(double x, double y, double r, double weirdHeading, double rawHeading, double targetHeading) { // use with auto only
         double minRotPower = 0.1;
         double correctionDegreeMargin = 1;
         double correctionDivisor = .01;
@@ -181,14 +181,14 @@ public class Drive_Meccanum {
         y *= -1; // negate y to emulate the negative values given by controller y
 
 
-        if(targetHeading > heading + 180){
+        if(targetHeading > rawHeading + 180){
             targetHeading -= 360;
         }
-        else if(targetHeading < heading - 180){
+        else if(targetHeading < rawHeading - 180){
             targetHeading += 360;
         }
 
-        double targetDelta = Math.abs(heading - targetHeading); // the raw distance to the target
+        double targetDelta = Math.abs(rawHeading - targetHeading); // the raw distance to the target
 
         // rPower = (tempTargetHeading - heading)*correctionDivisor; // do math to set the power
 
@@ -205,7 +205,7 @@ public class Drive_Meccanum {
             r = PIDPowers[3];
         }
 
-        if(targetHeading - heading < 0){ // negate the power if the target is in a negative direction relative to the heading
+        if(targetHeading - rawHeading < 0){ // negate the power if the target is in a negative direction relative to the heading
             r *= -1;
         }
         //r = r * (Math.sqrt(Math.abs(targetHeading - heading)))/correctionDivisor;
@@ -222,8 +222,8 @@ public class Drive_Meccanum {
             r = 0;
         }*/
 
-        double sin = Math.sin(heading * 0.0174533);
-        double cos = Math.cos(heading * 0.0174533);
+        double sin = Math.sin(weirdHeading * 0.0174533);
+        double cos = Math.cos(weirdHeading * 0.0174533);
 
         double forward = (x * sin) + (y * cos);
         double right = (x * cos) - (y * sin);
