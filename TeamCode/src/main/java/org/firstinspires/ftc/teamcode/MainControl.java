@@ -457,15 +457,15 @@ public class MainControl extends OpMode {
      //   telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
      //   telemetry.addData("X Pos:", navigation.X);
       //  telemetry.addData("Y Pos:", navigation.Y);
-        telemetry.addData("Heading:", navigation.getRotation());
-        if(Ltrigger < .5) {
+        telemetry.addData("Heading:", relativeHeading);
+      /*  if(Ltrigger < .5) {
             telemetry.addData("Boost OFF", Ltrigger);
         }
         else {
             telemetry.addData("Boost ON!", Ltrigger);
-        }
+        }*/
 
-        telemetry.addData("Puler power:", pullerPower);
+        //telemetry.addData("Puler power:", pullerPower);
     //    telemetry.addData("Power fl", robot.fl);
     //    telemetry.addData("Power fr", robot.fr);
     //    telemetry.addData("Power bl", robot.bl);
@@ -474,6 +474,9 @@ public class MainControl extends OpMode {
       //  telemetry.addData("Lstick X:", drivePowerX);
        // telemetry.addData("Lstick Y:", drivePowerY);
        // telemetry.addData("Lstick R:", drivePowerR);
+        telemetry.addData("Target Heading:", meccanum.teleTargetHeading);
+        telemetry.addData("Last Heading:", meccanum.lastHeading);
+
 
         telemetry.update();
 
@@ -506,7 +509,7 @@ public class MainControl extends OpMode {
     private int testStep = 0;
     private boolean testMainFirstRun = true;
     private boolean testStateFirstRun = true;
-    private int testMainStateTime = 25_000;
+    private int testMainStateTime = 10_000;
     private int testMainStateTargetTime = 0;
     private int testStateTargetTime = 0;
     private double[][] testCoords = {
@@ -524,18 +527,30 @@ public class MainControl extends OpMode {
         double drivePowerY = 0;
         double drivePowerR = 0;
         double targetHeading = 0;
+        double relativeHeading = navigation.getRawRotation();
+        double pullerPower = 1;
 
+        double[] movePowers = {0.0, 0.0, 0.0};
 
         if(!excedesTime(testMainStateTime)) // auto fail safe
         {
-            drivePowerR = 0.5;
-            targetHeading = 90;
+            movePowers[2] = 0.5;
+            targetHeading = -90;
         }
 
+/*
+        double[] nPwr = DynamicPark(); //setting powers from dynamic park
+        movePowers[0] = nPwr[0];
+        movePowers[1] = nPwr[1];
+        movePowers[2] = nPwr[2];
+        pullerPower   = nPwr[3];
+        */
 
         telemetry.update();
 
-        meccanum.Drive_Gyro_Vector(drivePowerX, drivePowerY, drivePowerR, navigation.getRawRotation(), targetHeading);
+        meccanum.Drive_Gyro_Vector(movePowers[0], movePowers[1], movePowers[2], relativeHeading, targetHeading);
+        pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
+
     }
 
 
@@ -570,7 +585,7 @@ public class MainControl extends OpMode {
 
     private double[][][] driveCoords = {
             { // quadrant 0 coordinates (red quarry side)
-                    {0.0, 0.0, 0.5, 0}, // determine which spot the block is in
+                    {0.0, 0.0, 0.5, 0}, // determine which spot the block is in (step 0)
                     {0.0, 0.0, 0.5, 80}, // lock onto the picture
                     {0.0, -60.0, 0.5, 80}, // move to line up with block
                     {10.0, -50.0, 0.5, 90}, // get da block
@@ -580,7 +595,8 @@ public class MainControl extends OpMode {
                     {0.0, 0.0, 0.0, 90}, // drop pullers
                     {-1.0, 0.0, 0.5, 0}, // rotate mat into position
                     {1.0, 1.0, 0.5, 0}, // ensure mat is in the proper position (lidar)
-                    {1.0, 1.0, 0.5, 90}, // rotate and align with mat to place the block (while dropping the lift) (lidar)
+                    {1.0, 1.0, 0.5, 90}, // rotate and align with mat to place the block (while dropping the lift) (lidar) (step 10)
+                    {0.0, 0.0, 0.0, 0}, // place da block
                     {1.0, 1.0, 0.0, 0}, // align to move under the bridge (lidar)
                     {-5.0, -20.0, 0.5, 90}, // move to line up with 2nd block
                     {10.0, -20.0, 0.5, 120}, // move to line up with 2nd block via on the other axses
@@ -636,9 +652,13 @@ public class MainControl extends OpMode {
                     {0.0, 0.0}, //
                     {0.0, 0.0}, // ensure mat is in the proper position (lidar)
                     {0.0, 0.0}, // rotate and align with mat to place the block (while dropping the lift) (lidar)
+                    {0.0, 0.0}, // align to move under the bridge (lidar)
                     {0.0, 0.0}, //
                     {0.0, 0.0}, //
                     {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, //
+                    {0.0, 0.0}, // align with mat to place the block (lidar)
                     {0.0, 0.0}, //
                     {0.0, 0.0}, //
             },
@@ -682,11 +702,11 @@ public class MainControl extends OpMode {
             }
     };
     private int[][] autoStepTimes = {
-//            0     1     2   3    4     5     6    7    8    9   10    11
-            {880, 5_000, 700, 900, 400, 1_525, 1_300, 2_100, 400, 1_000, 0, 0, 0}, // quadrant 0 times (red side mat)
-            {780, 5_000, 400, 600, 400, 1_550, 1_300, 2_500, 400, 1_000, 0, 0, 0}, // quadrant 1 times (blue side mat)
-            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0}, // quadrant 2 times (red side block)
-            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0}, // quadrant 3 times (blue side block)
+//            0     1     2     3    4     5     6      7    8      9      10     11   12      13     14    15   16    17
+            {200, 2_000, 3_500, 900, 900, 3_525, 2_300, 500, 3_000, 1_000, 2_000, 600, 2_000, 4_000, 1_000, 900, 900, 4_500, 3_000, 800, 800}, // quadrant 0 times (red side mat)
+            {780, 5_000, 400, 600, 400, 1_550, 1_300, 2_500, 400, 1_000, 0, 0, 0, 0, 0, 0, 0, 0,}, // quadrant 1 times (blue side mat)
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 2 times (red side block)
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 3 times (blue side block)
 
     }; // fail safe times for each step in the autonomous program - in milisecs
 
@@ -919,6 +939,7 @@ public class MainControl extends OpMode {
 
                             autoStateFirstRun = false;
                         }
+
                         movePowers[0] = driveCoords[quadrant][stateInc][0];
                         movePowers[1] = driveCoords[quadrant][stateInc][1];
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
@@ -1025,14 +1046,22 @@ public class MainControl extends OpMode {
 
                             autoStateFirstRun = false;
                         }
-                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+
+                        movePowers[0] = driveCoords[quadrant][stateInc][0]; // set powers
                         movePowers[1] = driveCoords[quadrant][stateInc][1];
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
 
+                        if (quadrant == 0 && getLidar(1)[0] > lidarCoords[quadrant][stateInc][0]){
+                            transComp = true;
+                        }
+                        else if (quadrant == 2 && getLidar(1)[0] > lidarCoords[quadrant][stateInc][0]){
+                            transComp = true;
+                        }
+                        else {
+                            transComp = false;
+                        }
 
-                        pullerPower = 0.5;
-
-                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
                             autoState = State.STATE_7;
                             autoStateFirstRun = true;
                         }

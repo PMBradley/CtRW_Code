@@ -30,7 +30,8 @@ public class Drive_Meccanum {
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
-    private double teleTargetHeading = 0;
+    public double teleTargetHeading = 0;
+    public double lastHeading = 0;
     private double rotateSpeedFactor = 10;
     private double correctionPower = 0.5;
 
@@ -102,8 +103,8 @@ public class Drive_Meccanum {
     }
 
     // How much power to give the motors at different distances from the target
-    double[] PIDMargins = {2, 20, 80, 360};
-    double[] PIDPowers = {0, 0.15, 0.3, 0.5};
+    double[] PIDMargins = {1, 8, 80, 360};
+    double[] PIDPowers = {0, 0.2, 0.6, 0.7};
 
     public void Drive_Gyro_Vector(double x, double y, double r, double heading, boolean limiter, double boostFactor) { // use with tele-op only
         double minRotPower = 0.2;
@@ -168,6 +169,8 @@ public class Drive_Meccanum {
         robot.driveFR.setPower(-robot.fr);
         robot.driveBL.setPower(robot.bl);
         robot.driveBR.setPower(-robot.br);
+
+        lastHeading = heading; // for debugging purposes
     }
 
     public void Drive_Gyro_Vector(double x, double y, double r, double heading, double targetHeading) { // use with auto only

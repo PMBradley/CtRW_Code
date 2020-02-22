@@ -287,7 +287,9 @@ public class Vision {
             }
         }
 
-
+        if(targetString == ""){
+            targetString = "NULL";
+        }
 
 
         return targetString;
