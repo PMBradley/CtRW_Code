@@ -659,8 +659,27 @@ public class MainControl extends OpMode {
             },
     }; // holds the desired distances for lidars on each step
 
-    private double[][] pictureOrder = {
-
+    private String[][] pictureOrder = { // the order of pictures that are being used for each step
+            {
+                    "",
+                    "",
+                    "",
+            },
+            {
+                    "",
+                    "",
+                    "",
+            },
+            {
+                    "",
+                    "",
+                    "",
+            },
+            {
+                    "",
+                    "",
+                    "",
+            }
     };
     private int[][] autoStepTimes = {
 //            0     1     2   3    4     5     6    7    8    9   10    11
@@ -687,14 +706,19 @@ public class MainControl extends OpMode {
         boolean spinIntakeOut = false;
         boolean spinIntakeIn = false;
         boolean turnComp = false;
+        boolean transComp = false;
+        double relativeHeading = navigation.getRawRotation();
 
         double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
 
         String targetInfo = "NULL";
+        double[] relativeTranslation = {0.0, 0.0, 0.0};
 
         targetInfo = vision.targetsAreVisible();
-        navigation.updateRotation();
+        relativeTranslation = vision.getTranslation();
+       // navigation.updateRotation();
+
 
 
         //State Machine
@@ -854,6 +878,7 @@ public class MainControl extends OpMode {
                     break;
             }
         }
+
         else if(quadrantFound && (quadrant == 0 || quadrant == 2)){ // if quadrant found, run the main auto portion
                 switch (autoState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
                     case IDLE:
@@ -863,7 +888,7 @@ public class MainControl extends OpMode {
                         stateInc = 0;
 
                         pullerPower = 0.5;
-                        //     moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
+
 
                         autoState = State.STATE_0;
                         break;
@@ -875,10 +900,10 @@ public class MainControl extends OpMode {
 
                             autoStateFirstRun = false;
                         }
-                        movePowers[0] = driveCoords[quadrant][stateInc][0];
+
+                        movePowers[0] = driveCoords[quadrant][stateInc][0]; // set powers
                         movePowers[1] = driveCoords[quadrant][stateInc][1];
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
-                        //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
 
                         if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
@@ -894,14 +919,12 @@ public class MainControl extends OpMode {
 
                             autoStateFirstRun = false;
                         }
-                        turnComp = meccanum.gyroTurn(driveCoords[quadrant][stateInc][3], navigation.getRawRotation(), 10);
-
                         movePowers[0] = driveCoords[quadrant][stateInc][0];
                         movePowers[1] = driveCoords[quadrant][stateInc][1];
-                        if (!turnComp) {
-                            movePowers[2] = driveCoords[quadrant][stateInc][2];
-                        }
-                        //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+                        movePowers[2] = driveCoords[quadrant][stateInc][2];
+
+                        turnComp = atRotation(driveCoords[quadrant][stateInc][3], relativeHeading);
+
 
                         pullerPower = 0.5;
 
@@ -921,12 +944,18 @@ public class MainControl extends OpMode {
                         movePowers[0] = driveCoords[quadrant][stateInc][0];
                         movePowers[1] = driveCoords[quadrant][stateInc][1];
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
-                        //   moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
 
                         pullerPower = 0.5;
 
+                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
+                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
+                        }
 
-                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                        transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
+
+                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
                             autoState = State.STATE_3;
                             autoStateFirstRun = true;
                         }
@@ -1141,10 +1170,10 @@ public class MainControl extends OpMode {
             }
 
 
-            meccanum.Drive_Gyro_Vector(movePowers[0], movePowers[1], movePowers[2], navigation.getRawRotation(), driveCoords[quadrant][stateInc][3]);
+            meccanum.Drive_Gyro_Vector(movePowers[0], movePowers[1], movePowers[2], relativeHeading, driveCoords[quadrant][stateInc][3]);
             pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
 
-
+            telemetry.addData("Quadrant:", quadrant);
             telemetry.addData("State:", autoState);
             telemetry.addData("", targetInfo);
             telemetry.update();
@@ -1371,6 +1400,26 @@ public class MainControl extends OpMode {
         AUTO_MODE_ACTIVE = mode;
     }
 
+    // PID Translation Adjustment
+    double[] PIDMargins = {2, 10, 30, 70, 10_000};
+    double[] PIDPowers = {0, 0.15, 0.3, 0.5, 0.7};
+
+    double PIDTranslate(double targetPos, double pos){
+        double output = 0;
+        double delta = Math.abs(pos - targetPos);
+        boolean outputFound = false;
+
+        for(int i = 0; i < PIDMargins.length && i < PIDPowers.length && !outputFound; i++){ // move through each possible margin until the proper one is found. when it is, then set to the appropriate power
+            if(delta < PIDMargins[i]){
+                output = PIDPowers[i];
+                outputFound = true;
+            }
+        }
+
+        return output;
+    }
+
+
     int touchBlockCount = 0;
     int lastTouchBlockCount = 0;
 
@@ -1412,6 +1461,34 @@ public class MainControl extends OpMode {
 
         // Add other buttons
 
+    }
+
+    boolean atPosition(double targetX, double targetY, double targetR, double X, double Y, double R){ // a function that determines if you are at a position (or at least within accepted margin of error)
+        boolean output = true;
+        double transMargin = 4;
+        double rotMargin = 4;
+
+        if(Math.abs(targetX - X) > transMargin){
+            output = false;
+        }
+        else if(Math.abs(targetY - Y) > transMargin){
+            output = false;
+        }
+        else if(Math.abs(targetR - R) > rotMargin){
+            output = false;
+        }
+
+        return output;
+    }
+    boolean atRotation(double targetR, double R){
+        boolean output = true;
+        double rotMargin = 4;
+
+        if(Math.abs(targetR - R) > rotMargin){
+            output = false;
+        }
+
+        return output;
     }
 
     boolean excedesTime(int inTargetTime){  // Takes in a time a returns true if the current time is greater than the input time, if not, it ouptputs false

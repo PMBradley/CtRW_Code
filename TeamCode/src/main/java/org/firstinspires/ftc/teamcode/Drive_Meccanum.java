@@ -101,9 +101,13 @@ public class Drive_Meccanum {
         robot.driveBR.setPower(-robot.br);
     }
 
+    // How much power to give the motors at different distances from the target
+    double[] PIDMargins = {2, 20, 80, 360};
+    double[] PIDPowers = {0, 0.15, 0.3, 0.5};
+
     public void Drive_Gyro_Vector(double x, double y, double r, double heading, boolean limiter, double boostFactor) { // use with tele-op only
         double minRotPower = 0.2;
-        double correctionDegreeMargin = 2;
+        double correctionDegreeMargin = 1;
         double correctionDivisor = 0.02;
         double rPower = 0.0;
 
@@ -114,7 +118,7 @@ public class Drive_Meccanum {
 
         double tempTargetHeading = teleTargetHeading;
 
-        if (boostFactor < .5 && limiter == true)//hi
+        if (boostFactor < .5 && limiter == true)
         {
             x = x * speedDivisor;
             y = y * speedDivisor;
@@ -127,18 +131,25 @@ public class Drive_Meccanum {
             tempTargetHeading += 360;
         }
 
-        rPower = (tempTargetHeading - heading)*correctionDivisor; // do math to set the power
+        double targetDelta = Math.abs(heading - tempTargetHeading); // the raw distance to the target
 
-        if(!(Math.abs(heading - tempTargetHeading) < correctionDegreeMargin)){ // if it is not within the degree margin of error, then move at minimum power towards target
-            if(r > 0 && r < minRotPower){
-                rPower = minRotPower;
-            }
-            else if(r < 0 && r > -minRotPower){
-                rPower = -minRotPower;
-            }
+       // rPower = (tempTargetHeading - heading)*correctionDivisor; // do math to set the power
+
+        if(targetDelta < PIDMargins[0]){ // progress down the list until one it is found to be true (remembering if an else if is true, the if above it must be false)
+            rPower = PIDPowers[0];
         }
-        else {
-            rPower = 0;
+        else if(targetDelta < PIDMargins[1]){
+            rPower = PIDPowers[1];
+        }
+        else if(targetDelta < PIDMargins[2]){
+            rPower = PIDPowers[2];
+        }
+        else if(targetDelta < PIDMargins[3]){
+            rPower = PIDPowers[3];
+        }
+
+        if(tempTargetHeading - heading < 0){ // negate the power if the target is in a negative direction relative to the heading
+            rPower *= -1;
         }
 
 
@@ -174,14 +185,30 @@ public class Drive_Meccanum {
             targetHeading += 360;
         }
 
-        //r = r * (Math.sqrt(Math.abs(targetHeading - heading)))/correctionDivisor;
-        r = (targetHeading - heading) * correctionDivisor;
+        double targetDelta = Math.abs(heading - targetHeading); // the raw distance to the target
 
-        if(targetHeading - heading < 0){
-            r *= -1;
+        // rPower = (tempTargetHeading - heading)*correctionDivisor; // do math to set the power
+
+        if(targetDelta < PIDMargins[0]){ // progress down the list until one it is found to be true (remembering if an else if is true, the if above it must be false)
+            r = PIDPowers[0];
+        }
+        else if(targetDelta < PIDMargins[1]){
+            r = PIDPowers[1];
+        }
+        else if(targetDelta < PIDMargins[2]){
+            r = PIDPowers[2];
+        }
+        else if(targetDelta < PIDMargins[3]){
+            r = PIDPowers[3];
         }
 
-        if(!(Math.abs(heading - targetHeading) < correctionDegreeMargin)) { // if it is not within the degree margin of error, then move at minimum power towards target
+        if(targetHeading - heading < 0){ // negate the power if the target is in a negative direction relative to the heading
+            r *= -1;
+        }
+        //r = r * (Math.sqrt(Math.abs(targetHeading - heading)))/correctionDivisor;
+     //   r = (targetHeading - heading) * correctionDivisor
+
+       /* if(!(Math.abs(heading - targetHeading) < correctionDegreeMargin)) { // if it is not within the degree margin of error, then move at minimum power towards target
             if (r > 0 && r < minRotPower) {
                 r = minRotPower;
             } else if (r < 0 && r > -minRotPower) {
@@ -190,7 +217,7 @@ public class Drive_Meccanum {
         }
         else {
             r = 0;
-        }
+        }*/
 
         double sin = Math.sin(heading * 0.0174533);
         double cos = Math.cos(heading * 0.0174533);
