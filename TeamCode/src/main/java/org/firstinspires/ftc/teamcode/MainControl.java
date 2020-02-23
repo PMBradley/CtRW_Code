@@ -129,6 +129,10 @@ public class MainControl extends OpMode {
                 stonePosFound = true; // set the flag that the block has been found
             }
         }
+        else { // print out the stone position once it has been found so long as no other things are running in the main loop
+            telemetry.addData("Stone Position:", stonePos);
+            telemetry.update();
+        }
 
     }
 
