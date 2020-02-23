@@ -77,11 +77,10 @@ public class MainControl extends OpMode {
 
     public void init(){ // initialization function
         robot.init(hardwareMap);
-        runtime.reset();
 
-        vision.initVuforia();
+        vision.initVuforia(); // init vision
 
-        telemetry.addData("It's Droopy McCool Time! ", ")"); // confirm that init has completed
+        telemetry.addData("It's Droopy McCool Time! ", ")"); // confirm that init has completed :)
         telemetry.update();
     }
 
@@ -805,7 +804,7 @@ public class MainControl extends OpMode {
                     detectInc = 0;
 
                     if (detectStateFirstRun) {
-                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[detectInc]; // sets target fail safe time for this step
 
                         detectStateFirstRun = false;
                     }
@@ -848,7 +847,7 @@ public class MainControl extends OpMode {
                     detectInc = 2;
 
                     if (detectStateFirstRun) {
-                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[detectInc]; // sets target fail safe time for this step
 
                         detectStateFirstRun = false;
                     }
@@ -858,10 +857,10 @@ public class MainControl extends OpMode {
 
                     pullerPower = 0.5;
 
-                    String currentTrackable = vision.getVisibleTarget();
+                    String currentTrackable = vision.getVisibleTarget(); // get the target
 
-                    if (currentTrackable != "NULL") {
-                        switch (currentTrackable) {
+                    if (currentTrackable != "NULL") { // if there is a target
+                        switch (currentTrackable) { // based off of that target set the quadrant
                             case "Red Perimeter 2":
                                 quadrant = 0;
                                 break;
@@ -886,7 +885,7 @@ public class MainControl extends OpMode {
                     detectInc = 3;
 
                     if (detectStateFirstRun) {
-                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[stateInc]; // sets target fail safe time for this step
+                        detectStateTargetTime = (int) runtime.milliseconds() + detectStepTimes[detectInc]; // sets target fail safe time for this step
 
                         detectStateFirstRun = false;
                     }
@@ -1004,6 +1003,8 @@ public class MainControl extends OpMode {
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
 
+                        relativeHeading = 0;
+
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1030,6 +1031,8 @@ public class MainControl extends OpMode {
                             movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
+
+                        relativeHeading = 0;
 
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
@@ -1058,6 +1061,8 @@ public class MainControl extends OpMode {
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
 
+                        relativeHeading = 0;
+
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1084,6 +1089,8 @@ public class MainControl extends OpMode {
                             movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
+
+                        relativeHeading = 0;
 
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
@@ -1290,6 +1297,8 @@ public class MainControl extends OpMode {
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
 
+                        relativeHeading = 0;
+
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1316,6 +1325,8 @@ public class MainControl extends OpMode {
                             movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
+
+                        relativeHeading = 0;
 
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
@@ -1344,6 +1355,8 @@ public class MainControl extends OpMode {
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
 
+                        relativeHeading = 0;
+
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1371,6 +1384,8 @@ public class MainControl extends OpMode {
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
 
+                        relativeHeading = 0;
+
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1397,6 +1412,8 @@ public class MainControl extends OpMode {
                             movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
                             movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
                         }
+
+                        relativeHeading = 0;
 
                         transComp = atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]);
 
