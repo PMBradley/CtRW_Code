@@ -79,19 +79,11 @@ public class MainControl extends OpMode {
         robot.init(hardwareMap);
         runtime.reset();
 
-        telemetry.addData("Say", "It's Droopy McCool Time!");
-
-        
-        /*
-        Add vision system init stuff here and active
-
-
-
-         */
-    // telemetry.addData("Test point:", "1");
-        telemetry.update();
         vision.initVuforia();
         vision.activateTracking();
+
+        telemetry.addData("Say", "It's Droopy McCool Time!");
+        telemetry.update();
     }
 
     public void loop(){ // main loop
@@ -119,6 +111,26 @@ public class MainControl extends OpMode {
             }
             else { // if tele-op
                 manual_mode();
+            }
+        }
+        else if (!stonePosFound) { // detect which position the block is on while waiting for the user input
+            double[] stoneRange = {-10, 10};
+
+            double[] targetCoords = vision.getTranslation(); // get the target coordinates from vision
+            String visionTarget = vision.trackableString;
+
+            if(visionTarget == "Stone Target"){
+                if(stoneRange[0] < targetCoords[0] && targetCoords[0] < stoneRange[1]){ // if the stone is between the two ranges, it is the middle block (pos 1)
+                    stonePos = 1;
+                }
+                else if(targetCoords[0] > stoneRange[1]){ // if the stone position is greater than the greatest margin, it is on the right (pos 2)
+                    stonePos = 2;
+                }
+                else { // if not either above, it is on the left (pos 0)
+                    stonePos = 0;
+                }
+
+                stonePosFound = true;
             }
         }
 
@@ -589,7 +601,7 @@ public class MainControl extends OpMode {
 
     private int[] detectStepTimes = {
 //            0     1     2   3    4     5     6    7    8    9   10    11
-            600, 3_000, 500, 3_000, 500, // Times in milisecs
+            300, 3_000, 500, 3_000, 500, // Times in milisecs
     }; // fail safe times for each step in the autonomous program - in milisecs
 
     private int detectStartTime = 0;
@@ -600,6 +612,8 @@ public class MainControl extends OpMode {
     public State autoState = State.IDLE; // state machine flag - holds which step the state machine is on
     public int stateInc = 0; // keeps an index of which state we are at (only starts counting when at state 0)
     public int quadrant = 0;
+    public int stonePos = 0; // 0 is closest to bridge, 1 is middle, 2 is farthest from bridge
+    private boolean stonePosFound = false;
 
     private double[][][] driveCoords = {
             { // quadrant 0 coordinates (red quarry side)
@@ -783,6 +797,8 @@ public class MainControl extends OpMode {
         //State Machine
 
         if (!quadrantFound) { // if a quadrant has not yet been found, run the quadrant finding state machine
+            targetHeading = detectCoords[stateInc][3]; // set the target heading based off of the detect coords
+
             switch (detectState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
                 case IDLE:
                     detectStartTime = (int) runtime.milliseconds();
@@ -791,7 +807,6 @@ public class MainControl extends OpMode {
                     detectInc = 0;
 
                     pullerPower = 0.5;
-                    //     moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards the first (starting coordinate)
 
                     detectState = State.STATE_0;
                     break;
@@ -806,7 +821,7 @@ public class MainControl extends OpMode {
                     movePowers[0] = detectCoords[detectInc][0];
                     movePowers[1] = detectCoords[detectInc][1];
                     movePowers[2] = detectCoords[detectInc][2];
-                    //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
+
 
                     pullerPower = 0.5;
 
@@ -830,15 +845,6 @@ public class MainControl extends OpMode {
                     movePowers[1] = detectCoords[detectInc][2];
 
 
-
-
-
-
-
-
-
-
-                    //moveCoords = driveCoords[quadrant][stateInc]; // flag to move towards target position
 
                     pullerPower = 0.5;
 
@@ -909,7 +915,7 @@ public class MainControl extends OpMode {
                 case COMPLETE:
 
                     pullerPower = 0.5;
-                    quadrantFound = true;
+                   // quadrantFound = true;
 
                     if(quadrant == 1 || quadrant == 3){ // if the quadrant is either mat side
                         autoState = State.COMPLETE;
@@ -920,6 +926,8 @@ public class MainControl extends OpMode {
         }
 
         else if(quadrantFound && (quadrant == 0 || quadrant == 2)){ // if quadrant found, run the main auto portion
+                targetHeading = driveCoords[quadrant][stateInc][3]; // set the target heading based off of the main auto coordinates
+
                 switch (autoState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
                     case IDLE:
                         autoStartTime = (int) runtime.milliseconds();
@@ -1488,17 +1496,14 @@ public class MainControl extends OpMode {
                 DYNAMIC_PARK_ACTIVE = false;
             }
 
-            if(DYNAMIC_PARK_ACTIVE = true)
+            if(DYNAMIC_PARK_ACTIVE = true) // if dynamic park is active, call that function
             {//☺
-             /*   double[] nPwr = DynamicPark(); //setting powers from dynamic park
+                double[] nPwr = DynamicPark(); //setting powers from dynamic park
                 movePowers[0] = nPwr[0];
                 movePowers[1] = nPwr[1];
                 movePowers[2] = nPwr[2];
                 targetHeading = nPwr[3];
-                pullerPower   = nPwr[4];*/
-            }
-            else {
-                targetHeading = driveCoords[quadrant][stateInc][3];
+                pullerPower   = nPwr[4];
             }
 
 
