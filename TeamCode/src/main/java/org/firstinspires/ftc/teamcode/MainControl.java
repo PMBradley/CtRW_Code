@@ -80,18 +80,16 @@ public class MainControl extends OpMode {
         runtime.reset();
 
         vision.initVuforia();
-        vision.activateTracking();
 
-        telemetry.addData("Say", "It's Droopy McCool Time!");
+        telemetry.addData("It's Droopy McCool Time! ", ")"); // confirm that init has completed
         telemetry.update();
     }
 
     public void loop(){ // main loop
         updateControls(); // update the controllers and check the sensors
-        checkSensors(); // (checking sensors happens multiple times in the loop to avoid missing an input)
-     
 
-        if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct
+        if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct and that vision is activated
+            vision.activateTracking();
             runtime.reset();
 
             LOOP_FIRST_RUN = false;
@@ -100,8 +98,6 @@ public class MainControl extends OpMode {
         if(robot.gp1_a == true || robot.gp2_a == true){ // if either controller presses A, switch to tele-op mode
             AUTO_MODE_ACTIVE = false;
         }
-
-        checkSensors();
 
         if(runtime.milliseconds() > MODE_CHOICE_TIME || !AUTO_MODE_ACTIVE){ /* if the time is greater than the mode choice time or Autonomous mode = false, run an opmode, do nothing if not */
             if(AUTO_MODE_ACTIVE){ // if auto-op
@@ -117,7 +113,7 @@ public class MainControl extends OpMode {
             double[] stoneRange = {-10, 10};
 
             double[] targetCoords = vision.getTranslation(); // get the target coordinates from vision
-            String visionTarget = vision.trackableString;
+            String visionTarget = vision.trackableString; // get which target vision is looking at
 
             if(visionTarget == "Stone Target"){
                 if(stoneRange[0] < targetCoords[0] && targetCoords[0] < stoneRange[1]){ // if the stone is between the two ranges, it is the middle block (pos 1)
@@ -130,11 +126,10 @@ public class MainControl extends OpMode {
                     stonePos = 0;
                 }
 
-                stonePosFound = true;
+                stonePosFound = true; // set the flag that the block has been found
             }
         }
 
-        checkSensors();
     }
 
     // Manual Semi-auto Flag Variables
@@ -220,12 +215,12 @@ public class MainControl extends OpMode {
        // targetInfo = vision.targetsAreVisible();
         //telemetry.addData("Target Info:", targetInfo);
 
-        if(manualFirstRun){
+        if(manualFirstRun){ // deactivate vision to decrease cycle times (makes it run faster)
             vision.deactivateTracking();
             manualFirstRun = false;
         }
 
-        checkSensors();
+
         //Setters
         if(robot.gp1_a == true || robot.gp2_a == true){ // if a is being pressed, drop intakes
             //intakeDropPower = -1;
@@ -296,8 +291,6 @@ public class MainControl extends OpMode {
         if(intake){
             spinIntakeIn = true;
         }
-
-        checkSensors();
 
         // fail safes
         if(autoBlockDown){ // prevents the robot from trying to move autonomously up and down at the same time - override to down
@@ -462,9 +455,6 @@ public class MainControl extends OpMode {
             }
         }
 
-        checkSensors();
-
-
 
         //navigation.updateLocation();
         // Telemetry
@@ -521,10 +511,7 @@ public class MainControl extends OpMode {
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
         arm_swing.set_clamp_position(clampRelease);
         pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
-        //intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
-
-
-        lastTouchBlockCount = touchBlockCount;
+        intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
     }
 
 
