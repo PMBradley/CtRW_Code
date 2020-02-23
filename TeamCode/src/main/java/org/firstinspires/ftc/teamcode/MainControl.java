@@ -79,6 +79,7 @@ public class MainControl extends OpMode {
         robot.init(hardwareMap);
 
         vision.initVuforia(); // init vision
+        vision.activateTracking();
 
         telemetry.addData("It's Droopy McCool Time! ", ")"); // confirm that init has completed :)
         telemetry.update();
@@ -88,7 +89,7 @@ public class MainControl extends OpMode {
         updateControls(); // update the controllers and check the sensors
 
         if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct and that vision is activated
-            vision.activateTracking();
+
             runtime.reset();
 
             LOOP_FIRST_RUN = false;
@@ -228,7 +229,7 @@ public class MainControl extends OpMode {
         if(robot.gp1_a == true || robot.gp2_a == true){ // if a is being pressed, drop intakes
             //intakeDropPower = -1;
             robot.intakeDropL.setPosition(1.0);
-            robot.intakeDropR.setPosition(1.0);
+            robot.intakeDropR.setPosition(0.0);
         }
         else { // else don't
           //  intakeDropPower = 0;
@@ -475,7 +476,8 @@ public class MainControl extends OpMode {
      //   telemetry.addData("Lidar L:", robot.readFlight(robot.flightLeft1));
      //   telemetry.addData("X Pos:", navigation.X);
       //  telemetry.addData("Y Pos:", navigation.Y);
-        telemetry.addData("Heading:", relativeHeading);
+        telemetry.addData("Math Heading:", relativeHeading);
+        telemetry.addData("Raw Heading", navigation.getRawRotation());
       /*  if(Ltrigger < .5) {
             telemetry.addData("Boost OFF", Ltrigger);
         }
@@ -492,8 +494,8 @@ public class MainControl extends OpMode {
       //  telemetry.addData("Lstick X:", drivePowerX);
        // telemetry.addData("Lstick Y:", drivePowerY);
        // telemetry.addData("Lstick R:", drivePowerR);
-        telemetry.addData("Target Heading:", meccanum.teleTargetHeading);
-        telemetry.addData("Last Heading:", meccanum.lastHeading);
+       // telemetry.addData("Target Heading:", meccanum.teleTargetHeading);
+     //   telemetry.addData("Last Heading:", meccanum.lastHeading);
        // telemetry.addData("Picture Info:",targetInfo);
 
         telemetry.update();
@@ -514,7 +516,7 @@ public class MainControl extends OpMode {
         arm_swing.set_arm_position(armSwingIn, armSwingOut);
         arm_swing.set_clamp_position(clampRelease);
         pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
-        intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
+      //  intakeDrop.set_ServoPower(intakeDropPower, robot.intakeDropL, robot.intakeDropR);
     }
 
 
@@ -582,8 +584,8 @@ public class MainControl extends OpMode {
     public boolean quadrantFound = false; //lol jk☺ - Rohit
 
     private double[][] detectCoords = {
-                    {0, 0.5, 0, 0}, // move forward to be able to rotate
-                    {0, 0, 0.5, 180}, // rotate 180 to look at picture
+                    {0, 0.25, 0, 0}, // move forward to be able to rotate
+                    {0, 0, 0.5, -170}, // rotate 180 to look at picture
                     {0, 0, 0, 0}, // detect block
                     {0.0, 0.0, 0.5, 0}, // rotate back to 0
 
@@ -591,7 +593,7 @@ public class MainControl extends OpMode {
 
     private int[] detectStepTimes = {
 //            0     1     2   3    4     5     6    7    8    9   10    11
-            300, 3_000, 500, 3_000, 500, // Times in milisecs
+            100, 3_000, 500, 3_000, 500, // Times in milisecs
     }; // fail safe times for each step in the autonomous program - in milisecs
 
     private int detectStartTime = 0;
@@ -787,7 +789,7 @@ public class MainControl extends OpMode {
         //State Machine
 
         if (!quadrantFound) { // if a quadrant has not yet been found, run the quadrant finding state machine
-            targetHeading = detectCoords[stateInc][3]; // set the target heading based off of the detect coords
+            targetHeading = detectCoords[detectInc][3]; // set the target heading based off of the detect coords
 
             switch (detectState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
                 case IDLE:
@@ -1506,12 +1508,12 @@ public class MainControl extends OpMode {
 
             if(DYNAMIC_PARK_ACTIVE = true) // if dynamic park is active, call that function
             {//☺
-                double[] nPwr = DynamicPark(); //setting powers from dynamic park
+            /*    double[] nPwr = DynamicPark(); //setting powers from dynamic park
                 movePowers[0] = nPwr[0];
                 movePowers[1] = nPwr[1];
                 movePowers[2] = nPwr[2];
                 targetHeading = nPwr[3];
-                pullerPower   = nPwr[4];
+                pullerPower   = nPwr[4];*/
             }
 
 
@@ -1538,9 +1540,13 @@ public class MainControl extends OpMode {
             pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
 
             telemetry.addData("Quadrant:", quadrant);
-            telemetry.addData("Auto State:", autoState);
             telemetry.addData("Detect State", detectState);
+            telemetry.addData("Auto State:", autoState);
+            telemetry.addData("X Power:", movePowers[0]);
+            telemetry.addData("Y Power:", movePowers[1]);
+            telemetry.addData("Target Heading:", targetHeading);
             telemetry.addData("Camera Target:", targetInfo);
+
             telemetry.update();
 
         }

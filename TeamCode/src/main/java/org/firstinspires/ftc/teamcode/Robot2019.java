@@ -153,7 +153,7 @@ public class Robot2019 {
         int cameraMonitorViewId = mainMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", mainMap.appContext.getPackageName());
         viewId = cameraMonitorViewId;
 
-        armPivot.setPosition(0.69);
+        armPivot.setPosition(0.95);
 
         // Set up the Internal Measurement Unit
         init_imu();
