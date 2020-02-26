@@ -1697,7 +1697,7 @@ public class MainControl extends OpMode {
                     armSwingIn = false; // keep arm actively out
                     armSwingOut = true;
 
-
+                    clampRelease = true;
 
                     if(excedesTime(placeStateTargetTime)){ // continue conditions (including failsafe times
                         autoPlaceState = State.STATE_2;
@@ -1713,7 +1713,10 @@ public class MainControl extends OpMode {
                     armSwingIn = false; // keep arm actively out
                     armSwingOut = true;
 
+                    clampRelease = true;
 
+                    liftPowerL = 0; // move lift up
+                    liftPowerR = 1;
 
                     if(excedesTime(placeStateTargetTime)){ // continue conditions (including failsafe times
                         autoPlaceState = State.IDLE;
@@ -1744,7 +1747,7 @@ public class MainControl extends OpMode {
                         armSwingOut = false;
 
 
-                        if(excedesTime(downStateTargetTime) || !robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
+                        if(excedesTime(downStateTargetTime)){ // continue conditions (including failsafe times)
                             blockDownState = State.STATE_1;
                             downStateFirstRun = true;
                         }
