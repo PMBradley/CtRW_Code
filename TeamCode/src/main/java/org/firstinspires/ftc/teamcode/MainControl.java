@@ -118,12 +118,16 @@ public class MainControl extends OpMode {
     boolean autoIntake = false;
     boolean autoBlockUp = false;
     boolean autoBlockDown = false;
+    int autoUpStartState = 0;
+    int autoDownStartState = 0;
 
     // Toggle first run variables
     boolean clampReleaseFirstRun = true;
     boolean intakeFirstRun = true;
     boolean autoBlockUpFirstRun = true;
     boolean autoBlockDownFirstRun = true;
+
+
 
 
     // State machine global variables
@@ -197,6 +201,8 @@ public class MainControl extends OpMode {
 
         if(manualFirstRun){ // deactivate vision to decrease cycle times (makes it run faster)
            // vision.deactivateTracking();
+            autoBlockDownFirstRun = true;
+            autoBlockUpFirstRun = true;
             manualFirstRun = false;
         }
 
@@ -755,6 +761,7 @@ public class MainControl extends OpMode {
 
     }; // fail safe times for each step in the autonomous program - in milisecs
 
+    // general auto variables
     private int autoStartTime = 0;
     private int autoStateTargetTime = 0;
     private boolean autoStateFirstRun = true;
@@ -762,7 +769,17 @@ public class MainControl extends OpMode {
     private double transApproachReduce = 15;
     private double rotApproachReduce = 10;
     private double[] atPosStartTimes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    private double atPosReqTime = 100; // requires the bot to be at a position for 100 miliseconds before progressing
+    private double atPosReqTime = 100; // requires the bot to be at a position for (atPosReqTime) miliseconds before progressing
+
+    // Semi auto place block variables
+    private boolean autoBlockPlace = false;
+    private boolean placeStatetFirstRun = true;
+    private State autoPlaceState = State.STATE_0;
+    private int[] placeStateTimes = {1_500, 300, 1_800};
+    private int placeStateTargetTime = 0;
+
+
+
 
     public void AutoStep() {
         double liftPowerL = 0.0; // power variables for the manipulators
@@ -791,7 +808,7 @@ public class MainControl extends OpMode {
 
 
         //State Machine
-
+/*
         if (!quadrantFound) { // if a quadrant has not yet been found, run the quadrant finding state machine
             targetHeading = detectCoords[detectInc][3]; // set the target heading based off of the detect coords
 
@@ -920,8 +937,9 @@ public class MainControl extends OpMode {
                     break;
             }
         }
+*/
 
-        else if(quadrantFound && (quadrant == 0 || quadrant == 2)){ // if quadrant found, run the main auto portion
+        if(quadrantFound && (quadrant == 0 || quadrant == 2)){ // if quadrant found, run the main auto portion
                 switch (autoState) { // main state machine - the state determines the robot's actions - mostly movement, but with some extra manipulator action
                     case IDLE:
                         autoStartTime = (int) runtime.milliseconds();
@@ -1150,6 +1168,8 @@ public class MainControl extends OpMode {
 
                         if (autoStateFirstRun) {
                             autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
+
+                            autoBlockUp = true; // start the autonomous movement up of the arm with the block
 
                             autoStateFirstRun = false;
                         }
@@ -1587,9 +1607,9 @@ public class MainControl extends OpMode {
             }
 
 
-            if (quadrant == 0 || quadrant == 2) { // move intakes up if doing skystone auto (if in the right
-                robot.intakeDropL.setPosition(0.0);
-                robot.intakeDropR.setPosition(1.0);
+            if (quadrant == 0 || quadrant == 2) { // move intakes down if doing skystone auto (if in the right
+                robot.intakeDropL.setPosition(1.0);
+                robot.intakeDropR.setPosition(0.0);
             }
 
 
@@ -1600,6 +1620,7 @@ public class MainControl extends OpMode {
                         armSwingOut = false;
 
                         autoBlockUp = false;
+
                         blockUpState = State.STATE_0;
                         break;
                     case STATE_0:
@@ -1637,7 +1658,71 @@ public class MainControl extends OpMode {
                         break;
                 }
             }
-    
+
+        if(autoBlockPlace){
+            switch (autoPlaceState){ // autonomous movement down state machine
+                case IDLE:
+                    liftPowerL = 0; // stop lift
+                    liftPowerR = 0;
+
+                    autoBlockPlace = false; // stop auto block down
+
+                    autoBlockDown = true; // start the movement of the arm down once done placing
+
+                    autoPlaceState = State.STATE_0;
+                    break;
+                case STATE_0:
+                    if(placeStatetFirstRun){
+                        placeStateTargetTime = (int) runtime.milliseconds() + placeStateTimes[0]; // sets target fail safe time for this step
+
+                        placeStatetFirstRun = false;
+                    }
+                    armSwingIn = false; // swing arm out
+                    armSwingOut = true;
+
+                    liftPowerL = 1; // move lift down
+                    liftPowerR = 0;
+
+                    if(excedesTime(placeStateTargetTime) || !robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
+                        autoPlaceState = State.STATE_1;
+                        placeStatetFirstRun = true;
+                    }
+                    break;
+                case STATE_1:
+                    if(placeStatetFirstRun){
+                        placeStateTargetTime = (int) runtime.milliseconds() + placeStateTimes[1]; // sets target fail safe time for this step
+
+                        placeStatetFirstRun = false;
+                    }
+                    armSwingIn = false; // keep arm actively out
+                    armSwingOut = true;
+
+
+
+                    if(excedesTime(placeStateTargetTime)){ // continue conditions (including failsafe times
+                        autoPlaceState = State.STATE_2;
+                        placeStatetFirstRun = true;
+                    }
+                    break;
+                case STATE_2:
+                    if(placeStatetFirstRun){
+                        placeStateTargetTime = (int) runtime.milliseconds() + placeStateTimes[2]; // sets target fail safe time for this step
+
+                        placeStatetFirstRun = false;
+                    }
+                    armSwingIn = false; // keep arm actively out
+                    armSwingOut = true;
+
+
+
+                    if(excedesTime(placeStateTargetTime)){ // continue conditions (including failsafe times
+                        autoPlaceState = State.IDLE;
+                        placeStatetFirstRun = true;
+                    }
+                    break;
+            }
+        }
+
             if(autoBlockDown){
                 switch (blockDownState){ // autonomous movement down state machine
                     case IDLE:
@@ -1645,6 +1730,8 @@ public class MainControl extends OpMode {
                         liftPowerR = 0;
 
                         autoBlockDown = false;
+
+
                         blockDownState = State.STATE_0;
                         break;
                     case STATE_0:
@@ -1716,7 +1803,7 @@ public class MainControl extends OpMode {
 
             telemetry.update();
 
-        }
+    }
 
 
     void adaptCoordsForStone(int pos){ // does the math to change coordinates for auto depending on the stone position
