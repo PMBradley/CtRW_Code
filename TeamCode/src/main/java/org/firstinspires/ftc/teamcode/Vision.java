@@ -256,19 +256,24 @@ public class Vision {
 
     public String targetsAreVisible(){
 
-        float xTranslation;
-        float yTranslation;
-        float zTranslation;
+        float xTranslation = 0;
+        float yTranslation = 0;
+        float zTranslation = 0;
 
+        targetVisible = false;
+        trackableString = "NULL";
 
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
                 VectorF translation = robotLocationTransform.getTranslation();
                 trackableString = trackable.getName();
-                xTranslation = translation.get(0) / mmPerInch;
-                yTranslation = translation.get(1) / mmPerInch;
-                zTranslation = translation.get(2) / mmPerInch;
+                if(translation != null){
+                    xTranslation = translation.get(0) / cmPerInch;
+                    yTranslation = translation.get(1) / cmPerInch;
+                    zTranslation = translation.get(2) / cmPerInch;
+                }
+
 
                 targetString = "Visible Target: " + trackableString + " Pos (in) {X, Y, Z} = "
                         + (xTranslation) + " " + (yTranslation) + " "
@@ -301,15 +306,16 @@ public class Vision {
         float yTranslation;
         float zTranslation;
         trackableString = "NULL";
+        targetVisible = false;
 
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
                 VectorF translation = robotLocationTransform.getTranslation();
                 trackableString = trackable.getName();
-                xTranslation = translation.get(0) / mmPerInch;
-                yTranslation = translation.get(1) / mmPerInch;
-                zTranslation = translation.get(2) / mmPerInch;
+             //   xTranslation = translation.get(0) / mmPerInch;
+             //   yTranslation = translation.get(1) / mmPerInch;
+             //   zTranslation = translation.get(2) / mmPerInch;
 
 
                 targetVisible = true;
@@ -344,9 +350,11 @@ public class Vision {
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
                 VectorF translation = robotLocationTransform.getTranslation();
                 trackableString = trackable.getName();
-                xTranslation = translation.get(0) / cmPerInch;
-                yTranslation = translation.get(1) / cmPerInch;
-                zTranslation = translation.get(2) / cmPerInch;
+                if(translation != null){
+                    xTranslation = translation.get(0) / cmPerInch;
+                    yTranslation = translation.get(1) / cmPerInch;
+                    zTranslation = translation.get(2) / cmPerInch;
+                }
 
 
 
