@@ -405,7 +405,7 @@ public class ConceptVuforiaNavigationWebcam extends LinearOpMode {
                 if (robotLocationTransform != null) {
                     lastLocation = robotLocationTransform;
                 }
-            }
+            
             /**
              * Provide feedback as to where the robot was last located (if we know).
              */

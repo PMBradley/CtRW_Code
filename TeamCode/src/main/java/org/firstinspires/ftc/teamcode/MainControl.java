@@ -1592,6 +1592,97 @@ public class MainControl extends OpMode {
                 robot.intakeDropR.setPosition(1.0);
             }
 
+
+            if(autoBlockUp){
+                switch (blockUpState){ // autonomous movement up state machine
+                    case IDLE:
+                        armSwingIn = false; // stop arm
+                        armSwingOut = false;
+
+                        autoBlockUp = false;
+                        blockUpState = State.STATE_0;
+                        break;
+                    case STATE_0:
+                        if(upStateFirstRun){
+                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[0]; // sets target fail safe time for this step
+
+                            upStateFirstRun = false;
+                        }
+                        liftPowerL = 0; // move lift up
+                        liftPowerR = 1;
+
+                        armSwingIn = false; // stop arm movement
+                        armSwingOut = false;
+
+                        if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
+                            blockUpState = State.STATE_1;
+                            upStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_1:
+                        if(upStateFirstRun) {
+                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[1]; // sets target fail safe time for this step
+
+                            upStateFirstRun = false;
+                        }
+                        liftPowerL = 0; // prevent movement down while the arm is swining
+
+                        armSwingIn = false; // move arm out
+                        armSwingOut = true;
+
+                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
+                            blockUpState = State.IDLE;
+                            upStateFirstRun = true;
+                        }
+                        break;
+                }
+            }
+    
+            if(autoBlockDown){
+                switch (blockDownState){ // autonomous movement down state machine
+                    case IDLE:
+                        liftPowerL = 0; // stop lift
+                        liftPowerR = 0;
+
+                        autoBlockDown = false;
+                        blockDownState = State.STATE_0;
+                        break;
+                    case STATE_0:
+                        if(downStateFirstRun){
+                            downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[0]; // sets target fail safe time for this step
+
+                            downStateFirstRun = false;
+                        }
+                        armSwingIn = true; // swing arm in
+                        armSwingOut = false;
+
+
+                        if(excedesTime(downStateTargetTime) || !robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
+                            blockDownState = State.STATE_1;
+                            downStateFirstRun = true;
+                        }
+                        break;
+                    case STATE_1:
+                        if(downStateFirstRun){
+                            downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[1]; // sets target fail safe time for this step
+
+                            downStateFirstRun = false;
+                        }
+                        armSwingIn = false; // stop arm
+                        armSwingOut = false;
+
+                        liftPowerL = 1; // move lift down
+                        liftPowerR = 0;
+
+
+                        if(excedesTime(downStateTargetTime) || !robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
+                            blockDownState = State.IDLE;
+                            downStateFirstRun = true;
+                        }
+                        break;
+                }
+            }
+
             /*if(!excedesTime(5_000)){
                 targetHeading = 180;
                 movePowers[0] = 0;
@@ -1608,6 +1699,12 @@ public class MainControl extends OpMode {
 
             meccanum.Drive_Gyro_Vector(movePowers[0], movePowers[1], movePowers[2], relativeHeading, rawHeading, targetHeading);
             pullerDrop.set_ServoPower(pullerPower, robot.pullerDropL, robot.pullerDropR);
+            flyIntake.set_Power(spinIntakeIn, spinIntakeOut);
+            lift.move_Controller(liftPowerR , liftPowerL);
+            arm_swing.set_arm_position(armSwingIn, armSwingOut);
+            arm_swing.set_clamp_position(clampRelease);
+
+
 
             telemetry.addData("Quadrant:", quadrant);
             telemetry.addData("Detect State", detectState);
