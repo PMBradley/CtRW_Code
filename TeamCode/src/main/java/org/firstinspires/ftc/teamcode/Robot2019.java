@@ -123,6 +123,16 @@ public class Robot2019 {
         motorIntakeL = mainMap.get(DcMotor.class, "intakeL");
         motorIntakeR = mainMap.get(DcMotor.class, "intakeR");
 
+        // Set motors to run with encoders
+        driveFL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveFR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveBL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveBR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorIntakeL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorIntakeR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
         // Grabbing servos from hardware map
         armPivot = mainMap.get(Servo.class, "armPivot");
         armGrab = mainMap.get(Servo.class, "armGrab");
@@ -152,6 +162,8 @@ public class Robot2019 {
 
         int cameraMonitorViewId = mainMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", mainMap.appContext.getPackageName());
         viewId = cameraMonitorViewId;
+
+
 
         armPivot.setPosition(0.95);
 
