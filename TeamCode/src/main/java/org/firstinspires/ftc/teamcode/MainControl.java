@@ -78,8 +78,8 @@ public class MainControl extends OpMode {
     public void init(){ // initialization function
         robot.init(hardwareMap);
 
-        vision.initVuforia(); // init vision
-        vision.activateTracking();
+     //   vision.initVuforia(); // init vision
+     //   vision.activateTracking();
 
         telemetry.addData("It's Droopy McCool Time! ", ")"); // confirm that init has completed :)
         telemetry.update();
@@ -461,9 +461,9 @@ public class MainControl extends OpMode {
       //  telemetry.addData("Y Pos:", navigation.Y);
       //  telemetry.addData("Math Heading:", relativeHeading);
         telemetry.addData("Raw Heading", navigation.getRawRotation());
-        telemetry.addData("Target Info", vision.targetsAreVisible());
+     //   telemetry.addData("Target Info", vision.targetsAreVisible());
        // telemetry.addData("Target X", vision.getTranslation()[0]);
-        String test = vision.targetsAreVisible();
+    //   String test = vision.targetsAreVisible();
 
       /*  if(Ltrigger < .5) {
             telemetry.addData("Boost OFF", Ltrigger);
@@ -763,10 +763,10 @@ public class MainControl extends OpMode {
     };
     private int[][] autoStepTimes = {
 //            0     1       2     3      4      5     6      7      8      9      10     11   12      13     14    15   16     17    18     19   20    21    22
-            {2_000, 2_000, 2_000, 2_000, 1_000, 2_000, 1_000, 3_525, 2_300, 500, 3_000, 1_000, 2_000, 600, 2_000, 4_000, 1_000, 900, 900, 4_500, 3_000, 800, 800}, // quadrant 0 times (red side mat)
-            {780, 5_000, 400, 600, 400, 1_550, 1_300, 2_500, 400, 1_000, 0, 0, 0, 0, 0, 0, 0, 0,}, // quadrant 1 times (blue side mat)
-            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 2 times (red side block)
-            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 3 times (blue side block)
+            {2_000, 2_000, 2_000, 2_000, 1_000, 2_000, 1_000, 3_525, 2_300, 500, 3_000, 1_000, 2_000, 600, 2_000, 4_000, 1_000, 900, 900, 4_500, 3_000, 800, 800}, // quadrant 0 times (red side quary)
+            {780, 5_000, 400, 600, 400, 1_550, 1_300, 2_500, 400, 1_000, 0, 0, 0, 0, 0, 0, 0, 0,}, // quadrant 1 times (red side mat)
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 2 times (blue side quary)
+            {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 3 times (blue side mat)
 
     }; // fail safe times for each step in the autonomous program - in milisecs
 
@@ -807,11 +807,11 @@ public class MainControl extends OpMode {
         double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
 
-        String targetInfo = "NULL";
-        double[] relativeTranslation = {0.0, 0.0, 0.0};
+      //  String targetInfo = "NULL";
+      //  double[] relativeTranslation = {0.0, 0.0, 0.0};
 
-        targetInfo = vision.targetsAreVisible();
-        relativeTranslation = vision.getTranslation();
+    //    targetInfo = vision.targetsAreVisible();
+    //    relativeTranslation = vision.getTranslation();
        // navigation.updateRotation();
 
 
@@ -988,8 +988,8 @@ public class MainControl extends OpMode {
                         if (!stonePosFound) { // detect which position the block is on while waiting for the user input
                             double[] stoneRange = {-10, 10};
 
-                            double[] stoneCoords = vision.getTranslation(); // get the target coordinates from vision
-                            String visionTarget = vision.trackableString; // get which target vision is looking at
+                         //   double[] stoneCoords = vision.getTranslation(); // get the target coordinates from vision
+                         //   String visionTarget = vision.trackableString; // get which target vision is looking at
 
                             if (visionTarget == "Stone Target") {
                                 if (stoneRange[0] < stoneCoords[0] && stoneCoords[0] < stoneRange[1]) { // if the stone is between the two ranges, it is the middle block (pos 1)
