@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -256,9 +257,9 @@ public class Vision {
 
     public String targetsAreVisible(){
 
-        float xTranslation = 0;
-        float yTranslation = 0;
-        float zTranslation = 0;
+        double xTranslation = 0;
+        double yTranslation = 0;
+        double zTranslation = 0;
 
         targetVisible = false;
         trackableString = "NULL";
@@ -266,14 +267,21 @@ public class Vision {
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                VectorF translation = robotLocationTransform.getTranslation();
-                trackableString = trackable.getName();
-                if(translation != null){
-                    xTranslation = translation.get(0) / cmPerInch;
-                    yTranslation = translation.get(1) / cmPerInch;
-                    zTranslation = translation.get(2) / cmPerInch;
+                VectorF translation = null;
+                if(robotLocationTransform != null){
+                    translation = robotLocationTransform.getTranslation();
                 }
 
+
+
+                trackableString = trackable.getName();
+                if(translation != null){
+                    xTranslation = DistanceUnit.CM.fromInches((translation.get(1) * (9.0/220.0)) - 75);
+                    yTranslation = DistanceUnit.CM.fromInches(translation.get(0) * (9.0/220.0));
+                    zTranslation = DistanceUnit.CM.fromInches(translation.get(2) * (9.0/220.0));
+                }
+
+                String test = null;
 
                 targetString = "Visible Target: " + trackableString + " Pos (in) {X, Y, Z} = "
                         + (xTranslation) + " " + (yTranslation) + " "
@@ -338,22 +346,27 @@ public class Vision {
 
     public double[] getTranslation(){
 
-        float xTranslation = 0;
-        float yTranslation = 0;
-        float zTranslation = 0;
+        double xTranslation = 0;
+        double yTranslation = 0;
+        double zTranslation = 0;
 
         targetVisible = false;
 
+        trackableString = "NULL";
 
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                VectorF translation = robotLocationTransform.getTranslation();
+                VectorF translation = null;
+                if(robotLocationTransform != null){
+                    translation = robotLocationTransform.getTranslation();
+                }
+
                 trackableString = trackable.getName();
                 if(translation != null){
-                    xTranslation = translation.get(0) / cmPerInch;
-                    yTranslation = translation.get(1) / cmPerInch;
-                    zTranslation = translation.get(2) / cmPerInch;
+                    xTranslation = DistanceUnit.CM.fromInches((translation.get(1) * (9.0/220.0)) - 75);
+                    yTranslation = DistanceUnit.CM.fromInches(translation.get(0) * (9.0/220.0));
+                    zTranslation = DistanceUnit.CM.fromInches(translation.get(2) * (9.0/220.0));
                 }
 
 
