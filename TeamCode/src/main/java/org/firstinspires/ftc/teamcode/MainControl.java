@@ -631,12 +631,12 @@ public class MainControl extends OpMode {
                     {1.0, 0.0, 0.5, 90}, // align to move under the bridge (lidar)
                     {1.0, 0.0, 0.5, 90}, // move to line up with 2nd block (lidar)
                     {0.0, 1.0, 0.5, 90}, // move to line up with 2nd block via on the other axses (lidar)
-                    {30.0, -10.0, 0.5, 90}, // get da 2nd block
-                    {-5.0, -10.0, 0.5, 90}, // move down to move under bridge (lidar)
-                    {-5.0, -330.0, 0.5, 90}, // move to foundation side
+                    {1.0, 0.0, 0.5, 90}, // get da 2nd block
+                    {1.0, 10.0, 0.5, 90}, // move down to move under bridge (lidar)
+                    {-0.5, 0.0, 0.5, 90}, // move to foundation side
                     {1.0, 1.0, 0.5, 90}, // align with mat to place the block (lidar) (20)
                     {0.0, 0.0, 0.0, 90}, // do the block placement things
-                    {-1.0, 1.0, 0.5, 90}, // move to prep to park (lidar)
+                    {1.0, 1.0, 0.5, 90}, // move to prep to park (lidar)
             },
 
             { // quadrant 1 coordinates (red mat side)
@@ -647,18 +647,30 @@ public class MainControl extends OpMode {
                     {0.0, 0.0, 0.0, 0}, // Empty step
             },
 
-            { // quadrant 2 coordinates (blue quarry side)
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
-                    {0.0, 0.0, 0.0, 0}, //
+            { // quadrant 2 coordinates (red quarry side)
+                    {0.0, 0.3, 0.5, 0}, // move forwards and detect the block (lidar) (step 0)
+                    {0.0, 0.0, 0.5, -90}, // lock onto the picture
+                    {-1.0, 1.0, 0.5, -90}, // move to line up with block (lidar)
+                    {0.0, 0.0, 0.5, -45}, // rotate to get block
+                    {0.4, 0.4, 0.5, -45}, // get da block
+                    {0.0, 0.0, 0.5, 90}, // rotate to go under bridge
+                    {-1.0, 1.0, 0.5, 90}, // position to move under bridge (lidar)
+                    {-0.5, 0.0, 0.5, 90}, // move to align with foundation
+                    {1.0, 1.0, 0.5, 90}, // move up to mat (lidar)
+                    {0.0, 0.0, 0.0, 90}, // drop pullers
+                    {0.0, 1.0, 0.5, 180}, // rotate mat into position (step 10) (lidar)
+                    {1.0, 1.0, 0.5, 180}, // ensure mat is in the proper position (lidar)
+                    {1.0, 1.0, 0.5, -90}, // rotate and align with mat to place the block (while dropping the lift) (lidar)
+                    {0.0, 0.0, 0.0, -90}, // place da block
+                    {1.0, 0.0, 0.5, -90}, // align to move under the bridge (lidar)
+                    {-1.0, 0.0, 0.5, -90}, // move to line up with 2nd block (lidar)
+                    {0.0, 1.0, 0.5, -90}, // move to line up with 2nd block via on the other axses (lidar)
+                    {-1.0, 0.0, 0.5, -90}, // get da 2nd block
+                    {-1.0, 10.0, 0.5, -90}, // move down to move under bridge (lidar)
+                    {-0.5, 0.0, 0.5, -90}, // move to foundation side
+                    {1.0, 1.0, 0.5, -90}, // align with mat to place the block (lidar) (20)
+                    {0.0, 0.0, 0.0, -90}, // do the block placement things
+                    {1.0, 1.0, 0.5, -90}, // move to prep to park (lidar)
             },
 
             { // quadrant 3 coordinates (blue mat side)
