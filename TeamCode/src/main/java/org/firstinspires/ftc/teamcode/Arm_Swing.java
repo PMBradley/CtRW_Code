@@ -12,8 +12,8 @@ public class Arm_Swing {
     double armOpenPosition = 0.95;
     double armClosedPosition = 0.00;
     double armCurrentPosition = 0;
-    double clampReleasePosition = 0.0;
-    double clampClosePosition = 1.0;
+    double clampReleasePosition = 1.0;
+    double clampClosePosition = 0.0;
     double wristRotation = 0.0;
     boolean armStopTriggerOpen = false;
     boolean armStopTriggerClose = false;

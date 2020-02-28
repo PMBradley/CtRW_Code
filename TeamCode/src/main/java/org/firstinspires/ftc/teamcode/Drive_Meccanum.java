@@ -104,7 +104,7 @@ public class Drive_Meccanum {
 
     // How much power to give the motors at different distances from the target
     double[] PIDMargins = {1, 8, 80, 360};
-    double[] PIDPowers = {0, 0.2, 0.6, 0.7};
+    double[] PIDPowers = {0, 0.23, 0.6, 0.7};
 
     public void Drive_Gyro_Vector(double x, double y, double r, double weirdHeading, double rawHeading, boolean limiter, double boostFactor) { // use with tele-op only
         double minRotPower = 0.2;

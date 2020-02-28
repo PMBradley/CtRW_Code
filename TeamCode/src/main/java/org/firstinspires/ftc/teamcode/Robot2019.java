@@ -128,10 +128,10 @@ public class Robot2019 {
         driveFR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveBL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveBR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         motorIntakeL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorIntakeR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
-
+    //    motorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Grabbing servos from hardware map
         armPivot = mainMap.get(Servo.class, "armPivot");

@@ -165,12 +165,12 @@ public class MainControl extends OpMode {
     int inStateTargetTime = 0;
 
     State blockUpState = State.STATE_0;
-    private int[] upStepTimes = {4_400, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
+    private int[] upStepTimes = {3_500, 1_000};// Fail safe progression times for each step of the Upward Transfer State Machine
     boolean upStateFirstRun = true;
     int upStateTargetTime = 0;
 
     State blockDownState = State.STATE_0;
-    private int[] downStepTimes = {1_000, 8_000};// Fail safe progression times for each step of the Downward Transfer State Machine
+    private int[] downStepTimes = {1_000, 9_000};// Fail safe progression times for each step of the Downward Transfer State Machine
     boolean downStateFirstRun = true;
     int downStateTargetTime = 0;
     double  intakeDropPower = 0.0; // being set later
@@ -373,6 +373,8 @@ public class MainControl extends OpMode {
                     armSwingIn = false; // stop arm movement
                     armSwingOut = false;
 
+                    pullerPower = 0.8;
+
                     if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
                         blockUpState = State.STATE_1;
                         upStateFirstRun = true;
@@ -388,6 +390,8 @@ public class MainControl extends OpMode {
 
                     armSwingIn = false; // move arm out
                     armSwingOut = true;
+
+                    pullerPower = 0.8;
 
                     if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
                         blockUpState = State.IDLE;
@@ -410,11 +414,14 @@ public class MainControl extends OpMode {
                     if(downStateFirstRun){
                         downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[0]; // sets target fail safe time for this step
 
+                        clampRelease = !clampRelease; // toggle clamp release
+
                         downStateFirstRun = false;
                     }
                     armSwingIn = true; // swing arm in
                     armSwingOut = false;
 
+                    pullerPower = 0.8;
 
                     if(excedesTime(downStateTargetTime) || !robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
                         blockDownState = State.STATE_1;
@@ -430,12 +437,17 @@ public class MainControl extends OpMode {
                     armSwingIn = false; // stop arm
                     armSwingOut = false;
 
+                    pullerPower = 0.8;
+
                     liftPowerL = 1; // move lift down
                     liftPowerR = 0;
 
 
                     if(excedesTime(downStateTargetTime) || !robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
                         blockDownState = State.IDLE;
+
+                        clampRelease = !clampRelease; // toggle clamp release
+
                         downStateFirstRun = true;
                     }
                     break;
@@ -464,7 +476,7 @@ public class MainControl extends OpMode {
      //   telemetry.addData("Target Info", vision.targetsAreVisible());
        // telemetry.addData("Target X", vision.getTranslation()[0]);
     //   String test = vision.targetsAreVisible();
-
+        telemetry.addData("Clam Release", clampRelease);
       /*  if(Ltrigger < .5) {
             telemetry.addData("Boost OFF", Ltrigger);
         }
@@ -600,13 +612,13 @@ public class MainControl extends OpMode {
                     {0.0, 0.0, 0.5, 90}, // lock onto the picture
                     {1.0, 1.0, 0.5, 90}, // move to line up with block (lidar)
                     {0.0, 0.0, 0.5, 45}, // rotate to get block
-                    {0.0, 0.3, 0.5, 45}, // get da block
+                    {0.4, 0.4, 0.5, 45}, // get da block
                     {0.0, 0.0, 0.5, 90}, // rotate to go under bridge
                     {1.0, 1.0, 0.5, 90}, // position to move under bridge (lidar)
-                    {0.0, 0.5, 0.5, 90}, // move to align with foundation
+                    {-0.5, 0.0, 0.5, 90}, // move to align with foundation
                     {-1.0, 1.0, 0.5, 90}, // move up to mat (lidar)
                     {0.0, 0.0, 0.0, 90}, // drop pullers
-                    {0.0, -1.0, 0.5, 0}, // rotate mat into position (step 10) (lidar)
+                    {0.0, 1.0, 0.5, 0}, // rotate mat into position (step 10) (lidar)
                     {1.0, 1.0, 0.5, 0}, // ensure mat is in the proper position (lidar)
                     {1.0, 1.0, 0.5, 90}, // rotate and align with mat to place the block (while dropping the lift) (lidar)
                     {0.0, 0.0, 0.0, 0}, // place da block
@@ -654,13 +666,13 @@ public class MainControl extends OpMode {
 
     private double[][][] lidarCoords = {
             { // quadrant 0 coordinates (red quarry side)
-                    {0.0, 55.0}, // determine which spot the block is in
+                    {0.0, 20.0}, // determine which spot the block is in
                     {0.0, 0.0}, //
-                    {110.0, 55.0}, // move to line up with block
+                    {110.0, 60.0}, // move to line up with block
                     {0.0, 0.0}, //
                     {0.0, 0.0}, //
                     {0.0, 0.0}, //
-                    {110.0, 55.0}, // position to move under bridge
+                    {95.0, 55.0}, // position to move under bridge
                     {0.0, 0.0}, //
                     {60.0, 80.0}, // move up to mat (lidar)
                     {0.0, 0.0}, //
@@ -668,11 +680,11 @@ public class MainControl extends OpMode {
                     {50.0, 0.0}, // ensure mat is in the proper position (lidar)
                     {60.0, 4.0}, // rotate and align with mat to place the block (while dropping the lift) (lidar)
                     {0.0, 0.0}, //
-                    {66.0, 0.0}, // align to move under the bridge (lidar)
+                    {66.0, 55.0}, // align to move under the bridge (lidar)
                     {40.0, 0.0}, // move to line up with 2nd blocks
-                    {0.0, 68.0}, // move to line up with 2nd block on other axis (pushing other blocks out of the way)
+                    {0.0, 78.0}, // move to line up with 2nd block on other axis (pushing other blocks out of the way)
                     {0.0, 0.0}, //
-                    {0.0, 0.0}, // line up to move under bridge
+                    {0.0, 55.0}, // line up to move under bridge
                     {0.0, 0.0}, //
                     {60.0, 4.0}, // align with mat to place the block (lidar)
                     {0.0, 0.0}, //
@@ -763,7 +775,7 @@ public class MainControl extends OpMode {
     };
     private int[][] autoStepTimes = {
 //            0     1       2     3      4      5     6      7      8      9      10     11   12      13     14    15   16     17    18     19   20    21    22
-            {2_000, 2_000, 2_000, 2_000, 1_000, 2_000, 1_000, 3_525, 2_300, 500, 3_000, 1_000, 2_000, 600, 2_000, 4_000, 1_000, 900, 900, 4_500, 3_000, 800, 800}, // quadrant 0 times (red side quary)
+            {1_000, 2_000, 3_000, 2_000, 600, 2_000, 2_500, 2_500, 2_300, 500, 3_000, 1_000, 2_000, 600, 2_000, 4_000, 1_000, 900, 900, 4_500, 3_000, 800, 800}, // quadrant 0 times (red side quary)
             {780, 5_000, 400, 600, 400, 1_550, 1_300, 2_500, 400, 1_000, 0, 0, 0, 0, 0, 0, 0, 0,}, // quadrant 1 times (red side mat)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 2 times (blue side quary)
             {170, 5_000, 110, 80, 100, 6_000, 700, 5_000, 100, 100, 200, 220, 0, 0, 0, 0, 0, 0,}, // quadrant 3 times (blue side mat)
@@ -807,13 +819,18 @@ public class MainControl extends OpMode {
         double[] moveCoords = {30.0, 30.0, 0.0}; // array that holds the target xyr coordinate position for the robot - later set to one of the drive coordinates
         double[] movePowers = {0.0, 0.0, 0.0}; // array that holds the actual powers passed to the drive function - later set in the state machine
 
-      //  String targetInfo = "NULL";
-      //  double[] relativeTranslation = {0.0, 0.0, 0.0};
+        String targetInfo = "NULL";
+        double[] relativeTranslation = {0.0, 0.0, 0.0};
 
     //    targetInfo = vision.targetsAreVisible();
     //    relativeTranslation = vision.getTranslation();
        // navigation.updateRotation();
 
+     /*   double flightFront = robot.readFlight(robot.flightFront0);
+        double flightLeft = robot.readFlight(robot.flightLeft1);
+        double flightRight = robot.readFlight(robot.flightRight2);
+        double flightBack = robot.readFlight(robot.flightBack3);
+     */
 
 
         //State Machine
@@ -975,23 +992,13 @@ public class MainControl extends OpMode {
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
 
 
-                        if (quadrant == 0){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)));
-                        }
-                        else if (quadrant == 2){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)));
-                        }
+//  if (!stonePosFound) { // detect which position the block is on while waiting for the user input
+                        //    double[] stoneRange = {-10, 10};
 
+                        //   double[] stoneCoords = vision.getTranslation(); // get the target coordinates from vision
+                        //   String visionTarget = vision.trackableString; // get which target vision is looking at
 
-                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3));
-
-                        if (!stonePosFound) { // detect which position the block is on while waiting for the user input
-                            double[] stoneRange = {-10, 10};
-
-                         //   double[] stoneCoords = vision.getTranslation(); // get the target coordinates from vision
-                         //   String visionTarget = vision.trackableString; // get which target vision is looking at
-
-                            if (visionTarget == "Stone Target") {
+                         /*   if (visionTarget == "Stone Target") {
                                 if (stoneRange[0] < stoneCoords[0] && stoneCoords[0] < stoneRange[1]) { // if the stone is between the two ranges, it is the middle block (pos 1)
                                     stonePos = 1;
                                 } else if (stoneCoords[0] > stoneRange[1]) { // if the stone position is greater than the greatest margin, it is on the right (pos 2)
@@ -1003,13 +1010,22 @@ public class MainControl extends OpMode {
                                 stonePosFound = true; // set the flag that the block has been found
 
                                 adaptCoordsForStone(stonePos);
-                            }
+                            }*/
+                        //  }
+
+                        if (quadrant == 0){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3)));
                         }
+                        else if (quadrant == 2){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3)));
+                        }
+
+                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
 
 
                         pullerPower = 0.5;
 
-                        if (excedesTime(autoStateTargetTime) || (transComp && stonePosFound)) { // continue conditions (including failsafe times)
+                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
                             autoState = State.STATE_1;
                             autoStateFirstRun = true;
                         }
@@ -1033,7 +1049,7 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
-                        if (excedesTime(autoStateTargetTime) || turnComp || vision.trackableString == pictureOrder[quadrant][stateInc]) { // continue conditions (including failsafe times)
+                        if (excedesTime(autoStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
                             autoState = State.STATE_2;
                             autoStateFirstRun = true;
                         }
@@ -1052,19 +1068,18 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
+                        if(quadrant == 0){ // If the camera sees the target
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightFront0)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightLeft1));
 
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightFront0), robot.readFlight(robot.flightLeft1), rawHeading));
                         }
-                        else {
-                            transComp = false;
+                        else if (quadrant == 2){
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightFront0)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightRight2));
 
-                            movePowers[0] = movePowers[1] = movePowers[2] = 0;
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightFront0), robot.readFlight(robot.flightRight2), rawHeading));
                         }
-
-                        relativeHeading = 0;
 
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1088,11 +1103,12 @@ public class MainControl extends OpMode {
                         turnComp = atRotation(driveCoords[quadrant][stateInc][3], rawHeading);
 
 
+                        spinIntakeIn = true;
 
                         pullerPower = 0.5;
 
                         if (excedesTime(autoStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
-                            autoState = State.COMPLETE;
+                            autoState = State.STATE_4;
                             autoStateFirstRun = true;
                         }
                         break;
@@ -1101,7 +1117,7 @@ public class MainControl extends OpMode {
 
                         if (autoStateFirstRun) {
                             autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
-
+                            clampRelease = true;
                             autoStateFirstRun = false;
                         }
 
@@ -1111,7 +1127,7 @@ public class MainControl extends OpMode {
 
 
 
-
+                        spinIntakeIn = true;
 
                         pullerPower = 0.5;
 
@@ -1126,6 +1142,8 @@ public class MainControl extends OpMode {
                         if (autoStateFirstRun) {
                             autoStateTargetTime = (int) runtime.milliseconds() + autoStepTimes[quadrant][stateInc]; // sets target fail safe time for this step
 
+                            clampRelease = false;
+
                             autoStateFirstRun = false;
                         }
 
@@ -1136,6 +1154,7 @@ public class MainControl extends OpMode {
                         turnComp = atRotation(driveCoords[quadrant][stateInc][3], rawHeading);
 
 
+                        spinIntakeIn = true;
 
                         pullerPower = 0.5;
 
@@ -1159,17 +1178,18 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
+                        if(quadrant == 0){ // If the camera sees the target
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightFront0)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightLeft1));
 
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightFront0), robot.readFlight(robot.flightLeft1), rawHeading));
                         }
-                        else {
-                            transComp = false;
-                        }
+                        else if (quadrant == 2){
+                            movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightRight2));
 
-                        relativeHeading = 0;
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightBack3), robot.readFlight(robot.flightRight2), rawHeading));
+                        }
 
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1192,20 +1212,10 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
-
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
-                        }
-                        else {
-                            transComp = false;
-                        }
-
-                        relativeHeading = 0;
 
 
-                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
                             autoState = State.STATE_8;
                             autoStateFirstRun = true;
                         }
@@ -1225,14 +1235,18 @@ public class MainControl extends OpMode {
                         movePowers[1] = driveCoords[quadrant][stateInc][1];
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
 
-                        if (quadrant == 0){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], getLidar(1)[0]));
+                        if(quadrant == 0){ // If the camera sees the target
+                            movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightLeft1));
+
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightBack3), robot.readFlight(robot.flightLeft1), rawHeading));
                         }
                         else if (quadrant == 2){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], getLidar(1)[0]));
-                        }
+                            movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightFront0)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightRight2));
 
-                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][0], getLidar(1)[0]);
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightFront0), robot.readFlight(robot.flightRight2), rawHeading));
+                        }
 
                         pullerPower = 0.5;
 
@@ -1256,7 +1270,7 @@ public class MainControl extends OpMode {
 
 
                         if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
-                            autoState = State.STATE_10;
+                            autoState = State.COMPLETE;
                             autoStateFirstRun = true;
                         }
                         break;
@@ -1273,11 +1287,21 @@ public class MainControl extends OpMode {
                         movePowers[1] = driveCoords[quadrant][stateInc][1];
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
 
+
+                        if (quadrant == 0){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3)));
+                        }
+                        else if (quadrant == 2){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightFront0)));
+                        }
+
+                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
+
                         turnComp = atRotation(driveCoords[quadrant][stateInc][3], rawHeading);
 
 
 
-                        if (excedesTime(autoStateTargetTime) || turnComp) { // continue conditions (including failsafe times)
+                        if (excedesTime(autoStateTargetTime) || (turnComp && transComp)) { // continue conditions (including failsafe times)
                             autoState = State.STATE_11;
                             autoStateFirstRun = true;
                         }
@@ -1295,13 +1319,17 @@ public class MainControl extends OpMode {
                         movePowers[2] = driveCoords[quadrant][stateInc][2];
 
                         if (quadrant == 0){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], getLidar(2)[0]));
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightRight2)));
+
+                            movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightRight2));
                         }
                         else if (quadrant == 2){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], getLidar(2)[0]));
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightLeft1)));
+
+                            movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightLeft1));
                         }
 
-                        movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], getLidar(2)[0]);
+
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
                             autoState = State.STATE_12;
@@ -1322,18 +1350,18 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
-                        if (quadrant == 0){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], getLidar(1)[0]) && atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3))); // if at pos according to left lidar and back lidar
+                        if(quadrant == 0){ // If the camera sees the target
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightRight2)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
 
-                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], getLidar(1)[0]);
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightRight2), robot.readFlight(robot.flightBack3), rawHeading));
                         }
                         else if (quadrant == 2){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], getLidar(2)[0]) && atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3))); // if at pos according to right lidar and back lidar
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightLeft1)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
 
-                            movePowers[1] = movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], getLidar(2)[0]);
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightFront0), robot.readFlight(robot.flightRight2), rawHeading));
                         }
-
-                        movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3));
 
                         turnComp = atRotation(driveCoords[quadrant][stateInc][3], rawHeading);
 
@@ -1376,18 +1404,16 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
-                        if (quadrant == 0){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], getLidar(1)[0]) && atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3))); // if at pos according to left lidar and back lidar
 
-                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], getLidar(1)[0]);
+                        if (quadrant == 0){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)));
                         }
                         else if (quadrant == 2){
-                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], getLidar(2)[0]) && atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3))); // if at pos according to right lidar and back lidar
-
-                            movePowers[1] = movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], getLidar(2)[0]);
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)));
                         }
 
-                        movePowers[0] = PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3));
+                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
+
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
                             autoState = State.STATE_15;
@@ -1409,17 +1435,14 @@ public class MainControl extends OpMode {
                         pullerPower = 0.5;
 
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
-
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
+                        if (quadrant == 0){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)));
                         }
-                        else {
-                            transComp = false;
+                        else if (quadrant == 2){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)));
                         }
 
-                        relativeHeading = 0;
+                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
 
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1442,17 +1465,14 @@ public class MainControl extends OpMode {
                         pullerPower = 0.5;
 
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
-
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
+                        if (quadrant == 0){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3)));
                         }
-                        else {
-                            transComp = false;
+                        else if (quadrant == 2){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3)));
                         }
 
-                        relativeHeading = 0;
+                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
 
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1475,20 +1495,10 @@ public class MainControl extends OpMode {
                         pullerPower = 0.5;
 
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
-
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
-                        }
-                        else {
-                            transComp = false;
-                        }
-
-                        relativeHeading = 0;
 
 
-                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
                             autoState = State.STATE_18;
                             autoStateFirstRun = true;
                         }
@@ -1508,20 +1518,11 @@ public class MainControl extends OpMode {
                         pullerPower = 0.5;
 
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
-
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
-                        }
-                        else {
-                            transComp = false;
-                        }
-
-                        relativeHeading = 0;
 
 
-                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
+
+
+                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
                             autoState = State.STATE_19;
                             autoStateFirstRun = true;
                         }
@@ -1541,17 +1542,14 @@ public class MainControl extends OpMode {
                         pullerPower = 0.5;
 
 
-                        if(vision.trackableString == pictureOrder[quadrant][stateInc]){ // If the camera sees the target
-                            movePowers[0] = PIDTranslate(driveCoords[quadrant][stateInc][0], relativeTranslation[0]); // set x and y powers to translate towards their targets at appropriate speeds
-                            movePowers[1] = PIDTranslate(driveCoords[quadrant][stateInc][1], relativeTranslation[1]);
-
-                            transComp = stateMeetRecTime(atPosition(driveCoords[quadrant][stateInc][0], driveCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][2], relativeTranslation[0], relativeTranslation[1], relativeTranslation[2]));
+                        if (quadrant == 0){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3)));
                         }
-                        else {
-                            transComp = false;
+                        else if (quadrant == 2){
+                            transComp = stateMeetRecTime(atTranslation(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3)));
                         }
 
-                        relativeHeading = 0;
+                        movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightBack3));
 
 
                         if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
@@ -1573,8 +1571,21 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
+                        if(quadrant == 0){ // If the camera sees the target
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightLeft1));
 
-                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightBack3), robot.readFlight(robot.flightLeft1), rawHeading));
+                        }
+                        else if (quadrant == 2){
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightFront0)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightRight2));
+
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightFront0), robot.readFlight(robot.flightRight2), rawHeading));
+                        }
+
+
+                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
                             autoState = State.STATE_21;
                             autoStateFirstRun = true;
                         }
@@ -1613,8 +1624,21 @@ public class MainControl extends OpMode {
 
                         pullerPower = 0.5;
 
+                        if(quadrant == 0){ // If the camera sees the target
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightBack3)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightLeft1));
 
-                        if (excedesTime(autoStateTargetTime)) { // continue conditions (including failsafe times)
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightBack3), robot.readFlight(robot.flightLeft1), rawHeading));
+                        }
+                        else if (quadrant == 2){
+                            movePowers[0] = -PIDTranslate(lidarCoords[quadrant][stateInc][0], robot.readFlight(robot.flightFront0)); // set x and y powers to translate towards their targets at appropriate speeds
+                            movePowers[1] = PIDTranslate(lidarCoords[quadrant][stateInc][1], robot.readFlight(robot.flightRight2));
+
+                            transComp = stateMeetRecTime(atPosition(lidarCoords[quadrant][stateInc][0], lidarCoords[quadrant][stateInc][1], driveCoords[quadrant][stateInc][3], robot.readFlight(robot.flightFront0), robot.readFlight(robot.flightRight2), rawHeading));
+                        }
+
+
+                        if (excedesTime(autoStateTargetTime) || transComp) { // continue conditions (including failsafe times)
                             autoState = State.COMPLETE;
                             autoStateFirstRun = true;
                         }
@@ -1660,51 +1684,57 @@ public class MainControl extends OpMode {
             }
 
 
-            if(autoBlockUp){
-                switch (blockUpState){ // autonomous movement up state machine
-                    case IDLE:
-                        armSwingIn = false; // stop arm
-                        armSwingOut = false;
+        if(autoBlockUp){
+            switch (blockUpState){ // autonomous movement up state machine
+                case IDLE:
+                    armSwingIn = false; // stop arm
+                    armSwingOut = false;
 
-                        autoBlockUp = false;
+                    autoBlockUp = false;
+                    blockUpState = State.STATE_0;
+                    break;
+                case STATE_0:
+                    if(upStateFirstRun){
+                        upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[0]; // sets target fail safe time for this step
 
-                        blockUpState = State.STATE_0;
-                        break;
-                    case STATE_0:
-                        if(upStateFirstRun){
-                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[0]; // sets target fail safe time for this step
+                        clampRelease = !clampRelease; // toggle clamp
 
-                            upStateFirstRun = false;
-                        }
-                        liftPowerL = 0; // move lift up
-                        liftPowerR = 1;
+                        upStateFirstRun = false;
+                    }
+                    liftPowerL = 0; // move lift up
+                    liftPowerR = 1;
 
-                        armSwingIn = false; // stop arm movement
-                        armSwingOut = false;
+                    armSwingIn = false; // stop arm movement
+                    armSwingOut = false;
 
-                        if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
-                            blockUpState = State.STATE_1;
-                            upStateFirstRun = true;
-                        }
-                        break;
-                    case STATE_1:
-                        if(upStateFirstRun) {
-                            upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[1]; // sets target fail safe time for this step
+                    pullerPower = 0.8;
 
-                            upStateFirstRun = false;
-                        }
-                        liftPowerL = 0; // prevent movement down while the arm is swining
+                    if(excedesTime(upStateTargetTime) || !robot.touchLiftUp3.getState()){ // continue conditions (including failsafe times)
+                        blockUpState = State.STATE_1;
+                        upStateFirstRun = true;
+                    }
+                    break;
+                case STATE_1:
+                    if(upStateFirstRun) {
+                        upStateTargetTime = (int) runtime.milliseconds() + upStepTimes[1]; // sets target fail safe time for this step
 
-                        armSwingIn = false; // move arm out
-                        armSwingOut = true;
+                        upStateFirstRun = false;
+                    }
+                    liftPowerL = 0; // prevent movement down while the arm is swining
 
-                        if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
-                            blockUpState = State.IDLE;
-                            upStateFirstRun = true;
-                        }
-                        break;
-                }
+                    armSwingIn = false; // move arm out
+                    armSwingOut = true;
+
+                    pullerPower = 0.8;
+
+                    if(excedesTime(upStateTargetTime)){ // continue conditions (including failsafe times
+                        blockUpState = State.IDLE;
+                        upStateFirstRun = true;
+                    }
+                    break;
             }
+        }
+
 
         if(autoBlockPlace){
             switch (autoPlaceState){ // autonomous movement down state machine
@@ -1773,52 +1803,58 @@ public class MainControl extends OpMode {
             }
         }
 
-            if(autoBlockDown){
-                switch (blockDownState){ // autonomous movement down state machine
-                    case IDLE:
-                        liftPowerL = 0; // stop lift
-                        liftPowerR = 0;
+        if(autoBlockDown){
+            switch (blockDownState){ // autonomous movement down state machine
+                case IDLE:
+                    liftPowerL = 0; // stop lift
+                    liftPowerR = 0;
 
-                        autoBlockDown = false;
+                    autoBlockDown = false;
+                    blockDownState = State.STATE_0;
+                    break;
+                case STATE_0:
+                    if(downStateFirstRun){
+                        downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[0]; // sets target fail safe time for this step
+
+                        clampRelease = !clampRelease; // toggle clamp release
+
+                        downStateFirstRun = false;
+                    }
+                    armSwingIn = true; // swing arm in
+                    armSwingOut = false;
+
+                    pullerPower = 0.8;
+
+                    if(excedesTime(downStateTargetTime) || !robot.touchArm1.getState() == true){ // continue conditions (including failsafe times)
+                        blockDownState = State.STATE_1;
+                        downStateFirstRun = true;
+                    }
+                    break;
+                case STATE_1:
+                    if(downStateFirstRun){
+                        downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[1]; // sets target fail safe time for this step
+
+                        downStateFirstRun = false;
+                    }
+                    armSwingIn = false; // stop arm
+                    armSwingOut = false;
+
+                    pullerPower = 0.8;
+
+                    liftPowerL = 1; // move lift down
+                    liftPowerR = 0;
 
 
-                        blockDownState = State.STATE_0;
-                        break;
-                    case STATE_0:
-                        if(downStateFirstRun){
-                            downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[0]; // sets target fail safe time for this step
+                    if(excedesTime(downStateTargetTime) || !robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
+                        blockDownState = State.IDLE;
 
-                            downStateFirstRun = false;
-                        }
-                        armSwingIn = true; // swing arm in
-                        armSwingOut = false;
+                        clampRelease = !clampRelease; // toggle clamp release
 
-
-                        if(excedesTime(downStateTargetTime)){ // continue conditions (including failsafe times)
-                            blockDownState = State.STATE_1;
-                            downStateFirstRun = true;
-                        }
-                        break;
-                    case STATE_1:
-                        if(downStateFirstRun){
-                            downStateTargetTime = (int) runtime.milliseconds() + downStepTimes[1]; // sets target fail safe time for this step
-
-                            downStateFirstRun = false;
-                        }
-                        armSwingIn = false; // stop arm
-                        armSwingOut = false;
-
-                        liftPowerL = 1; // move lift down
-                        liftPowerR = 0;
-
-
-                        if(excedesTime(downStateTargetTime) || !robot.touchLift0.getState() == true){ // continue conditions (including failsafe times
-                            blockDownState = State.IDLE;
-                            downStateFirstRun = true;
-                        }
-                        break;
-                }
+                        downStateFirstRun = true;
+                    }
+                    break;
             }
+        }
 
             /*if(!excedesTime(5_000)){
                 targetHeading = 180;
@@ -1849,8 +1885,12 @@ public class MainControl extends OpMode {
             telemetry.addData("X Power:", movePowers[0]);
             telemetry.addData("Y Power:", movePowers[1]);
          //   telemetry.addData("Target Heading:", targetHeading);
-            telemetry.addData("Camera Target:", targetInfo);
-            telemetry.addData("Coordinates", moveCoords);
+          //  telemetry.addData("Camera Target:", targetInfo);
+           // telemetry.addData("Coordinates", moveCoords);
+
+     //       telemetry.addData("Lidar Front", robot.readFlight(robot.flightFront0));
+            telemetry.addData("Lidar Back", robot.readFlight(robot.flightBack3));
+
             telemetry.update();
 
     }
@@ -2116,8 +2156,8 @@ public class MainControl extends OpMode {
     }
 
     // PID Translation Adjustment
-    double[] PIDMargins = {2, 10, 30, 70, 10_000};
-    double[] PIDPowers = {0, 0.15, 0.25, 0.3, 0.5};
+    double[] PIDMargins = {2, 10, 45, 75, 10_000};
+    double[] PIDPowers = {0, 0.15, 0.21, 0.3, 0.4};
 
     double PIDTranslate(double targetPos, double pos){
         double output = 0;
