@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.media.MediaPlayer;
+import android.provider.MediaStore;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,6 +33,7 @@ public class MainControl extends OpMode {
     private Robot2019 robot = new Robot2019(); // Main robot data class
     private ElapsedTime runtime  = new ElapsedTime(); // internal clock
     Navigation2019 navigation = new Navigation2019(robot);
+    MediaPlayer musicPlayer = MediaPlayer.create(hardwareMap.appContext, R.raw.deja_vu);
 
     Arm_Swing arm_swing = new Arm_Swing(robot); // Hardware classes
     Drive_Meccanum   meccanum = new Drive_Meccanum(robot);
@@ -91,6 +95,8 @@ public class MainControl extends OpMode {
         if(LOOP_FIRST_RUN){ // if it is the first run, ensure runtime is correct and that vision is activated
 
             runtime.reset();
+
+            musicPlayer.start();
 
             LOOP_FIRST_RUN = false;
         }
